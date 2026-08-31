@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Space Curve Lab</title>
+    <link rel="stylesheet" href="src/styles.css?v=20260831-01">
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div class="brand">
+          <h1>Space Curve Lab</h1>
+          <p class="tagline">Draw rotation and distance onto sound.</p>
+          <p class="statusLine"><span id="fileStatus">No audio loaded</span><span class="privacyNote">Local browser processing. No upload.</span></p>
+        </div>
+        <div id="timeStatus">00:00.00 / 00:00.00</div>
+        <div class="transport">
+          <label class="fileButton">
+            Open Audio
+            <input id="fileInput" type="file" accept="audio/*">
+          </label>
+          <button id="playButton" type="button" disabled>Play</button>
+          <button id="stopButton" type="button" disabled>Stop</button>
+          <select id="renderFormat" aria-label="Render format">
+            <option value="stereo">Stereo 2ch</option>
+            <option value="quad">Quad 4ch</option>
+            <option value="octo">Octo 8ch</option>
+          </select>
+          <button id="downloadButton" class="downloadButton" type="button" disabled>Download WAV</button>
+        </div>
+      </header>
+
+      <section class="editor">
+        <div class="legend">
+          <div class="modeButtons">
+            <button id="directionMode" class="active curveMode" type="button">Direction</button>
+            <button id="distanceMode" class="curveMode" type="button">Distance</button>
+          </div>
+          <div class="curveLegend">
+            <span><b class="directionSwatch"></b>direction -1800/+1800 degrees</span>
+            <span class="directionHint">+ clockwise / - counterclockwise</span>
+            <span><b class="distanceSwatch"></b>distance near/far</span>
+          </div>
+          <div class="curveActions">
+            <label class="toggle">
+              <input id="distanceBypass" type="checkbox">
+              Distance Bypass
+            </label>
+            <button id="clearCurveButton" type="button">Clear Current</button>
+            <button id="resetButton" type="button">Reset All</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="readout">
+            <span>Input</span>
+            <strong id="inputReadout">mono/stereo</strong>
+          </div>
+          <div class="readout">
+            <span>Curve</span>
+            <strong id="modeReadout">Direction</strong>
+          </div>
+          <div class="readout">
+            <span>Points</span>
+            <strong id="pointsReadout">2</strong>
+          </div>
+          <div class="readout">
+            <span>Angle</span>
+            <strong id="directionReadout">0 deg</strong>
+          </div>
+          <div class="readout">
+            <span>Distance</span>
+            <strong id="distanceReadout">Near 0.00</strong>
+          </div>
+          <div class="readout">
+            <span>Preview</span>
+            <strong>Headphones</strong>
+          </div>
+          <div class="readout">
+            <span>Engine</span>
+            <strong id="engineReadout">Stereo render</strong>
+          </div>
+          <div class="readout">
+            <span>WAV</span>
+            <strong id="downloadReadout">not ready</strong>
+          </div>
+        </div>
+
+        <div class="workspace">
+          <div class="curveStack">
+            <div class="canvasFrame timelineFrame">
+              <canvas id="waveCanvas" width="1600" height="150"></canvas>
+            </div>
+            <div class="canvasFrame curveFrame">
+              <canvas id="curveCanvas" width="1600" height="560"></canvas>
+            </div>
+          </div>
+          <aside class="spatialPanel">
+            <div class="spatialHeader">
+              <span>Spatial View</span>
+              <span id="spatialModeLabel">Stereo 2ch</span>
+              <strong id="motionReadout">0.00 rotations</strong>
+            </div>
+            <canvas id="spatialCanvas" width="520" height="520"></canvas>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <script src="src/app.js?v=20260831-01" type="module"></script>
+  </body>
+</html>
