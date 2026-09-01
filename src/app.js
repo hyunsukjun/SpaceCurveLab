@@ -1,5 +1,5 @@
 import { createDistanceProcessor, makeSmallRoomImpulse } from "./distance-engine.js";
-import { renderSpatialWav } from "./offline-render.js";
+import { renderSpatialWav } from "./offline-render.js?v=20260901-18";
 import { getSpeakerLayout } from "./speaker-layout.js";
 
 const fileInput = document.getElementById("fileInput");
@@ -559,7 +559,10 @@ function drawDistanceAxis(width) {
 function drawCurveLine(name, color) {
   const points = curves[name];
   curveCtx.strokeStyle = color;
-  curveCtx.lineWidth = name === activeCurve ? 3 : 1.8;
+  curveCtx.globalAlpha = 1;
+  curveCtx.lineWidth = name === activeCurve ? 4.8 : 2.1;
+  curveCtx.lineCap = "round";
+  curveCtx.lineJoin = "round";
   curveCtx.beginPath();
   const left = axisWidth;
   const right = curveCanvas.width - 18;
@@ -571,14 +574,16 @@ function drawCurveLine(name, color) {
     else curveCtx.lineTo(screen.x, screen.y);
   }
   curveCtx.stroke();
+  if (name !== activeCurve) return;
   points.forEach((point, index) => {
     const screen = curveToCanvas(point, name);
     curveCtx.fillStyle = color;
     curveCtx.beginPath();
-    curveCtx.arc(screen.x, screen.y, name === activeCurve ? 5.5 : 3.5, 0, Math.PI * 2);
+    curveCtx.arc(screen.x, screen.y, 6, 0, Math.PI * 2);
     curveCtx.fill();
-    if (name === activeCurve && index !== 0 && index !== points.length - 1) {
+    if (index !== 0 && index !== points.length - 1) {
       curveCtx.strokeStyle = "rgba(16, 21, 25, 0.8)";
+      curveCtx.lineWidth = 2;
       curveCtx.stroke();
     }
   });
