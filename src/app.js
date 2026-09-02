@@ -1,5 +1,5 @@
 import { createDistanceProcessor, makeSmallRoomImpulse } from "./distance-engine.js";
-import { renderSpatialWav } from "./offline-render.js?v=20260901-18";
+import { renderSpatialWav } from "./offline-render.js?v=20260902-01";
 import { getSpeakerLayout } from "./speaker-layout.js";
 
 const fileInput = document.getElementById("fileInput");
@@ -48,6 +48,16 @@ const plotPaddingTop = 18;
 const plotPaddingBottom = 24;
 const activeRadius = 10;
 const channelSpreadDegrees = 45;
+const defaultSampleSettings = {
+  duration: 45,
+  burst: 0.045833,
+  gap: 0.020833,
+  attack: 0.003,
+  decay: 0.014,
+  sustain: 0.22,
+  release: 0.018,
+  gain: 0.32
+};
 const curves = {
   direction: [{ x: 0, y: 0.5 }, { x: 1, y: 0.5 }],
   distance: [{ x: 0, y: 0 }, { x: 1, y: 0 }]
@@ -74,6 +84,7 @@ let selectedPoint = null;
 let hoveredPoint = null;
 
 setupCanvasSizing();
+loadDefaultSample();
 drawAll();
 
 window.addEventListener("resize", () => {
@@ -139,16 +150,8 @@ async function handleFile(event) {
   try {
     const arrayBuffer = await file.arrayBuffer();
     const context = getAudioContext();
-    buffer = await decodeAudioBuffer(context, arrayBuffer);
-    waveform = buildWaveform(buffer, 1800);
-    inputReadout.textContent = buffer.numberOfChannels === 1 ? "mono" : "stereo";
-    fileStatus.textContent = `${file.name} / ${formatDuration(buffer.duration)} / ${buffer.numberOfChannels}ch`;
-    playButton.disabled = false;
-    stopButton.disabled = false;
-    downloadButton.disabled = false;
-    pauseAt = 0;
-    downloadReadout.textContent = "ready";
-    updateTime(0);
+    const decodedBuffer = await decodeAudioBuffer(context, arrayBuffer);
+    installAudioBuffer(decodedBuffer, `${file.name} / ${formatDuration(decodedBuffer.duration)} / ${decodedBuffer.numberOfChannels}ch`);
   } catch (error) {
     buffer = null;
     waveform = [];
@@ -159,6 +162,72 @@ async function handleFile(event) {
     console.error(error);
   }
   drawAll();
+}
+
+function loadDefaultSample() {
+  const context = getAudioContext();
+  const sampleBuffer = createDefaultNoiseIntervalSample(context);
+  installAudioBuffer(sampleBuffer, `Default noise interval / ${formatDuration(sampleBuffer.duration)} / mono`);
+}
+
+function installAudioBuffer(audioBuffer, label) {
+  buffer = audioBuffer;
+  waveform = buildWaveform(buffer, 1800);
+  inputReadout.textContent = buffer.numberOfChannels === 1 ? "mono" : "stereo";
+  fileStatus.textContent = label;
+  playButton.disabled = false;
+  stopButton.disabled = false;
+  downloadButton.disabled = false;
+  pauseAt = 0;
+  downloadReadout.textContent = "ready";
+  updateTime(0);
+}
+
+function createDefaultNoiseIntervalSample(context) {
+  const settings = defaultSampleSettings;
+  const sampleRate = context.sampleRate;
+  const frameCount = Math.floor(settings.duration * sampleRate);
+  const audioBuffer = context.createBuffer(1, frameCount, sampleRate);
+  const data = audioBuffer.getChannelData(0);
+  const burstFrames = Math.max(1, Math.floor(settings.burst * sampleRate));
+  const cycleFrames = Math.max(burstFrames + 1, Math.floor((settings.burst + settings.gap) * sampleRate));
+  const attackFrames = Math.max(1, Math.floor(settings.attack * sampleRate));
+  const decayFrames = Math.max(1, Math.floor(settings.decay * sampleRate));
+  const releaseFrames = Math.max(1, Math.floor(settings.release * sampleRate));
+  const releaseStart = Math.max(attackFrames + decayFrames, burstFrames - releaseFrames);
+  const random = seededRandom(45066);
+
+  for (let start = 0; start < frameCount; start += cycleFrames) {
+    const end = Math.min(frameCount, start + burstFrames);
+    for (let frame = start; frame < end; frame += 1) {
+      const localFrame = frame - start;
+      const envelope = noiseEnvelope(localFrame, attackFrames, decayFrames, releaseStart, burstFrames, settings.sustain);
+      data[frame] = (random() * 2 - 1) * envelope * settings.gain;
+    }
+  }
+
+  return audioBuffer;
+}
+
+function noiseEnvelope(frame, attackFrames, decayFrames, releaseStart, burstFrames, sustain) {
+  if (frame < attackFrames) return frame / attackFrames;
+  if (frame < attackFrames + decayFrames) {
+    const t = (frame - attackFrames) / decayFrames;
+    return 1 + (sustain - 1) * t;
+  }
+  if (frame >= releaseStart) {
+    const t = (frame - releaseStart) / Math.max(1, burstFrames - releaseStart);
+    return sustain * (1 - clamp(t, 0, 1));
+  }
+  return sustain;
+}
+
+function seededRandom(seed) {
+  let state = seed >>> 0;
+  return () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state / 4294967296;
+  };
 }
 
 function getAudioContext() {
