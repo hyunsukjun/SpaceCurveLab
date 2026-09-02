@@ -1,5 +1,5 @@
 import { createDistanceProcessor, makeSmallRoomImpulse } from "./distance-engine.js";
-import { renderSpatialWav } from "./offline-render.js?v=20260902-01";
+import { renderSpatialWav } from "./offline-render.js?v=20260902-02";
 import { getSpeakerLayout } from "./speaker-layout.js";
 
 const fileInput = document.getElementById("fileInput");
@@ -494,8 +494,8 @@ function drawWave(playheadNorm) {
     waveCtx.lineTo(x, h);
     waveCtx.stroke();
   }
-  const mid = h * 0.56;
-  const amp = h * 0.34;
+  const mid = h * 0.5;
+  const amp = h * 0.36;
   if (waveform.length) {
     waveCtx.fillStyle = "rgba(108, 101, 72, 0.34)";
     waveCtx.beginPath();
@@ -508,7 +508,7 @@ function drawWave(playheadNorm) {
     for (let i = waveform.length - 1; i >= 0; i -= 1) {
       const value = waveform[i];
       const x = axisWidth + (w - axisWidth - 18) * (i / Math.max(1, waveform.length - 1));
-      const y = mid + value * amp * 0.72;
+      const y = mid + value * amp;
       waveCtx.lineTo(x, y);
     }
     waveCtx.closePath();
@@ -903,19 +903,26 @@ function buildWaveform(audioBuffer, buckets) {
   const channelCount = Math.min(audioBuffer.numberOfChannels, 2);
   const length = audioBuffer.length;
   const values = [];
+  let maxValue = 0;
   for (let i = 0; i < buckets; i += 1) {
     const start = Math.floor((i / buckets) * length);
     const end = Math.floor(((i + 1) / buckets) * length);
-    let peak = 0;
+    let sum = 0;
+    let count = 0;
     for (let channel = 0; channel < channelCount; channel += 1) {
       const data = audioBuffer.getChannelData(channel);
       for (let j = start; j < end; j += 1) {
-        peak = Math.max(peak, Math.abs(data[j] || 0));
+        const sample = data[j] || 0;
+        sum += sample * sample;
+        count += 1;
       }
     }
-    values.push(peak);
+    const rms = count ? Math.sqrt(sum / count) : 0;
+    maxValue = Math.max(maxValue, rms);
+    values.push(rms);
   }
-  return values;
+  if (maxValue <= 0) return values;
+  return values.map((value) => value / maxValue);
 }
 
 function formatDuration(seconds) {
