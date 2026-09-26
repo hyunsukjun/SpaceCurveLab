@@ -18,7 +18,7 @@ Prototype mode: this is an independent static Web Audio prototype that follows t
 - Distance DSP: `GainNode`, gentle `BiquadFilterNode` low-pass, and a small generated convolution room send.
 - Render: Stereo 2ch, Quad 4ch, or Octophonic 8ch WAV from the same Direction/Distance curve data.
 - Stereo render is a headphone/general-listening spatial result, not a replacement for discrete speaker playback.
-- Speaker numbering: v1 uses the 22.5-degree octophonic square orientation. Channel 1 sits front-left, channel 2 front-right, then 3-8 continue clockwise. Quad view/render uses the familiar corner subset 8, 2, 6, 4 for front-left, front-right, rear-left, and rear-right.
+- Speaker numbering: v1 uses the 22.5-degree octophonic square orientation. Channel 1 sits front-left, channel 2 front-right, then 3-8 continue clockwise. Quad view/render labels its four WAV channels directly as 1 front-left, 2 front-right, 3 rear-left, and 4 rear-right.
 
 ## Browser and File Notes
 

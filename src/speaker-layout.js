@@ -1,8 +1,8 @@
 export const speakerLayouts = {
   quad: [
-    { channel: 8, angle: 315 },
+    { channel: 1, angle: 315 },
     { channel: 2, angle: 45 },
-    { channel: 6, angle: 225 },
+    { channel: 3, angle: 225 },
     { channel: 4, angle: 135 }
   ],
   octo: [

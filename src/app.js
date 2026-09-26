@@ -1,6 +1,6 @@
 import { createDistanceProcessor, makeSmallRoomImpulse } from "./distance-engine.js?v=20260926-02";
 import { renderSpatialWav } from "./offline-render.js?v=20260926-02";
-import { getSpeakerLayout } from "./speaker-layout.js";
+import { getSpeakerLayout } from "./speaker-layout.js?v=20260926-03";
 
 const fileInput = document.getElementById("fileInput");
 const fileStatus = document.getElementById("fileStatus");
