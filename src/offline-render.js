@@ -26,15 +26,15 @@ export function renderSpatialWav(buffer, directionCurve, distanceCurve, format =
     const t = frameCount <= 1 ? 0 : i / (frameCount - 1);
     const direction = sampleDirection(directionCurve, t);
     const distance = distanceBypassed ? 0 : sampleDistance(distanceCurve, t);
-    const leftSample = shapeDistanceTone(left[i], distance, sampleRate, filters[0]);
+    const leftSample = distanceBypassed ? left[i] : shapeDistanceTone(left[i], distance, sampleRate, filters[0]);
     addPointSource(output, layout, reverb, leftSample, direction - spread, distance, i);
     if (buffer.numberOfChannels > 1) {
-      const rightSample = shapeDistanceTone(right[i], distance, sampleRate, filters[1]);
+      const rightSample = distanceBypassed ? right[i] : shapeDistanceTone(right[i], distance, sampleRate, filters[1]);
       addPointSource(output, layout, reverb, rightSample, direction + spread, distance, i);
     }
   }
 
-  return encodeWav(output, sampleRate);
+  return encodeWav(output, sampleRate, 0.98);
 }
 
 function renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceBypassed) {
@@ -57,7 +57,7 @@ function renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceB
     const direction = sampleDirection(directionCurve, t);
     const distance = distanceBypassed ? 0 : sampleDistance(distanceCurve, t);
     const dry = buffer.numberOfChannels > 1 ? (left[i] + right[i]) * 0.5 : left[i];
-    const shaped = shapeDistanceTone(dry, distance, sampleRate, filters[0]);
+    const shaped = distanceBypassed ? dry : shapeDistanceTone(dry, distance, sampleRate, filters[0]);
     const pan = Math.sin(direction * Math.PI / 180);
     const width = 1 - distance * 0.32;
     const direct = 1 - distance * 0.42;
@@ -68,7 +68,7 @@ function renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceB
     addStereoDiffuse(output, reverb, shaped, distance, i);
   }
 
-  return encodeWav(output, sampleRate);
+  return encodeWav(output, sampleRate, 0.98);
 }
 
 function addStereoDiffuse(output, reverb, sample, distance, frame) {
@@ -144,12 +144,21 @@ function angularDistance(a, b) {
   return Math.abs(diff);
 }
 
-function encodeWav(channels, sampleRate) {
+function encodeWav(channels, sampleRate, ceiling = 1) {
   const channelCount = channels.length;
   const frameCount = channels[0].length;
   const bytesPerSample = 2;
   const blockAlign = channelCount * bytesPerSample;
   const dataSize = frameCount * blockAlign;
+  const fadeFrames = Math.max(2, Math.min(frameCount, Math.floor(sampleRate * 0.008)));
+  let peak = 0;
+  for (let frame = 0; frame < frameCount; frame += 1) {
+    const envelope = boundaryEnvelope(frame, frameCount, fadeFrames);
+    for (let channel = 0; channel < channelCount; channel += 1) {
+      peak = Math.max(peak, Math.abs(channels[channel][frame] * envelope));
+    }
+  }
+  const safetyGain = peak > ceiling ? ceiling / peak : 1;
   const buffer = new ArrayBuffer(44 + dataSize);
   const view = new DataView(buffer);
   writeString(view, 0, "RIFF");
@@ -168,12 +177,20 @@ function encodeWav(channels, sampleRate) {
   let offset = 44;
   for (let frame = 0; frame < frameCount; frame += 1) {
     for (let channel = 0; channel < channelCount; channel += 1) {
-      const sample = clamp(channels[channel][frame], -1, 1);
+      const envelope = boundaryEnvelope(frame, frameCount, fadeFrames);
+      const sample = clamp(channels[channel][frame] * envelope * safetyGain, -1, 1);
       view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
       offset += bytesPerSample;
     }
   }
   return buffer;
+}
+
+function boundaryEnvelope(frame, frameCount, fadeFrames) {
+  if (frameCount <= 1) return 0;
+  const fadeIn = frame / Math.max(1, fadeFrames - 1);
+  const fadeOut = (frameCount - 1 - frame) / Math.max(1, fadeFrames - 1);
+  return clamp(Math.min(fadeIn, fadeOut), 0, 1);
 }
 
 function writeString(view, offset, value) {

@@ -198,6 +198,40 @@ button:disabled,
   border-color: #39464d;
 }
 
+.toolToggle {
+  display: inline-flex;
+  height: 30px;
+  margin-left: 6px;
+  border: 1px solid #46545c;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.legend .toolToggle button {
+  width: 34px;
+  min-width: 34px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: #1e2930;
+  color: #c8d1d3;
+}
+
+.legend .toolToggle button + button {
+  border-left: 1px solid #46545c;
+}
+
+.legend .toolToggle button.active {
+  background: #17342f;
+  color: #c9fff0;
+}
+
+.legend .toolToggle button:focus-visible {
+  outline: 2px solid var(--space);
+  outline-offset: -2px;
+}
+
 #directionMode.active {
   border-color: var(--space);
   background: #18313b;
@@ -328,6 +362,10 @@ canvas {
 #curveCanvas {
   height: 560px;
   cursor: crosshair;
+}
+
+#curveCanvas.eraseMode {
+  cursor: url("eraser-cursor.svg") 5 25, crosshair;
 }
 
 .spatialPanel {

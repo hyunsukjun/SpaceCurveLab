@@ -1,4 +1,5 @@
 export function createDistanceProcessor(context, input, output, impulseBuffer) {
+  const bypassGain = context.createGain();
   const directGain = context.createGain();
   const lowpass = context.createBiquadFilter();
   const wetGain = context.createGain();
@@ -8,6 +9,8 @@ export function createDistanceProcessor(context, input, output, impulseBuffer) {
   lowpass.Q.value = 0.45;
   convolver.buffer = impulseBuffer;
 
+  input.connect(bypassGain);
+  bypassGain.connect(output);
   input.connect(directGain);
   directGain.connect(lowpass);
   lowpass.connect(output);
@@ -16,17 +19,27 @@ export function createDistanceProcessor(context, input, output, impulseBuffer) {
   convolver.connect(output);
 
   return {
-    update(distance, bypass, time = context.currentTime) {
+    update(distance, bypass, time = context.currentTime, immediate = false) {
       const safeDistance = clamp(distance, 0, 1);
-      const direct = bypass ? 1 : 1 - safeDistance * 0.48;
-      const cutoff = bypass ? 20000 : 19000 - safeDistance * 9500;
+      const bypassLevel = bypass ? 1 : 0;
+      const direct = bypass ? 0 : 1 - safeDistance * 0.48;
+      const cutoff = 19000 - safeDistance * 9500;
       const wet = bypass ? 0 : 0.035 + safeDistance * 0.11;
+      if (immediate) {
+        bypassGain.gain.setValueAtTime(bypassLevel, time);
+        directGain.gain.setValueAtTime(direct, time);
+        lowpass.frequency.setValueAtTime(cutoff, time);
+        wetGain.gain.setValueAtTime(wet, time);
+        return;
+      }
+      bypassGain.gain.setTargetAtTime(bypassLevel, time, 0.02);
       directGain.gain.setTargetAtTime(direct, time, 0.035);
       lowpass.frequency.setTargetAtTime(cutoff, time, 0.045);
       wetGain.gain.setTargetAtTime(wet, time, 0.06);
     },
     disconnect() {
       input.disconnect();
+      bypassGain.disconnect();
       directGain.disconnect();
       lowpass.disconnect();
       wetGain.disconnect();

@@ -1,5 +1,5 @@
-import { createDistanceProcessor, makeSmallRoomImpulse } from "./distance-engine.js";
-import { renderSpatialWav } from "./offline-render.js?v=20260902-02";
+import { createDistanceProcessor, makeSmallRoomImpulse } from "./distance-engine.js?v=20260926-02";
+import { renderSpatialWav } from "./offline-render.js?v=20260926-02";
 import { getSpeakerLayout } from "./speaker-layout.js";
 
 const fileInput = document.getElementById("fileInput");
@@ -14,12 +14,17 @@ const resetButton = document.getElementById("resetButton");
 const distanceBypass = document.getElementById("distanceBypass");
 const directionMode = document.getElementById("directionMode");
 const distanceMode = document.getElementById("distanceMode");
+const penTool = document.getElementById("penTool");
+const eraserTool = document.getElementById("eraserTool");
 const waveCanvas = document.getElementById("waveCanvas");
 const curveCanvas = document.getElementById("curveCanvas");
 const spatialCanvas = document.getElementById("spatialCanvas");
 const waveCtx = waveCanvas.getContext("2d");
 const curveCtx = curveCanvas.getContext("2d");
 const spatialCtx = spatialCanvas.getContext("2d");
+const eraseModifier = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgentData?.platform || "")
+  ? "metaKey"
+  : "ctrlKey";
 
 const inputReadout = document.getElementById("inputReadout");
 const modeReadout = document.getElementById("modeReadout");
@@ -80,6 +85,8 @@ let playStartedAt = 0;
 let pauseAt = 0;
 let rafId = null;
 let isPlaying = false;
+let selectedTool = "pen";
+let eraseModifierActive = false;
 let selectedPoint = null;
 let hoveredPoint = null;
 
@@ -130,6 +137,8 @@ resetButton.addEventListener("click", resetAll);
 distanceBypass.addEventListener("change", () => updateReadouts(currentTimeNorm()));
 directionMode.addEventListener("click", () => setActiveCurve("direction"));
 distanceMode.addEventListener("click", () => setActiveCurve("distance"));
+penTool.addEventListener("click", () => setTool("pen"));
+eraserTool.addEventListener("click", () => setTool("eraser"));
 
 curveCanvas.addEventListener("pointerdown", onPointerDown);
 curveCanvas.addEventListener("pointermove", onPointerMove);
@@ -137,6 +146,20 @@ curveCanvas.addEventListener("pointerup", onPointerUp);
 curveCanvas.addEventListener("pointerleave", () => {
   hoveredPoint = null;
   drawAll();
+});
+curveCanvas.addEventListener("pointerenter", updateEraseCursor);
+window.addEventListener("keydown", (event) => {
+  if (event[eraseModifier]) eraseModifierActive = true;
+  updateEraseCursor(event);
+});
+window.addEventListener("keyup", (event) => {
+  const modifierKey = eraseModifier === "metaKey" ? "Meta" : "Control";
+  eraseModifierActive = event.key === modifierKey ? false : Boolean(event[eraseModifier]);
+  updateEraseCursor();
+});
+window.addEventListener("blur", () => {
+  eraseModifierActive = false;
+  updateEraseCursor();
 });
 
 async function handleFile(event) {
@@ -253,7 +276,6 @@ async function play() {
   source = context.createBufferSource();
   source.buffer = buffer;
   previewMaster = context.createGain();
-  previewMaster.gain.value = 0.9;
   previewMaster.connect(context.destination);
 
   const inputCount = Math.min(buffer.numberOfChannels, 2);
@@ -281,6 +303,10 @@ async function play() {
     distanceProcessors.push(processor);
   }
 
+  const previewStartTime = context.currentTime;
+  const remainingDuration = Math.max(0, buffer.duration - pauseAt);
+  schedulePreviewEnvelope(previewMaster.gain, previewStartTime, remainingDuration);
+  updatePreview(pauseAt / buffer.duration, true);
   source.onended = () => {
     if (isPlaying) stop(true);
   };
@@ -296,7 +322,7 @@ function stop(resetPosition = true) {
     pauseAt = Math.min(buffer?.duration || 0, audioContext.currentTime - playStartedAt);
   }
   isPlaying = false;
-  stopPlaybackNodes();
+  stopPlaybackNodes(true);
   playButton.textContent = "Play";
   if (resetPosition) pauseAt = 0;
   updateTime(pauseAt);
@@ -304,24 +330,52 @@ function stop(resetPosition = true) {
   drawAll();
 }
 
-function stopPlaybackNodes() {
+function stopPlaybackNodes(fadeOut = false) {
   if (rafId) cancelAnimationFrame(rafId);
   rafId = null;
-  if (source) {
-    try {
-      source.stop();
-    } catch {
-      /* already stopped */
-    }
-    source.disconnect();
-  }
+  const stoppedSource = source;
+  const stoppedPanners = panners;
+  const stoppedProcessors = distanceProcessors;
+  const stoppedMaster = previewMaster;
   source = null;
-  panners.forEach(({ node }) => node.disconnect());
-  distanceProcessors.forEach((processor) => processor.disconnect());
-  if (previewMaster) previewMaster.disconnect();
   previewMaster = null;
   panners = [];
   distanceProcessors = [];
+
+  const disconnectGraph = () => {
+    if (stoppedSource) stoppedSource.disconnect();
+    stoppedPanners.forEach(({ node }) => node.disconnect());
+    stoppedProcessors.forEach((processor) => processor.disconnect());
+    if (stoppedMaster) stoppedMaster.disconnect();
+  };
+
+  if (stoppedSource) {
+    try {
+      if (fadeOut && audioContext && stoppedMaster) {
+        const now = audioContext.currentTime;
+        stoppedMaster.gain.cancelScheduledValues(now);
+        stoppedMaster.gain.setValueAtTime(stoppedMaster.gain.value, now);
+        stoppedMaster.gain.linearRampToValueAtTime(0, now + 0.008);
+        stoppedSource.onended = null;
+        stoppedSource.stop(now + 0.009);
+        setTimeout(disconnectGraph, 30);
+        return;
+      }
+      stoppedSource.stop();
+    } catch {
+      /* already stopped */
+    }
+  }
+  disconnectGraph();
+}
+
+function schedulePreviewEnvelope(gainParam, startTime, duration) {
+  const fade = Math.min(0.008, duration * 0.25);
+  gainParam.cancelScheduledValues(startTime);
+  gainParam.setValueAtTime(0, startTime);
+  gainParam.linearRampToValueAtTime(0.9, startTime + fade);
+  if (duration > fade * 2) gainParam.setValueAtTime(0.9, startTime + duration - fade);
+  gainParam.linearRampToValueAtTime(0, startTime + duration);
 }
 
 function tick() {
@@ -339,22 +393,24 @@ function tick() {
   rafId = requestAnimationFrame(tick);
 }
 
-function updatePreview(t) {
+function updatePreview(t, immediate = false) {
   const angle = directionAt(t);
   const distance = distanceAt(t);
   panners.forEach(({ node, spread }) => {
     const radians = ((angle + spread) % 360) * Math.PI / 180;
     const radius = 1 + distance * 3.5;
-    setPannerPosition(node, Math.sin(radians) * radius, 0, -Math.cos(radians) * radius);
+    setPannerPosition(node, Math.sin(radians) * radius, 0, -Math.cos(radians) * radius, immediate);
   });
-  distanceProcessors.forEach((processor) => processor.update(distance, distanceBypass.checked));
+  distanceProcessors.forEach((processor) => processor.update(distance, distanceBypass.checked, audioContext.currentTime, immediate));
 }
 
-function setPannerPosition(node, x, y, z) {
+function setPannerPosition(node, x, y, z, immediate = false) {
   if (node.positionX && node.positionY && node.positionZ) {
-    node.positionX.setTargetAtTime(x, audioContext.currentTime, 0.025);
-    node.positionY.setTargetAtTime(y, audioContext.currentTime, 0.025);
-    node.positionZ.setTargetAtTime(z, audioContext.currentTime, 0.025);
+    const method = immediate ? "setValueAtTime" : "setTargetAtTime";
+    const args = immediate ? [audioContext.currentTime] : [audioContext.currentTime, 0.025];
+    node.positionX[method](x, ...args);
+    node.positionY[method](y, ...args);
+    node.positionZ[method](z, ...args);
     return;
   }
   if (typeof node.setPosition === "function") {
@@ -413,10 +469,46 @@ function resetAll() {
   drawAll();
 }
 
+function isErasing(event) {
+  return selectedTool === "eraser" || eraseModifierActive || Boolean(event?.[eraseModifier]);
+}
+
+function updateEraseCursor(event) {
+  curveCanvas.classList.toggle("eraseMode", isErasing(event));
+}
+
+function setTool(tool) {
+  selectedTool = tool;
+  penTool.classList.toggle("active", tool === "pen");
+  eraserTool.classList.toggle("active", tool === "eraser");
+  penTool.setAttribute("aria-pressed", String(tool === "pen"));
+  eraserTool.setAttribute("aria-pressed", String(tool === "eraser"));
+  selectedPoint = null;
+  updateEraseCursor();
+  drawAll();
+}
+
 function onPointerDown(event) {
-  curveCanvas.setPointerCapture(event.pointerId);
+  if (event.button !== 0) return;
   const point = pointerToPoint(event);
-  selectedPoint = findPoint(point.x, point.y);
+  const foundPoint = findPoint(point.x, point.y);
+  if (isErasing(event)) {
+    event.preventDefault();
+    if (foundPoint) {
+      const points = curves[foundPoint.curve];
+      if (foundPoint.index > 0 && foundPoint.index < points.length - 1) {
+        points.splice(foundPoint.index, 1);
+        selectedPoint = null;
+        hoveredPoint = null;
+        downloadReadout.textContent = buffer ? "ready" : "not ready";
+        updateReadouts(currentTimeNorm());
+        drawAll();
+      }
+    }
+    return;
+  }
+  curveCanvas.setPointerCapture(event.pointerId);
+  selectedPoint = foundPoint;
   if (!selectedPoint) {
     const next = canvasToCurve(point.x, point.y);
     curves[activeCurve].push(next);
@@ -427,6 +519,7 @@ function onPointerDown(event) {
 }
 
 function onPointerMove(event) {
+  updateEraseCursor(event);
   if (selectedPoint) {
     moveSelected(event);
     return;
@@ -437,7 +530,7 @@ function onPointerMove(event) {
 }
 
 function onPointerUp(event) {
-  curveCanvas.releasePointerCapture(event.pointerId);
+  if (curveCanvas.hasPointerCapture(event.pointerId)) curveCanvas.releasePointerCapture(event.pointerId);
   selectedPoint = null;
   downloadReadout.textContent = buffer ? "ready" : "not ready";
 }
