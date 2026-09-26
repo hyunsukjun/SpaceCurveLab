@@ -19,12 +19,13 @@ export function createDistanceProcessor(context, input, output, impulseBuffer) {
   convolver.connect(output);
 
   return {
-    update(distance, bypass, time = context.currentTime, immediate = false) {
+    update(distance, bypass, roomMix = 1, time = context.currentTime, immediate = false) {
       const safeDistance = clamp(distance, 0, 1);
+      const safeRoomMix = clamp(roomMix, 0, 1);
       const bypassLevel = bypass ? 1 : 0;
       const direct = bypass ? 0 : 1 - safeDistance * 0.48;
       const cutoff = 19000 - safeDistance * 9500;
-      const wet = bypass ? 0 : 0.035 + safeDistance * 0.11;
+      const wet = bypass ? 0 : (0.035 + safeDistance * 0.11) * safeRoomMix;
       if (immediate) {
         bypassGain.gain.setValueAtTime(bypassLevel, time);
         directGain.gain.setValueAtTime(direct, time);

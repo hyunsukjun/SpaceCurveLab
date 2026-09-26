@@ -1,8 +1,8 @@
 import { getSpeakerLayout } from "./speaker-layout.js";
 
-export function renderSpatialWav(buffer, directionCurve, distanceCurve, format = "quad", distanceBypassed = false) {
+export function renderSpatialWav(buffer, directionCurve, distanceCurve, format = "quad", distanceBypassed = false, roomMix = 1) {
   if (format === "stereo") {
-    return renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceBypassed);
+    return renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceBypassed, roomMix);
   }
   const layout = getSpeakerLayout(format);
   const sampleRate = buffer.sampleRate;
@@ -27,17 +27,17 @@ export function renderSpatialWav(buffer, directionCurve, distanceCurve, format =
     const direction = sampleDirection(directionCurve, t);
     const distance = distanceBypassed ? 0 : sampleDistance(distanceCurve, t);
     const leftSample = distanceBypassed ? left[i] : shapeDistanceTone(left[i], distance, sampleRate, filters[0]);
-    addPointSource(output, layout, reverb, leftSample, direction - spread, distance, i);
+    addPointSource(output, layout, reverb, leftSample, direction - spread, distance, roomMix, i);
     if (buffer.numberOfChannels > 1) {
       const rightSample = distanceBypassed ? right[i] : shapeDistanceTone(right[i], distance, sampleRate, filters[1]);
-      addPointSource(output, layout, reverb, rightSample, direction + spread, distance, i);
+      addPointSource(output, layout, reverb, rightSample, direction + spread, distance, roomMix, i);
     }
   }
 
   return encodeWav(output, sampleRate, 0.98);
 }
 
-function renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceBypassed) {
+function renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceBypassed, roomMix) {
   const sampleRate = buffer.sampleRate;
   const frameCount = buffer.length;
   const output = [new Float32Array(frameCount), new Float32Array(frameCount)];
@@ -65,14 +65,14 @@ function renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceB
     const rightGain = Math.sin((pan * width + 1) * Math.PI / 4) * direct;
     output[0][i] += shaped * leftGain;
     output[1][i] += shaped * rightGain;
-    addStereoDiffuse(output, reverb, shaped, distance, i);
+    addStereoDiffuse(output, reverb, shaped, distance, roomMix, i);
   }
 
   return encodeWav(output, sampleRate, 0.98);
 }
 
-function addStereoDiffuse(output, reverb, sample, distance, frame) {
-  const wetSend = distance * 0.07;
+function addStereoDiffuse(output, reverb, sample, distance, roomMix, frame) {
+  const wetSend = distance * 0.07 * clamp(roomMix, 0, 1);
   for (let channel = 0; channel < 2; channel += 1) {
     const tank = reverb[channel];
     const delayedA = tank.a[tank.ai];
@@ -85,9 +85,9 @@ function addStereoDiffuse(output, reverb, sample, distance, frame) {
   }
 }
 
-function addPointSource(output, layout, reverb, sample, direction, distance, frame) {
+function addPointSource(output, layout, reverb, sample, direction, distance, roomMix, frame) {
   const directGain = 1 - distance * 0.48;
-  const wetSend = distance * 0.055;
+  const wetSend = distance * 0.055 * clamp(roomMix, 0, 1);
   const value = sample * directGain * 0.85;
   const weights = layout.map((angle) => {
     const diff = angularDistance(direction, angle.angle);

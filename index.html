@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Space Curve Lab</title>
-    <link rel="stylesheet" href="src/styles.css?v=20260926-02">
+    <link rel="stylesheet" href="src/styles.css?v=20260927-01">
   </head>
   <body>
     <main class="app">
@@ -51,6 +51,11 @@
             <span><b class="distanceSwatch"></b>distance near/far</span>
           </div>
           <div class="curveActions">
+            <label class="roomMixControl" for="roomMix" title="Room reverb amount. Distance still controls level and tone.">
+              <span>Room Mix</span>
+              <input id="roomMix" type="range" min="0" max="100" value="100" step="1" aria-label="Room Mix">
+              <output id="roomMixReadout" for="roomMix">100%</output>
+            </label>
             <label class="toggle">
               <input id="distanceBypass" type="checkbox">
               Distance Bypass
@@ -116,6 +121,6 @@
       </section>
     </main>
 
-    <script src="src/app.js?v=20260926-03" type="module"></script>
+    <script src="src/app.js?v=20260927-01" type="module"></script>
   </body>
 </html>

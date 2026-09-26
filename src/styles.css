@@ -270,6 +270,36 @@ button:disabled,
   accent-color: var(--object);
 }
 
+.roomMixControl {
+  height: 30px;
+  display: inline-grid;
+  grid-template-columns: auto 88px 38px;
+  align-items: center;
+  gap: 7px;
+  padding: 0 9px;
+  border: 1px solid #4c4f5d;
+  border-radius: 6px;
+  color: #c8d1d3;
+  background: #1a2227;
+  white-space: nowrap;
+}
+
+.roomMixControl input {
+  width: 88px;
+  margin: 0;
+  accent-color: var(--object);
+}
+
+.roomMixControl output {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.roomMixControl:has(input:disabled) {
+  opacity: 0.45;
+}
+
 .directionSwatch,
 .distanceSwatch {
   display: inline-block;
