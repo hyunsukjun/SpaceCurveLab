@@ -15,7 +15,7 @@ Prototype mode: this is an independent static Web Audio prototype that follows t
 - Direction: cumulative rotation angle, center 0, range -1800 to +1800 degrees.
 - Distance: 0 Near to 1 Far, with a visible bypass and a Room Mix macro for reverberant space.
 - Preview: headphone simulation with Web Audio `PannerNode`, plus modular distance processing.
-- Distance DSP: `GainNode`, gentle `BiquadFilterNode` low-pass, and a small generated convolution room send. Room Mix scales only the room send, from dry at 0% to the original prototype amount at 100%.
+- Distance DSP: `GainNode`, gentle `BiquadFilterNode` low-pass, and a small generated convolution room send. Room Mix scales only the room send: 0% is dry, Near retains a small room response, and Far increases the reverberant field.
 - Render: Stereo 2ch, Quad 4ch, or Octophonic 8ch WAV from the same Direction/Distance curve data.
 - Stereo render is a headphone/general-listening spatial result, not a replacement for discrete speaker playback.
 - Speaker numbering: v1 uses the 22.5-degree octophonic square orientation. Channel 1 sits front-left, channel 2 front-right, then 3-8 continue clockwise. Quad view/render labels its four WAV channels directly as 1 front-left, 2 front-right, 3 rear-left, and 4 rear-right.

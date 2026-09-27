@@ -1,4 +1,5 @@
 import { getSpeakerLayout } from "./speaker-layout.js";
+import { roomAmountForDistance } from "./spatial-parameters.js?v=20260927-02";
 
 export function renderSpatialWav(buffer, directionCurve, distanceCurve, format = "quad", distanceBypassed = false, roomMix = 1) {
   if (format === "stereo") {
@@ -7,6 +8,7 @@ export function renderSpatialWav(buffer, directionCurve, distanceCurve, format =
   const layout = getSpeakerLayout(format);
   const sampleRate = buffer.sampleRate;
   const frameCount = buffer.length;
+  const effectiveRoomMix = distanceBypassed ? 0 : roomMix;
   const output = Array.from({ length: layout.length }, () => new Float32Array(frameCount));
   const left = buffer.getChannelData(0);
   const right = buffer.numberOfChannels > 1 ? buffer.getChannelData(1) : left;
@@ -27,10 +29,10 @@ export function renderSpatialWav(buffer, directionCurve, distanceCurve, format =
     const direction = sampleDirection(directionCurve, t);
     const distance = distanceBypassed ? 0 : sampleDistance(distanceCurve, t);
     const leftSample = distanceBypassed ? left[i] : shapeDistanceTone(left[i], distance, sampleRate, filters[0]);
-    addPointSource(output, layout, reverb, leftSample, direction - spread, distance, roomMix, i);
+    addPointSource(output, layout, reverb, leftSample, direction - spread, distance, effectiveRoomMix, i);
     if (buffer.numberOfChannels > 1) {
       const rightSample = distanceBypassed ? right[i] : shapeDistanceTone(right[i], distance, sampleRate, filters[1]);
-      addPointSource(output, layout, reverb, rightSample, direction + spread, distance, roomMix, i);
+      addPointSource(output, layout, reverb, rightSample, direction + spread, distance, effectiveRoomMix, i);
     }
   }
 
@@ -40,6 +42,7 @@ export function renderSpatialWav(buffer, directionCurve, distanceCurve, format =
 function renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceBypassed, roomMix) {
   const sampleRate = buffer.sampleRate;
   const frameCount = buffer.length;
+  const effectiveRoomMix = distanceBypassed ? 0 : roomMix;
   const output = [new Float32Array(frameCount), new Float32Array(frameCount)];
   const left = buffer.getChannelData(0);
   const right = buffer.numberOfChannels > 1 ? buffer.getChannelData(1) : left;
@@ -65,21 +68,21 @@ function renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceB
     const rightGain = Math.sin((pan * width + 1) * Math.PI / 4) * direct;
     output[0][i] += shaped * leftGain;
     output[1][i] += shaped * rightGain;
-    addStereoDiffuse(output, reverb, shaped, distance, roomMix, i);
+    addStereoDiffuse(output, reverb, shaped, distance, effectiveRoomMix, i);
   }
 
   return encodeWav(output, sampleRate, 0.98);
 }
 
 function addStereoDiffuse(output, reverb, sample, distance, roomMix, frame) {
-  const wetSend = distance * 0.07 * clamp(roomMix, 0, 1);
+  const roomInput = roomAmountForDistance(distance, roomMix) * 0.12;
   for (let channel = 0; channel < 2; channel += 1) {
     const tank = reverb[channel];
     const delayedA = tank.a[tank.ai];
     const delayedB = tank.b[tank.bi];
-    output[channel][frame] += (delayedA * 0.5 + delayedB * 0.28) * wetSend;
-    tank.a[tank.ai] = sample * wetSend + delayedB * 0.34;
-    tank.b[tank.bi] = (channel === 0 ? sample : -sample) * wetSend - delayedA * 0.25;
+    output[channel][frame] += delayedA * 0.5 + delayedB * 0.28;
+    tank.a[tank.ai] = sample * roomInput + delayedB * 0.34;
+    tank.b[tank.bi] = (channel === 0 ? sample : -sample) * roomInput - delayedA * 0.25;
     tank.ai = (tank.ai + 1) % tank.a.length;
     tank.bi = (tank.bi + 1) % tank.b.length;
   }
@@ -87,7 +90,7 @@ function addStereoDiffuse(output, reverb, sample, distance, roomMix, frame) {
 
 function addPointSource(output, layout, reverb, sample, direction, distance, roomMix, frame) {
   const directGain = 1 - distance * 0.48;
-  const wetSend = distance * 0.055 * clamp(roomMix, 0, 1);
+  const roomInput = roomAmountForDistance(distance, roomMix) * 0.1;
   const value = sample * directGain * 0.85;
   const weights = layout.map((angle) => {
     const diff = angularDistance(direction, angle.angle);
@@ -98,10 +101,10 @@ function addPointSource(output, layout, reverb, sample, direction, distance, roo
     const tank = reverb[channel];
     const delayedA = tank.a[tank.ai];
     const delayedB = tank.b[tank.bi];
-    const diffuse = (delayedA * 0.58 + delayedB * 0.32) * wetSend;
+    const diffuse = delayedA * 0.58 + delayedB * 0.32;
     output[channel][frame] += value * (weights[channel] / normal) + diffuse;
-    tank.a[tank.ai] = sample * wetSend + delayedB * 0.36;
-    tank.b[tank.bi] = sample * wetSend - delayedA * 0.29;
+    tank.a[tank.ai] = sample * roomInput + delayedB * 0.36;
+    tank.b[tank.bi] = sample * roomInput - delayedA * 0.29;
     tank.ai = (tank.ai + 1) % tank.a.length;
     tank.bi = (tank.bi + 1) % tank.b.length;
   }
