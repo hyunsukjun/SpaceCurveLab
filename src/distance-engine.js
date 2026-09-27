@@ -1,4 +1,4 @@
-import { roomMixGains } from "./spatial-parameters.js?v=20260927-03";
+import { distanceRoomGains } from "./spatial-parameters.js?v=20260927-04";
 
 export function createDistanceProcessor(context, input, output, impulseBuffer) {
   const bypassGain = context.createGain();
@@ -21,10 +21,10 @@ export function createDistanceProcessor(context, input, output, impulseBuffer) {
   convolver.connect(output);
 
   return {
-    update(distance, bypass, roomMix = 1, time = context.currentTime, immediate = false) {
+    update(distance, bypass, time = context.currentTime, immediate = false) {
       const safeDistance = clamp(distance, 0, 1);
-      const mix = roomMixGains(roomMix);
-      const bypassLevel = bypass ? mix.dry : 0;
+      const mix = distanceRoomGains(bypass ? 0 : safeDistance);
+      const bypassLevel = bypass ? 1 : 0;
       const direct = bypass ? 0 : (1 - safeDistance * 0.48) * mix.dry;
       const cutoff = 19000 - safeDistance * 9500;
       const wet = mix.wet * 0.4;

@@ -1,5 +1,5 @@
-import { createDistanceProcessor, makeSmallRoomImpulse } from "./distance-engine.js?v=20260927-03";
-import { renderSpatialWav } from "./offline-render.js?v=20260927-03";
+import { createDistanceProcessor, makeSmallRoomImpulse } from "./distance-engine.js?v=20260927-04";
+import { renderSpatialWav } from "./offline-render.js?v=20260927-04";
 import { getSpeakerLayout } from "./speaker-layout.js?v=20260926-03";
 
 const fileInput = document.getElementById("fileInput");
@@ -12,8 +12,6 @@ const downloadButton = document.getElementById("downloadButton");
 const clearCurveButton = document.getElementById("clearCurveButton");
 const resetButton = document.getElementById("resetButton");
 const distanceBypass = document.getElementById("distanceBypass");
-const roomMix = document.getElementById("roomMix");
-const roomMixReadout = document.getElementById("roomMixReadout");
 const directionMode = document.getElementById("directionMode");
 const distanceMode = document.getElementById("distanceMode");
 const penTool = document.getElementById("penTool");
@@ -137,11 +135,6 @@ window.addEventListener("keyup", (event) => {
 clearCurveButton.addEventListener("click", clearCurrentCurve);
 resetButton.addEventListener("click", resetAll);
 distanceBypass.addEventListener("change", updateDistanceControls);
-roomMix.addEventListener("input", () => {
-  roomMixReadout.textContent = `${roomMix.value}%`;
-  downloadReadout.textContent = buffer ? "ready" : "not ready";
-  if (isPlaying) updatePreview(currentTimeNorm());
-});
 directionMode.addEventListener("click", () => setActiveCurve("direction"));
 distanceMode.addEventListener("click", () => setActiveCurve("distance"));
 penTool.addEventListener("click", () => setTool("pen"));
@@ -411,7 +404,6 @@ function updatePreview(t, immediate = false) {
   distanceProcessors.forEach((processor) => processor.update(
     distance,
     distanceBypass.checked,
-    roomMixValue(),
     audioContext.currentTime,
     immediate
   ));
@@ -442,8 +434,7 @@ async function downloadRenderedWav() {
       curves.direction,
       curves.distance,
       renderFormat.value,
-      distanceBypass.checked,
-      roomMixValue()
+      distanceBypass.checked
     );
     const blob = new Blob([wav], { type: "audio/wav" });
     const downloadUrl = URL.createObjectURL(blob);
@@ -483,8 +474,6 @@ function clearCurrentCurve() {
 function resetAll() {
   curves.direction = defaults.direction();
   curves.distance = defaults.distance();
-  roomMix.value = "25";
-  roomMixReadout.textContent = "25%";
   pauseAt = 0;
   downloadReadout.textContent = buffer ? "ready" : "not ready";
   updateReadouts(0);
@@ -955,10 +944,6 @@ function directionValue(y) {
 
 function distanceValue(y) {
   return clamp(y, 0, 1);
-}
-
-function roomMixValue() {
-  return clamp(Number(roomMix.value) / 100, 0, 1);
 }
 
 function updateDistanceControls() {

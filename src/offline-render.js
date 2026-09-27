@@ -1,14 +1,13 @@
 import { getSpeakerLayout } from "./speaker-layout.js";
-import { roomMixGains } from "./spatial-parameters.js?v=20260927-03";
+import { distanceRoomGains } from "./spatial-parameters.js?v=20260927-04";
 
-export function renderSpatialWav(buffer, directionCurve, distanceCurve, format = "quad", distanceBypassed = false, roomMix = 1) {
+export function renderSpatialWav(buffer, directionCurve, distanceCurve, format = "quad", distanceBypassed = false) {
   if (format === "stereo") {
-    return renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceBypassed, roomMix);
+    return renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceBypassed);
   }
   const layout = getSpeakerLayout(format);
   const sampleRate = buffer.sampleRate;
   const frameCount = buffer.length;
-  const mix = roomMixGains(roomMix);
   const output = Array.from({ length: layout.length }, () => new Float32Array(frameCount));
   const left = buffer.getChannelData(0);
   const right = buffer.numberOfChannels > 1 ? buffer.getChannelData(1) : left;
@@ -28,6 +27,7 @@ export function renderSpatialWav(buffer, directionCurve, distanceCurve, format =
     const t = frameCount <= 1 ? 0 : i / (frameCount - 1);
     const direction = sampleDirection(directionCurve, t);
     const distance = distanceBypassed ? 0 : sampleDistance(distanceCurve, t);
+    const mix = distanceRoomGains(distance);
     const leftSample = distanceBypassed ? left[i] : shapeDistanceTone(left[i], distance, sampleRate, filters[0]);
     addPointSource(output, layout, reverb, leftSample, left[i], direction - spread, distance, mix, i);
     if (buffer.numberOfChannels > 1) {
@@ -39,10 +39,9 @@ export function renderSpatialWav(buffer, directionCurve, distanceCurve, format =
   return encodeWav(output, sampleRate, 0.98);
 }
 
-function renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceBypassed, roomMix) {
+function renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceBypassed) {
   const sampleRate = buffer.sampleRate;
   const frameCount = buffer.length;
-  const mix = roomMixGains(roomMix);
   const output = [new Float32Array(frameCount), new Float32Array(frameCount)];
   const left = buffer.getChannelData(0);
   const right = buffer.numberOfChannels > 1 ? buffer.getChannelData(1) : left;
@@ -59,6 +58,7 @@ function renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceB
     const t = frameCount <= 1 ? 0 : i / (frameCount - 1);
     const direction = sampleDirection(directionCurve, t);
     const distance = distanceBypassed ? 0 : sampleDistance(distanceCurve, t);
+    const mix = distanceRoomGains(distance);
     const dry = buffer.numberOfChannels > 1 ? (left[i] + right[i]) * 0.5 : left[i];
     const shaped = distanceBypassed ? dry : shapeDistanceTone(dry, distance, sampleRate, filters[0]);
     const pan = Math.sin(direction * Math.PI / 180);

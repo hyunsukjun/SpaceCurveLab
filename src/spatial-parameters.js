@@ -1,8 +1,11 @@
-export function roomMixGains(roomMix) {
-  const amount = clamp(roomMix, 0, 1);
+const MAX_DISTANCE_WET = 0.65;
+
+export function distanceRoomGains(distance) {
+  const amount = clamp(distance, 0, 1) * MAX_DISTANCE_WET;
   return {
     dry: Math.cos(amount * Math.PI * 0.5),
-    wet: Math.sin(amount * Math.PI * 0.5)
+    wet: Math.sin(amount * Math.PI * 0.5),
+    amount
   };
 }
 
