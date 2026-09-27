@@ -11,6 +11,9 @@ const renderFormat = document.getElementById("renderFormat");
 const downloadButton = document.getElementById("downloadButton");
 const clearCurveButton = document.getElementById("clearCurveButton");
 const resetButton = document.getElementById("resetButton");
+const resetDialog = document.getElementById("resetDialog");
+const cancelResetButton = document.getElementById("cancelResetButton");
+const confirmResetButton = document.getElementById("confirmResetButton");
 const distanceBypass = document.getElementById("distanceBypass");
 const directionMode = document.getElementById("directionMode");
 const distanceMode = document.getElementById("distanceMode");
@@ -39,13 +42,13 @@ const engineReadout = document.getElementById("engineReadout");
 const colors = {
   direction: "#66d2ff",
   distance: "#ff4b3e",
-  bg: "#101519",
-  paper: "#bdc8aa",
-  grid: "rgba(55, 65, 55, 0.36)",
-  text: "#edf3f2",
-  ink: "#172026",
-  muted: "#52625d",
-  listener: "#edf3f2"
+  bg: "#07111c",
+  paper: "#0c1f31",
+  grid: "rgba(79, 121, 155, 0.24)",
+  text: "#e8f0f6",
+  ink: "#aabccc",
+  muted: "#71889b",
+  listener: "#e8f0f6"
 };
 
 const axisWidth = 104;
@@ -133,7 +136,15 @@ window.addEventListener("keyup", (event) => {
   event.stopPropagation();
 });
 clearCurveButton.addEventListener("click", clearCurrentCurve);
-resetButton.addEventListener("click", resetAll);
+resetButton.addEventListener("click", openResetDialog);
+cancelResetButton.addEventListener("click", closeResetDialog);
+confirmResetButton.addEventListener("click", () => {
+  closeResetDialog();
+  resetAll();
+});
+resetDialog.addEventListener("click", (event) => {
+  if (event.target === resetDialog) closeResetDialog();
+});
 distanceBypass.addEventListener("change", updateDistanceControls);
 directionMode.addEventListener("click", () => setActiveCurve("direction"));
 distanceMode.addEventListener("click", () => setActiveCurve("distance"));
@@ -160,6 +171,11 @@ window.addEventListener("keyup", (event) => {
 window.addEventListener("blur", () => {
   eraseModifierActive = false;
   updateEraseCursor();
+});
+window.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape" || resetDialog.hidden) return;
+  event.preventDefault();
+  closeResetDialog();
 });
 
 async function handleFile(event) {
@@ -471,6 +487,16 @@ function clearCurrentCurve() {
   drawAll();
 }
 
+function openResetDialog() {
+  resetDialog.hidden = false;
+  cancelResetButton.focus();
+}
+
+function closeResetDialog() {
+  resetDialog.hidden = true;
+  resetButton.focus();
+}
+
 function resetAll() {
   curves.direction = defaults.direction();
   curves.distance = defaults.distance();
@@ -589,7 +615,7 @@ function drawWave(playheadNorm) {
   waveCtx.clearRect(0, 0, w, h);
   waveCtx.fillStyle = colors.paper;
   waveCtx.fillRect(0, 0, w, h);
-  waveCtx.strokeStyle = "rgba(55, 65, 55, 0.28)";
+  waveCtx.strokeStyle = "rgba(72, 111, 143, 0.24)";
   waveCtx.lineWidth = 1;
   for (let i = 0; i <= 10; i += 1) {
     const x = axisWidth + (w - axisWidth - 18) * (i / 10);
@@ -601,7 +627,7 @@ function drawWave(playheadNorm) {
   const mid = h * 0.5;
   const amp = h * 0.36;
   if (waveform.length) {
-    waveCtx.fillStyle = "rgba(108, 101, 72, 0.34)";
+    waveCtx.fillStyle = "rgba(128, 158, 186, 0.48)";
     waveCtx.beginPath();
     waveform.forEach((value, i) => {
       const x = axisWidth + (w - axisWidth - 18) * (i / Math.max(1, waveform.length - 1));
@@ -617,19 +643,19 @@ function drawWave(playheadNorm) {
     }
     waveCtx.closePath();
     waveCtx.fill();
-    waveCtx.strokeStyle = "rgba(23, 32, 38, 0.34)";
+    waveCtx.strokeStyle = "rgba(170, 188, 204, 0.62)";
     waveCtx.lineWidth = 1;
     waveCtx.stroke();
   } else {
-    waveCtx.strokeStyle = "rgba(23, 32, 38, 0.34)";
+    waveCtx.strokeStyle = "rgba(104, 145, 178, 0.62)";
     waveCtx.lineWidth = 1.2;
     waveCtx.beginPath();
     waveCtx.moveTo(axisWidth, mid);
     waveCtx.lineTo(w - 18, mid);
     waveCtx.stroke();
   }
-  waveCtx.fillStyle = "rgba(23, 32, 38, 0.62)";
-  waveCtx.font = "700 12px Inter, sans-serif";
+  waveCtx.fillStyle = "rgba(170, 188, 204, 0.72)";
+  waveCtx.font = "700 12px system-ui, sans-serif";
   waveCtx.textAlign = "center";
   waveCtx.textBaseline = "middle";
   waveCtx.fillText("Waveform", axisWidth + ((w - axisWidth - 18) / 2), h / 2);
@@ -657,11 +683,11 @@ function drawCurveGrid() {
   const plotBottom = h - plotPaddingBottom;
   curveCtx.strokeStyle = colors.grid;
   curveCtx.fillStyle = colors.ink;
-  curveCtx.font = "650 12px Inter, sans-serif";
+  curveCtx.font = "650 12px system-ui, sans-serif";
   curveCtx.textBaseline = "middle";
-  curveCtx.fillStyle = "rgba(23, 32, 38, 0.07)";
+  curveCtx.fillStyle = "rgba(5, 11, 18, 0.34)";
   curveCtx.fillRect(0, 0, axisWidth, h);
-  curveCtx.strokeStyle = "rgba(23, 32, 38, 0.24)";
+  curveCtx.strokeStyle = "rgba(72, 111, 143, 0.46)";
   curveCtx.beginPath();
   curveCtx.moveTo(axisWidth, plotPaddingTop);
   curveCtx.lineTo(axisWidth, plotBottom);
@@ -691,13 +717,13 @@ function drawDirectionAxis(width) {
     const value = rotation * 360;
     const y = valueToY(value);
     const label = formatRotationAxisLabel(rotation);
-    curveCtx.strokeStyle = rotation === 0 ? "rgba(23, 32, 38, 0.54)" : "rgba(23, 32, 38, 0.18)";
+    curveCtx.strokeStyle = rotation === 0 ? "rgba(123, 164, 196, 0.58)" : "rgba(72, 111, 143, 0.2)";
     curveCtx.beginPath();
     curveCtx.moveTo(axisWidth, y);
     curveCtx.lineTo(width - 18, y);
     curveCtx.stroke();
-    curveCtx.fillStyle = rotation === 0 ? "rgba(23, 32, 38, 0.92)" : "rgba(23, 32, 38, 0.68)";
-    curveCtx.font = "650 12px Inter, sans-serif";
+    curveCtx.fillStyle = rotation === 0 ? "rgba(232, 240, 246, 0.96)" : "rgba(170, 188, 204, 0.78)";
+    curveCtx.font = "650 12px system-ui, sans-serif";
     curveCtx.textAlign = "right";
     curveCtx.fillText(label, axisWidth - 12, y);
   }
@@ -717,13 +743,13 @@ function drawDistanceAxis(width) {
   ];
   for (const mark of marks) {
     const y = valueToY(mark.value, "distance");
-    curveCtx.strokeStyle = mark.value === 0.5 ? "rgba(23, 32, 38, 0.32)" : "rgba(23, 32, 38, 0.18)";
+    curveCtx.strokeStyle = mark.value === 0.5 ? "rgba(95, 141, 177, 0.48)" : "rgba(72, 111, 143, 0.24)";
     curveCtx.beginPath();
     curveCtx.moveTo(axisWidth, y);
     curveCtx.lineTo(width - 18, y);
     curveCtx.stroke();
-    curveCtx.fillStyle = mark.strong ? "rgba(23, 32, 38, 0.86)" : "rgba(23, 32, 38, 0.58)";
-    curveCtx.font = mark.strong ? "700 12px Inter, sans-serif" : "650 12px Inter, sans-serif";
+    curveCtx.fillStyle = mark.strong ? "rgba(232, 240, 246, 0.94)" : "rgba(170, 188, 204, 0.74)";
+    curveCtx.font = mark.strong ? "700 12px system-ui, sans-serif" : "650 12px system-ui, sans-serif";
     curveCtx.textAlign = "right";
     curveCtx.fillText(mark.label, axisWidth - 12, y);
   }
@@ -732,7 +758,7 @@ function drawDistanceAxis(width) {
 function drawCurveLine(name, color) {
   const points = curves[name];
   curveCtx.strokeStyle = color;
-  curveCtx.globalAlpha = 1;
+  curveCtx.globalAlpha = name === activeCurve ? 1 : 0.42;
   curveCtx.lineWidth = name === activeCurve ? 4.8 : 2.1;
   curveCtx.lineCap = "round";
   curveCtx.lineJoin = "round";
@@ -747,6 +773,7 @@ function drawCurveLine(name, color) {
     else curveCtx.lineTo(screen.x, screen.y);
   }
   curveCtx.stroke();
+  curveCtx.globalAlpha = 1;
   if (name !== activeCurve) return;
   points.forEach((point, index) => {
     const screen = curveToCanvas(point, name);
@@ -755,7 +782,7 @@ function drawCurveLine(name, color) {
     curveCtx.arc(screen.x, screen.y, 6, 0, Math.PI * 2);
     curveCtx.fill();
     if (index !== 0 && index !== points.length - 1) {
-      curveCtx.strokeStyle = "rgba(16, 21, 25, 0.8)";
+      curveCtx.strokeStyle = "rgba(5, 11, 18, 0.86)";
       curveCtx.lineWidth = 2;
       curveCtx.stroke();
     }
@@ -764,7 +791,7 @@ function drawCurveLine(name, color) {
 
 function drawPlayhead(context, canvas, playheadNorm) {
   const x = axisWidth + (canvas.width - axisWidth - 18) * clamp(playheadNorm, 0, 1);
-  context.strokeStyle = "#101519";
+  context.strokeStyle = "rgba(226, 236, 244, 0.9)";
   context.lineWidth = 2;
   context.beginPath();
   context.moveTo(x, 0);
@@ -779,10 +806,10 @@ function drawHoverLabel() {
   const label = hoveredPoint.curve === "direction"
     ? `${directionValue(point.y).toFixed(0)} deg`
     : `${distanceValue(point.y).toFixed(2)}`;
-  curveCtx.fillStyle = "rgba(16, 21, 25, 0.9)";
+  curveCtx.fillStyle = "rgba(5, 11, 18, 0.94)";
   curveCtx.fillRect(screen.x + 12, screen.y - 30, 92, 24);
   curveCtx.fillStyle = colors.text;
-  curveCtx.font = "650 12px Inter, sans-serif";
+  curveCtx.font = "650 12px system-ui, sans-serif";
   curveCtx.fillText(label, screen.x + 20, screen.y - 14);
 }
 
@@ -795,13 +822,13 @@ function drawSpatial(playheadNorm) {
   const distance = distanceAt(playheadNorm);
   const radius = 42 + distance * 170;
   spatialCtx.clearRect(0, 0, w, h);
-  spatialCtx.fillStyle = "#151d22";
+  spatialCtx.fillStyle = colors.paper;
   spatialCtx.fillRect(0, 0, w, h);
-  spatialCtx.strokeStyle = "#324047";
+  spatialCtx.strokeStyle = "#345672";
   spatialCtx.lineWidth = 2;
   spatialCtx.strokeRect(28, 28, w - 56, h - 56);
   for (let r = 70; r <= 210; r += 70) {
-    spatialCtx.strokeStyle = "rgba(237, 243, 242, 0.08)";
+    spatialCtx.strokeStyle = "rgba(170, 188, 204, 0.1)";
     spatialCtx.beginPath();
     spatialCtx.arc(cx, cy, r, 0, Math.PI * 2);
     spatialCtx.stroke();
@@ -812,8 +839,8 @@ function drawSpatial(playheadNorm) {
   spatialCtx.beginPath();
   spatialCtx.arc(cx, cy, 13, 0, Math.PI * 2);
   spatialCtx.fill();
-  spatialCtx.fillStyle = "#9fb0b2";
-  spatialCtx.font = "700 12px Inter, sans-serif";
+  spatialCtx.fillStyle = colors.muted;
+  spatialCtx.font = "700 12px system-ui, sans-serif";
   spatialCtx.fillText("Listener", cx - 24, cy + 34);
   const radians = (angle % 360) * Math.PI / 180;
   const x = cx + Math.sin(radians) * radius;
@@ -857,7 +884,7 @@ function drawSpeakerRing(cx, cy) {
   const layout = getSpeakerLayout(renderFormat.value);
   const radius = 216;
   spatialCtx.fillStyle = "#66d2ff";
-  spatialCtx.font = "700 11px Inter, sans-serif";
+  spatialCtx.font = "700 11px system-ui, sans-serif";
   for (const speaker of layout) {
     const radians = speaker.angle * Math.PI / 180;
     const x = cx + Math.sin(radians) * radius;
@@ -876,7 +903,7 @@ function drawStereoMarkers(cx, cy) {
     { label: "R", angle: 45 }
   ];
   spatialCtx.fillStyle = "#66d2ff";
-  spatialCtx.font = "700 12px Inter, sans-serif";
+  spatialCtx.font = "700 12px system-ui, sans-serif";
   for (const marker of markers) {
     const radians = marker.angle * Math.PI / 180;
     const x = cx + Math.sin(radians) * radius;
