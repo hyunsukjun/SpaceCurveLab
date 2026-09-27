@@ -1,5 +1,5 @@
 import { getSpeakerLayout } from "./speaker-layout.js";
-import { distanceRoomGains } from "./spatial-parameters.js?v=20260927-05";
+import { distanceRoomLevels } from "./spatial-parameters.js?v=20260927-06";
 
 export function renderSpatialWav(buffer, directionCurve, distanceCurve, format = "quad", distanceBypassed = false) {
   if (format === "stereo") {
@@ -27,7 +27,7 @@ export function renderSpatialWav(buffer, directionCurve, distanceCurve, format =
     const t = frameCount <= 1 ? 0 : i / (frameCount - 1);
     const direction = sampleDirection(directionCurve, t);
     const distance = distanceBypassed ? 0 : sampleDistance(distanceCurve, t);
-    const mix = distanceRoomGains(distance);
+    const mix = distanceRoomLevels(distance);
     const leftSample = distanceBypassed ? left[i] : shapeDistanceTone(left[i], distance, sampleRate, filters[0]);
     addPointSource(output, layout, reverb, leftSample, left[i], direction - spread, distance, mix, i);
     if (buffer.numberOfChannels > 1) {
@@ -58,7 +58,7 @@ function renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceB
     const t = frameCount <= 1 ? 0 : i / (frameCount - 1);
     const direction = sampleDirection(directionCurve, t);
     const distance = distanceBypassed ? 0 : sampleDistance(distanceCurve, t);
-    const mix = distanceRoomGains(distance);
+    const mix = distanceRoomLevels(distance);
     const dry = buffer.numberOfChannels > 1 ? (left[i] + right[i]) * 0.5 : left[i];
     const shaped = distanceBypassed ? dry : shapeDistanceTone(dry, distance, sampleRate, filters[0]);
     const pan = Math.sin(direction * Math.PI / 180);
