@@ -1,4 +1,4 @@
-const MAX_DISTANCE_WET = 0.65;
+const MAX_DISTANCE_WET = 1;
 
 export function distanceRoomGains(distance) {
   const amount = clamp(distance, 0, 1) * MAX_DISTANCE_WET;

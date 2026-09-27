@@ -1,5 +1,5 @@
 import { getSpeakerLayout } from "./speaker-layout.js";
-import { distanceRoomGains } from "./spatial-parameters.js?v=20260927-04";
+import { distanceRoomGains } from "./spatial-parameters.js?v=20260927-05";
 
 export function renderSpatialWav(buffer, directionCurve, distanceCurve, format = "quad", distanceBypassed = false) {
   if (format === "stereo") {

@@ -1,4 +1,4 @@
-import { distanceRoomGains } from "./spatial-parameters.js?v=20260927-04";
+import { distanceRoomGains } from "./spatial-parameters.js?v=20260927-05";
 
 export function createDistanceProcessor(context, input, output, impulseBuffer) {
   const bypassGain = context.createGain();
