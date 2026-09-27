@@ -51,10 +51,10 @@
             <span><b class="distanceSwatch"></b>distance near/far</span>
           </div>
           <div class="curveActions">
-            <label class="roomMixControl" for="roomMix" title="Room reverb amount. Distance still controls level and tone.">
-              <span>Room Mix</span>
-              <input id="roomMix" type="range" min="0" max="100" value="100" step="1" aria-label="Room Mix">
-              <output id="roomMixReadout" for="roomMix">100%</output>
+            <label class="roomMixControl" for="roomMix" title="Crossfade between direct sound and room reverb.">
+              <span>Room Dry/Wet</span>
+              <input id="roomMix" type="range" min="0" max="100" value="25" step="1" aria-label="Room Dry Wet">
+              <output id="roomMixReadout" for="roomMix">25%</output>
             </label>
             <label class="toggle">
               <input id="distanceBypass" type="checkbox">
@@ -121,6 +121,6 @@
       </section>
     </main>
 
-    <script src="src/app.js?v=20260927-02" type="module"></script>
+    <script src="src/app.js?v=20260927-03" type="module"></script>
   </body>
 </html>

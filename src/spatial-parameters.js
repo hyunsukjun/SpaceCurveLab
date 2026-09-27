@@ -1,7 +1,9 @@
-export function roomAmountForDistance(distance, roomMix) {
-  const safeDistance = clamp(distance, 0, 1);
-  const safeRoomMix = clamp(roomMix, 0, 1);
-  return safeRoomMix * (0.3 + safeDistance * 0.7);
+export function roomMixGains(roomMix) {
+  const amount = clamp(roomMix, 0, 1);
+  return {
+    dry: Math.cos(amount * Math.PI * 0.5),
+    wet: Math.sin(amount * Math.PI * 0.5)
+  };
 }
 
 function clamp(value, min, max) {

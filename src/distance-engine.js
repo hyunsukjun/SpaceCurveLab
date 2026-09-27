@@ -1,4 +1,4 @@
-import { roomAmountForDistance } from "./spatial-parameters.js?v=20260927-02";
+import { roomMixGains } from "./spatial-parameters.js?v=20260927-03";
 
 export function createDistanceProcessor(context, input, output, impulseBuffer) {
   const bypassGain = context.createGain();
@@ -23,10 +23,11 @@ export function createDistanceProcessor(context, input, output, impulseBuffer) {
   return {
     update(distance, bypass, roomMix = 1, time = context.currentTime, immediate = false) {
       const safeDistance = clamp(distance, 0, 1);
-      const bypassLevel = bypass ? 1 : 0;
-      const direct = bypass ? 0 : 1 - safeDistance * 0.48;
+      const mix = roomMixGains(roomMix);
+      const bypassLevel = bypass ? mix.dry : 0;
+      const direct = bypass ? 0 : (1 - safeDistance * 0.48) * mix.dry;
       const cutoff = 19000 - safeDistance * 9500;
-      const wet = bypass ? 0 : roomAmountForDistance(safeDistance, roomMix) * 0.2;
+      const wet = mix.wet * 0.4;
       if (immediate) {
         bypassGain.gain.setValueAtTime(bypassLevel, time);
         directGain.gain.setValueAtTime(direct, time);

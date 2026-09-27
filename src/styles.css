@@ -296,10 +296,6 @@ button:disabled,
   text-align: right;
 }
 
-.roomMixControl:has(input:disabled) {
-  opacity: 0.45;
-}
-
 .directionSwatch,
 .distanceSwatch {
   display: inline-block;
