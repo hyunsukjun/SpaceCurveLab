@@ -150,7 +150,7 @@ function angularDistance(a, b) {
 function encodeWav(channels, sampleRate, ceiling = 1) {
   const channelCount = channels.length;
   const frameCount = channels[0].length;
-  const bytesPerSample = 2;
+  const bytesPerSample = 3;
   const blockAlign = channelCount * bytesPerSample;
   const dataSize = frameCount * blockAlign;
   const fadeFrames = Math.max(2, Math.min(frameCount, Math.floor(sampleRate * 0.008)));
@@ -174,7 +174,7 @@ function encodeWav(channels, sampleRate, ceiling = 1) {
   view.setUint32(24, sampleRate, true);
   view.setUint32(28, sampleRate * blockAlign, true);
   view.setUint16(32, blockAlign, true);
-  view.setUint16(34, 16, true);
+  view.setUint16(34, 24, true);
   writeString(view, 36, "data");
   view.setUint32(40, dataSize, true);
   let offset = 44;
@@ -182,7 +182,10 @@ function encodeWav(channels, sampleRate, ceiling = 1) {
     for (let channel = 0; channel < channelCount; channel += 1) {
       const envelope = boundaryEnvelope(frame, frameCount, fadeFrames);
       const sample = clamp(channels[channel][frame] * envelope * safetyGain, -1, 1);
-      view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
+      const encoded = Math.round(sample < 0 ? sample * 0x800000 : sample * 0x7fffff);
+      view.setUint8(offset, encoded & 0xff);
+      view.setUint8(offset + 1, (encoded >>> 8) & 0xff);
+      view.setUint8(offset + 2, (encoded >>> 16) & 0xff);
       offset += bytesPerSample;
     }
   }

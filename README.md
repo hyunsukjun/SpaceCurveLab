@@ -5,7 +5,7 @@ Prototype mode: this is an independent static Web Audio prototype that follows t
 ## Reused System Language
 
 - Top bar, local-file privacy note, compact transport, readout panel, 6px frame radius, dark surface palette, and canvas-based curve editing follow the earlier Curve Lab tools.
-- The identity color is different: Space Curve Lab uses a bright cyan accent, while the sound object and Distance curve use a stronger red.
+- The identity color is Violet `#A78BFA`, while Direction remains cyan and the sound object and Distance curve remain red.
 - The waveform is reduced to a timeline reference lane. The main work area is the two-curve editor plus the square Spatial View.
 
 ## v1 Scope
@@ -25,7 +25,7 @@ Prototype mode: this is an independent static Web Audio prototype that follows t
 - Recommended browser: current Chrome or Edge on desktop.
 - Processing is local in the browser. Audio files are not uploaded.
 - Short sound files are recommended for the prototype. Very long 4ch/8ch renders can use a lot of memory because WAV files are generated in one pass.
-- WAV export is 16-bit PCM RIFF. This is simple and broadly compatible, but not intended for very large multi-hour files.
+- WAV export is fixed at 48 kHz / 24-bit PCM RIFF for consistent DAW, video, and installation workflows. Input at another decoded sample rate is resampled during Render.
 - Stereo 2ch is a headphone/general-listening spatial render. Quad 4ch and Octo 8ch are discrete speaker-map renders and should be checked on the intended playback system.
 - This is an experimental prototype, not a mastering tool or a room-calibrated spatial audio renderer.
 
@@ -38,3 +38,20 @@ Elevation, X/Y curves, CW/CCW buttons, rotation-speed controls, Orbit/Spiral par
 - Existing Audio Curve Lab and Timbre Curve Lab projects are left untouched.
 - The v1 preview uses browser-standard nodes and no external sound assets.
 - Offline render uses a lightweight internal panning model so multichannel WAV export can work without adding dependencies. It is designed to be replaceable if the later prototype needs a more advanced spatial renderer.
+
+## Product Knowledge Documentation
+
+The web application is the executable reference implementation. Platform-independent behavior, parameter mapping, DSP response, interaction, fine-tuning history, and Standalone migration notes are maintained in:
+
+- `AGENTS.md`
+- `DEVELOPMENT_GUIDELINES.md`
+- `CURVE_LAB_DESIGN_SYSTEM.md`
+- `docs/FEATURE_REGISTRY.md`
+- `docs/PARAMETER_SPEC.md`
+- `docs/INTERACTION_SPEC.md`
+- `docs/DSP_BEHAVIOR.md`
+- `docs/DECISIONS.md`
+- `docs/STANDALONE_MIGRATION.md`
+- `docs/REFERENCE_FIXTURES.md`
+- `docs/VERIFICATION_LOG.md`
+- `docs/LISTENING_NOTES.md`

@@ -1,10 +1,13 @@
 import { createDistanceProcessor, makeSmallRoomImpulse } from "./distance-engine.js?v=20260927-06";
-import { renderSpatialWav } from "./offline-render.js?v=20260927-06";
+import { renderSpatialWav } from "./offline-render.js?v=20260930-02";
+import { prepareRenderBuffer, RENDER_SAMPLE_RATE } from "./render-preparation.js?v=20260930-02";
 import { getSpeakerLayout } from "./speaker-layout.js?v=20260926-03";
+import { OutputMeterAnalyzer } from "./output-meter.js?v=20260930-02";
 
 const fileInput = document.getElementById("fileInput");
 const fileStatus = document.getElementById("fileStatus");
 const timeStatus = document.getElementById("timeStatus");
+const playbackScrubber = document.getElementById("playbackScrubber");
 const playButton = document.getElementById("playButton");
 const stopButton = document.getElementById("stopButton");
 const renderFormat = document.getElementById("renderFormat");
@@ -38,6 +41,8 @@ const motionReadout = document.getElementById("motionReadout");
 const spatialModeLabel = document.getElementById("spatialModeLabel");
 const downloadReadout = document.getElementById("downloadReadout");
 const engineReadout = document.getElementById("engineReadout");
+const meterRows = Array.from(document.querySelectorAll("[data-meter-channel]"));
+const meterClipButton = document.getElementById("meterClipButton");
 
 const colors = {
   direction: "#66d2ff",
@@ -81,6 +86,7 @@ let buffer = null;
 let waveform = [];
 let source = null;
 let previewMaster = null;
+let outputMeter = null;
 let panners = [];
 let distanceProcessors = [];
 let roomImpulse = null;
@@ -88,6 +94,19 @@ let playStartedAt = 0;
 let pauseAt = 0;
 let rafId = null;
 let isPlaying = false;
+let playbackToken = 0;
+let isScrubbing = false;
+let scrubPlaybackWasRunning = false;
+let seekPlaybackRequested = false;
+let meterAnimationFrame = 0;
+let meterLastFrameTime = performance.now();
+let meterClipLatched = false;
+const meterDisplay = meterRows.map(() => ({
+  peak: 0,
+  rms: 0,
+  hold: 0,
+  holdUntil: 0
+}));
 let selectedTool = "pen";
 let eraseModifierActive = false;
 let selectedPoint = null;
@@ -108,6 +127,33 @@ playButton.addEventListener("click", () => {
   else play();
 });
 stopButton.addEventListener("click", stop);
+playbackScrubber.addEventListener("pointerdown", () => {
+  isScrubbing = true;
+  scrubPlaybackWasRunning = isPlaying;
+  seekPlaybackRequested = isPlaying;
+});
+playbackScrubber.addEventListener("input", seekFromScrubber);
+playbackScrubber.addEventListener("change", async () => {
+  await seekFromScrubber();
+  isScrubbing = false;
+  scrubPlaybackWasRunning = false;
+  seekPlaybackRequested = false;
+});
+playbackScrubber.addEventListener("pointerup", () => {
+  isScrubbing = false;
+  scrubPlaybackWasRunning = false;
+  seekPlaybackRequested = false;
+});
+playbackScrubber.addEventListener("pointercancel", () => {
+  isScrubbing = false;
+  scrubPlaybackWasRunning = false;
+  seekPlaybackRequested = false;
+});
+meterClipButton.addEventListener("click", () => {
+  meterClipLatched = false;
+  meterClipButton.classList.remove("clipped");
+  meterClipButton.setAttribute("aria-pressed", "false");
+});
 downloadButton.addEventListener("click", downloadRenderedWav);
 renderFormat.addEventListener("change", () => {
   updateReadouts(currentTimeNorm());
@@ -185,6 +231,7 @@ async function handleFile(event) {
   fileStatus.textContent = "Loading audio";
   playButton.disabled = true;
   stopButton.disabled = true;
+  playbackScrubber.disabled = true;
   downloadButton.disabled = true;
   try {
     const arrayBuffer = await file.arrayBuffer();
@@ -216,6 +263,7 @@ function installAudioBuffer(audioBuffer, label) {
   fileStatus.textContent = label;
   playButton.disabled = false;
   stopButton.disabled = false;
+  playbackScrubber.disabled = false;
   downloadButton.disabled = false;
   pauseAt = 0;
   downloadReadout.textContent = "ready";
@@ -274,6 +322,15 @@ function getAudioContext() {
   return audioContext;
 }
 
+function getOutputMeter(context) {
+  if (!outputMeter) {
+    outputMeter = new OutputMeterAnalyzer(context, { channelCount: 2 });
+    outputMeter.connect(context.destination);
+    startMeterAnimation();
+  }
+  return outputMeter;
+}
+
 function decodeAudioBuffer(context, arrayBuffer) {
   const data = arrayBuffer.slice(0);
   return new Promise((resolve, reject) => {
@@ -285,14 +342,16 @@ function decodeAudioBuffer(context, arrayBuffer) {
 async function play() {
   if (!buffer) return;
   if (pauseAt >= buffer.duration - 0.02) pauseAt = 0;
+  const requestToken = ++playbackToken;
   const context = getAudioContext();
   await context.resume();
+  if (requestToken !== playbackToken) return;
   stopPlaybackNodes();
 
   source = context.createBufferSource();
   source.buffer = buffer;
   previewMaster = context.createGain();
-  previewMaster.connect(context.destination);
+  previewMaster.connect(getOutputMeter(context).input);
 
   const inputCount = Math.min(buffer.numberOfChannels, 2);
   if (!roomImpulse) roomImpulse = makeSmallRoomImpulse(context);
@@ -334,6 +393,8 @@ async function play() {
 }
 
 function stop(resetPosition = true) {
+  playbackToken += 1;
+  seekPlaybackRequested = false;
   if (isPlaying && audioContext) {
     pauseAt = Math.min(buffer?.duration || 0, audioContext.currentTime - playStartedAt);
   }
@@ -344,6 +405,31 @@ function stop(resetPosition = true) {
   updateTime(pauseAt);
   updateReadouts(currentTimeNorm());
   drawAll();
+}
+
+async function seekFromScrubber() {
+  if (!buffer) return;
+  const progress = clamp(Number(playbackScrubber.value) || 0, 0, 1);
+  if (isPlaying) seekPlaybackRequested = true;
+  const resumePlayback = isPlaying || scrubPlaybackWasRunning || seekPlaybackRequested;
+  playbackToken += 1;
+  isPlaying = false;
+  stopPlaybackNodes(resumePlayback);
+  pauseAt = progress * buffer.duration;
+  playButton.textContent = "Play";
+  updateTime(pauseAt);
+  updateReadouts(progress);
+  drawAll(progress);
+
+  if (progress >= 1) {
+    seekPlaybackRequested = false;
+    pauseAt = 0;
+    updateTime(0);
+    updateReadouts(0);
+    drawAll(0);
+    return;
+  }
+  if (resumePlayback) await play();
 }
 
 function stopPlaybackNodes(fadeOut = false) {
@@ -409,6 +495,58 @@ function tick() {
   rafId = requestAnimationFrame(tick);
 }
 
+function linearToDb(value) {
+  return value > 0.000001 ? 20 * Math.log10(value) : -Infinity;
+}
+
+function meterPosition(value) {
+  const db = linearToDb(value);
+  return Math.max(0, Math.min(1, (db + 60) / 60));
+}
+
+function smoothMeterValue(current, target, elapsedMs, attackMs, releaseMs) {
+  const time = target > current ? attackMs : releaseMs;
+  const amount = 1 - Math.exp(-elapsedMs / Math.max(1, time));
+  return current + ((target - current) * amount);
+}
+
+function updateMeterDisplay(now) {
+  const elapsedMs = Math.min(100, Math.max(0, now - meterLastFrameTime));
+  meterLastFrameTime = now;
+  const measuredChannels = outputMeter?.read() || [];
+
+  meterRows.forEach((row, index) => {
+    const measured = measuredChannels[index] || { peak: 0, rms: 0, clipped: false };
+    const display = meterDisplay[index];
+    display.peak = smoothMeterValue(display.peak, measured.peak, elapsedMs, 18, 320);
+    display.rms = smoothMeterValue(display.rms, measured.rms, elapsedMs, 45, 420);
+
+    if (measured.peak >= display.hold) {
+      display.hold = measured.peak;
+      display.holdUntil = now + 1000;
+    } else if (now > display.holdUntil) {
+      display.hold = smoothMeterValue(display.hold, measured.peak, elapsedMs, 0, 700);
+    }
+
+    if (measured.clipped) meterClipLatched = true;
+    row.querySelector(".meterRms").style.transform = `scaleX(${meterPosition(display.rms)})`;
+    row.querySelector(".meterPeak").style.transform = `scaleX(${meterPosition(display.peak)})`;
+    row.querySelector(".meterHold").style.left = `${meterPosition(display.hold) * 100}%`;
+    const peakDb = linearToDb(display.peak);
+    row.querySelector(".meterValue").textContent = Number.isFinite(peakDb) ? peakDb.toFixed(1) : "-∞";
+  });
+
+  meterClipButton.classList.toggle("clipped", meterClipLatched);
+  meterClipButton.setAttribute("aria-pressed", String(meterClipLatched));
+  meterAnimationFrame = requestAnimationFrame(updateMeterDisplay);
+}
+
+function startMeterAnimation() {
+  if (meterAnimationFrame) return;
+  meterLastFrameTime = performance.now();
+  meterAnimationFrame = requestAnimationFrame(updateMeterDisplay);
+}
+
 function updatePreview(t, immediate = false) {
   const angle = directionAt(t);
   const distance = distanceAt(t);
@@ -445,8 +583,9 @@ async function downloadRenderedWav() {
   downloadButton.textContent = "Rendering";
   downloadReadout.textContent = "rendering";
   try {
+    const renderBuffer = await prepareRenderBuffer(buffer);
     const wav = renderSpatialWav(
-      buffer,
+      renderBuffer,
       curves.direction,
       curves.distance,
       renderFormat.value,
@@ -457,7 +596,7 @@ async function downloadRenderedWav() {
     const channels = channelCountForFormat(renderFormat.value);
     const link = document.createElement("a");
     link.href = downloadUrl;
-    link.download = `space-curve-lab-${channels}ch.wav`;
+    link.download = `space-curve-lab-${channels}ch-${RENDER_SAMPLE_RATE / 1000}k-24bit.wav`;
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -834,7 +973,6 @@ function drawSpatial(playheadNorm) {
     spatialCtx.stroke();
   }
   drawSpeakerRing(cx, cy);
-  drawMotionTrail(cx, cy, playheadNorm);
   spatialCtx.fillStyle = colors.listener;
   spatialCtx.beginPath();
   spatialCtx.arc(cx, cy, 13, 0, Math.PI * 2);
@@ -853,27 +991,8 @@ function drawSpatial(playheadNorm) {
   spatialCtx.stroke();
   spatialCtx.fillStyle = colors.distance;
   spatialCtx.beginPath();
-  spatialCtx.arc(x, y, 18, 0, Math.PI * 2);
+  spatialCtx.arc(x, y, 9, 0, Math.PI * 2);
   spatialCtx.fill();
-}
-
-function drawMotionTrail(cx, cy, playheadNorm) {
-  const steps = 34;
-  const start = Math.max(0, playheadNorm - 0.16);
-  for (let i = 0; i <= steps; i += 1) {
-    const t = start + (playheadNorm - start) * (i / steps);
-    const angle = directionAt(t);
-    const distance = distanceAt(t);
-    const radius = 42 + distance * 170;
-    const radians = (angle % 360) * Math.PI / 180;
-    const x = cx + Math.sin(radians) * radius;
-    const y = cy - Math.cos(radians) * radius;
-    const alpha = 0.025 + 0.15 * (i / steps);
-    spatialCtx.fillStyle = `rgba(255, 75, 62, ${alpha})`;
-    spatialCtx.beginPath();
-    spatialCtx.arc(x, y, 2 + 2.8 * (i / steps), 0, Math.PI * 2);
-    spatialCtx.fill();
-  }
 }
 
 function drawSpeakerRing(cx, cy) {
@@ -1028,6 +1147,11 @@ function spatialLabelForFormat(format) {
 
 function updateTime(seconds) {
   timeStatus.textContent = `${formatDuration(seconds)} / ${formatDuration(buffer?.duration || 0)}`;
+  if (!isScrubbing) {
+    playbackScrubber.value = buffer?.duration
+      ? String(clamp(seconds / buffer.duration, 0, 1))
+      : "0";
+  }
 }
 
 function currentTimeNorm() {
