@@ -1,7 +1,7 @@
 # Curve Lab Design System - Space Curve Lab Profile
 
 Baseline: Curve Lab Design System v1.0, applied to Space Curve Lab at commit
-`e7b7620` on 2026-09-28.
+`e7b7620` on 2026-09-28; web skin simplified on 2026-10-02.
 
 ## Shared Visual Language
 
@@ -11,8 +11,8 @@ Baseline: Curve Lab Design System v1.0, applied to Space Curve Lab at commit
 - muted blue-gray waveform used as a timeline reference
 - system font stack; no external font dependency
 - consistent control height, border, radius, spacing, hover, focus, and disabled states
-- subtle ambient background that does not receive pointer input
-- `prefers-reduced-motion` disables ambient and control transitions
+- solid deep background and opaque working surfaces without full-screen blur,
+  decorative animation, or layered panel shadows
 - Canvas remains the visually dominant work area
 
 ## Identity And Semantic Color
@@ -80,9 +80,13 @@ the CSS name.
 - `1240px`: header and toolbar reorganize; Spatial View remains beside the curve.
 - `1040px`: Spatial View moves below the curve.
 - `860px`: single-column header/toolbar and two-column status grid.
-- Ambient layers are low-opacity, very slow (`96s` and `118s`), fixed, and
-  pointer-transparent. They are decorative and may be removed without changing
-  product behavior.
+- The former fixed ambient layers used `90px` blur with `96s` and `118s`
+  animations. They were removed on 2026-10-02 because they were decorative and
+  increased compositing work without communicating audio state.
+- Control transitions and non-functional panel shadows were removed. Hover,
+  focus, disabled, active, curve, waveform, playhead, and meter states remain.
+- Layout dimensions and responsive breakpoints are unchanged by the skin
+  simplification.
 
 ## Protection Rule
 

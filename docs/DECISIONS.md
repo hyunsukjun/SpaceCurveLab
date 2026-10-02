@@ -172,6 +172,21 @@ product discussion. Unknown listening conditions are not inferred.
   exact pixel radius is web-specific and the removed trail is not product behavior.
 - **Status:** IMPLEMENTED for the `20260930-02` release.
 
+## SCL-D016 - Lightweight Web Skin
+
+- **Date:** 2026-10-02
+- **Decision:** remove full-screen blurred animated backgrounds, decorative panel
+  shadows, translucent stacked work surfaces, and non-functional control transitions.
+- **Reason:** retain the Curve Lab visual hierarchy while reducing avoidable browser
+  compositing and paint decoration, especially on less capable systems.
+- **Protected behavior:** layout dimensions, responsive breakpoints, controls,
+  Canvas content, semantic colors, audio state, DSP, Preview, and Render are unchanged.
+- **Result:** deep navy/charcoal surfaces become opaque; Violet identity and
+  Direction/Distance/meter colors remain intact.
+- **Verification boundary:** visual and functional browser checks can confirm parity,
+  but no performance improvement is claimed without measurements on target hardware.
+- **Status:** IMPLEMENTED and locally verified; publication is tracked in Git history.
+
 ## Future Decision Records Required
 
 - approved listening sweet spots for Direction and Distance

@@ -77,3 +77,18 @@ Remaining unknowns:
 - compare Preview and Stereo Render under controlled headphone conditions
 - verify channel order and perceived motion on physical Quad and Octo systems
 - measure long-file render time and peak memory on minimum target hardware
+
+## 2026-10-02 - Lightweight Web Skin
+
+- **Version:** local working tree after public commit `26f1f7d`; cache target
+  `20261002-01`
+- **Evidence:** `STATIC` plus local browser layout and interaction checks
+- **Scope:** CSS decoration and stylesheet cache query only
+- **Removed:** two fixed `90px` blurred animated layers, background gradients,
+  decorative panel/dialog/meter shadows, translucent stacked work surfaces, and
+  control color transitions
+- **Preserved:** all layout rules and breakpoints, Violet/Cyan/Red semantic colors,
+  Canvas graphics, playhead, waveform, meter gradient and CLIP state, modal
+  backdrop, controls, and audio behavior
+- **Performance status:** expected to reduce decorative compositing work, but no
+  low-end hardware timing, CPU, frame-rate, or power measurement was performed
