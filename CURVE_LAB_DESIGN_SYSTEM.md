@@ -104,3 +104,22 @@ Hover #BAA1FF and focus #CCB4FF are derived web colors, not extra brand colors.
 Download WAV uses a darker accent-derived fill. Direction/Distance, sound object,
 meters, spatial geometry and processing are unchanged.
 See `docs/IDENTITY_PILOT.md` and `assets/identity/palette.json` for provenance.
+
+## Laptop-First Workspace — 2026-10-05
+
+- The bottom playback bar is fixed inside the viewport. The application reserves
+  breakpoint-specific bottom space so the last Spatial View content can scroll
+  completely above it.
+- Waveform height scales from `88px` to `128px`. The Direction/Distance editor
+  uses a Space-specific minimum of `250px` on side-by-side layouts and `300px`
+  after Spatial View moves below it; these values are not copied from Timbre.
+- At `1366x768` and `1280x800`, Waveform, Curve, Spatial View, Play/Stop, time,
+  Position, and the L/R meter remain immediately available without horizontal
+  page overflow.
+- Space has no mode-dependent expanding parameter panel. Direction and Distance
+  share the same toolbar and Canvas footprint, so switching modes must not move
+  the workspace.
+- The square Spatial View, speaker markers, numbering, sound-object geometry,
+  curve coordinates, and pointer conversion remain implementation-protected.
+- Reset All uses the destructive command color while Clear Current remains a
+  neutral curve-editing command.

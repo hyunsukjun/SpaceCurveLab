@@ -201,4 +201,23 @@ product discussion. Unknown listening conditions are not inferred.
 
 2026-10-04 · PROJECT-SPECIFIC. Canonical #A982FF and 3 orbit/3 point identity
 replace #A78BFA and the generic waveform. Preserve semantic spatial colors and
-processing. User requests work to stop before commit. See `IDENTITY_PILOT.md`.
+processing. Implemented in `ef37f4d` and included in the subsequent public
+release. See `IDENTITY_PILOT.md`.
+
+## SCL-D018 - Laptop-First Responsive Workspace
+
+- **Date:** 2026-10-05
+- **Decision:** keep the existing Space workspace structure, fix the shared
+  playback bar to the viewport bottom, reserve matching scroll space, and size
+  the Waveform and Curve Canvas displays from viewport height with explicit
+  Space-specific minimums.
+- **Reason:** the previous `58vh` Curve minimum pushed Play/Stop, time, and meters
+  below the first view at `1366x768` and `1280x800`, even though Spatial View
+  already fit beside the curve.
+- **Space adaptation:** preserve the square Spatial View and its speaker geometry;
+  the Waveform yields height first, then the Curve stops shrinking at `250px` in
+  side-by-side layouts. Single-column layouts retain a `300px` Curve minimum and
+  expose Spatial View through vertical scrolling.
+- **Protected behavior:** normalized curve data, pointer conversion, internal
+  Canvas drawing resolution, DSP, Preview, speaker layouts, playback, and Render.
+- **Status:** IMPLEMENTED and locally verified; publication is tracked in Git history.

@@ -94,10 +94,38 @@ Remaining unknowns:
   low-end hardware timing, CPU, frame-rate, or power measurement was performed
 
 
-## 2026-10-04 - Hub v0.10 identity pilot (uncommitted)
+## 2026-10-04 - Hub v0.10 Identity Pilot
 
-Scope: icon and product color only. JS syntax/hash preservation, SVG source hashes
+Commit `ef37f4d`; icon and product color only. JS syntax/hash preservation, SVG source hashes
 and 3-orbit/3-point counts passed. Desktop 1294px and narrow 434px (document 419px)
 checked. Default sample Play/Stop and clock reset observed in a separate tab.
 Console error/warning list empty. No listening, multichannel physical output,
-or new export validation claimed. User requested stop before commit.
+or new export validation claimed. Publication is verified with the following
+laptop-workspace release.
+
+## 2026-10-05 - Laptop-First Responsive Workspace
+
+- **Version:** local working tree on top of `ef37f4d`; stylesheet cache target
+  `20261005-laptop-ui-01`
+- **Evidence:** `STATIC`, `BROWSER`, and downloaded-file header inspection
+- **Browser:** Codex in-app Chromium for responsive and interaction checks; Brave
+  for a physical download into the local Downloads folder
+- **Responsive checks:** `1366x768`, `1280x800`, `1366x620`, `760x800`, and
+  `1920x1080`. No page-level horizontal overflow was observed. At the two laptop
+  sizes the Curve, Spatial View, fixed playback bar, time, Position, and meter
+  were visible together. Low/narrow layouts could scroll the full Spatial View
+  above the fixed bar.
+- **Mode expansion:** not applicable; Direction and Distance do not reveal extra
+  controls or change workspace height.
+- **Curve checks:** point add, drag, delete, Pen restoration, and `2 -> 3 -> 2`
+  point preservation across a `1366x768` to `1280x800` resize.
+- **Audio source:** `/Users/hyunsukjun/Downloads/sample.mp3`, decoded as stereo,
+  `9.10s`. Play advanced to `00:00.87`, L/R meters read `-18.7/-17.8 dB`, and Stop
+  returned time and Position to zero.
+- **WAV artifact:** `space-curve-lab-2ch-48k-24bit (3).wav`, generated from the
+  default 45-second sample in Brave; RIFF PCM, stereo, 48 kHz, 24-bit,
+  `12,960,044` bytes. The browser download event was not exposed to automation,
+  so completion was confirmed from the UI status and newly timestamped file.
+- **Console:** no errors or warnings observed in the in-app browser or Brave.
+- **Not verified:** Safari, Edge/Windows, physical Quad/Octo output, subjective
+  listening parity, and performance on minimum-spec hardware.
