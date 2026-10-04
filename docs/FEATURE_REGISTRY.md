@@ -176,3 +176,8 @@ Elevation, X/Y curves, dedicated CW/CCW controls, rotation-speed parameter,
 Orbit/Spiral parameters, arbitrary speaker layout, Ambisonics, multitrack,
 Live Motion recording, public LPF/reverb controls, Stereo Width, preset/state,
 undo/redo, and calibrated room correction are not implemented.
+
+## SCL-IDENTITY-001 - Hub Identity
+
+IMPLEMENTED: Hub v0.10 Space header/favicon and palette.
+See `IDENTITY_PILOT.md`. Publication authorized 2026-10-04.

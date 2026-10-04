@@ -196,3 +196,9 @@ product discussion. Unknown listening conditions are not inferred.
 - native framework and audio engine choice
 - versioned preset/state schema
 - high-DPI Canvas policy for the remaining web implementation
+
+## SCL-D017 - Hub v0.10 Identity Pilot
+
+2026-10-04 · PROJECT-SPECIFIC. Canonical #A982FF and 3 orbit/3 point identity
+replace #A78BFA and the generic waveform. Preserve semantic spatial colors and
+processing. User requests work to stop before commit. See `IDENTITY_PILOT.md`.

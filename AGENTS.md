@@ -93,3 +93,8 @@ listening and physical speaker tests. Relevant checks include:
 - JavaScript syntax, browser console, served HTTP responses, and dependencies
 
 GitHub commit, push, and public deployment require an explicit user request.
+
+## Identity Pilot
+
+Use canonical Hub v0.10 Space #A982FF and its three-orbit/three-point icon.
+See `docs/IDENTITY_PILOT.md`; preserve parameter colors and spatial mappings.

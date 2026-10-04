@@ -208,3 +208,8 @@ perceptual evidence belongs in `LISTENING_NOTES.md`.
 - minimum macOS hardware and acceptable UI/audio performance targets
 - accessibility and keyboard-editing requirements for curve points
 - preset ownership of source-audio paths and missing-file recovery
+
+## Identity Asset Pilot
+
+STANDALONE ASSET: `assets/identity/space-app.svg` plus symbol/micro and canonical
+palette. Native Dock rendering remains unverified.

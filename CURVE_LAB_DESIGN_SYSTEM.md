@@ -17,7 +17,7 @@ Baseline: Curve Lab Design System v1.0, applied to Space Curve Lab at commit
 
 ## Identity And Semantic Color
 
-Space Curve Lab brand color is Violet `#A78BFA`. It belongs to the waveform
+Space Curve Lab brand color is Violet `#A982FF`. It belongs to the three-orbit/three-point
 brand mark, the `Curve Lab` title text, focus accents, and limited identity details.
 
 Parameter colors are semantic and must not be replaced by the brand color:
@@ -45,7 +45,7 @@ the CSS name.
 | Primary text | `#E8F0F6` |
 | Secondary text | `#AABCCC` |
 | Muted text | `#71889B` |
-| Brand | `#A78BFA` |
+| Brand | `#A982FF` |
 | Focus | `#C4B5FD` |
 | Direction | `#66D2FF` |
 | Distance | `#FF4B3E` |
@@ -94,3 +94,13 @@ Visual refinement must not change normalized curve coordinates, parameter
 mapping, DSP, speaker layout, playback, file loading, or export. When the design
 system changes, document the reason and verify all interaction states and Canvas
 coordinate mapping.
+
+## Hub v0.10 Identity Pilot — 2026-10-04
+
+PROJECT-SPECIFIC local pilot. Previous brand #A78BFA replaced by canonical Space
+#A982FF. Header/favicon use exact Hub v0.10 symbol/micro SVGs.
+`--cl-accent` aliases `--curve-lab-space` from `assets/identity/tokens.css`.
+Hover #BAA1FF and focus #CCB4FF are derived web colors, not extra brand colors.
+Download WAV uses a darker accent-derived fill. Direction/Distance, sound object,
+meters, spatial geometry and processing are unchanged.
+See `docs/IDENTITY_PILOT.md` and `assets/identity/palette.json` for provenance.

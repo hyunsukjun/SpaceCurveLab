@@ -92,3 +92,12 @@ Remaining unknowns:
   backdrop, controls, and audio behavior
 - **Performance status:** expected to reduce decorative compositing work, but no
   low-end hardware timing, CPU, frame-rate, or power measurement was performed
+
+
+## 2026-10-04 - Hub v0.10 identity pilot (uncommitted)
+
+Scope: icon and product color only. JS syntax/hash preservation, SVG source hashes
+and 3-orbit/3-point counts passed. Desktop 1294px and narrow 434px (document 419px)
+checked. Default sample Play/Stop and clock reset observed in a separate tab.
+Console error/warning list empty. No listening, multichannel physical output,
+or new export validation claimed. User requested stop before commit.
