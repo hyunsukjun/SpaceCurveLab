@@ -233,3 +233,7 @@ release. See `IDENTITY_PILOT.md`.
 - **Protected behavior:** normalized curve data, pointer conversion, internal
   Canvas drawing resolution, DSP, Preview, speaker layouts, playback, and Render.
 - **Status:** IMPLEMENTED and locally verified; publication is tracked in Git history.
+
+## 2026-10-06 — Revise SCL-D013 resampler implementation
+
+The fixed 48 kHz/24-bit policy is retained. SCL-D013's OfflineAudioContext resampling and deferral of a custom converter are superseded by 96-tap windowed-sinc preparation. The current browser left 30 kHz energy when downsampling; duration-only verification missed this. The context fallback now only allocates AudioBuffer storage and does not resample. Mono/stereo and the spatial renderer remain unchanged. Local implementation, unpublished; physical output/listening and long files remain unverified.

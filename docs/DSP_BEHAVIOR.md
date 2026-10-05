@@ -164,7 +164,7 @@ Channel order in the WAV is array order shown above.
 
 ## WAV Encoding And Safety
 
-- decoded input is prepared at 48 kHz with `OfflineAudioContext` before spatial
+- decoded input is prepared at 48 kHz with a 96-tap Blackman-windowed sinc converter before spatial
   rendering; already-48 kHz buffers bypass this preparation step
 - output frame count is `round(inputDuration * 48000)`, preserving duration
 - interleaved RIFF/WAVE, PCM format 1, signed 24-bit little-endian

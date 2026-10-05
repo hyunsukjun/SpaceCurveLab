@@ -112,3 +112,9 @@ These meter ballistics are UI feedback, not DSP applied to the audio signal.
 - licensed mono/stereo source manifest with checksums
 - representative Stereo/Quad/Octo WAV files, peaks, frame counts, and checksums
 - controlled listening notes linked to the exact fixture and version
+
+## 2026-10-06 — Band-limited Render preparation (local, unpublished)
+
+Decoded PCM is converted to 48 kHz with a 96-tap Blackman-windowed sinc before the unchanged spatial DSP. Already-48 kHz input bypasses conversion. Mono/stereo count is retained; output length is round(sourceFrames * 48000 / sourceRate). No parameter, speaker order, Preview, fade or gain changes.
+
+Browser preparation/encoding tests: 30 passed, including four rates, mono/stereo input and stereo/quad/octo WAV headers and duration. 30 kHz rejection: 88.2→48 kHz -90.17 dB; 96→48 kHz -98.35 dB. Previously -3.12 dB and 0 dB respectively in the tested in-app browser. Test: tests/browser-render-resampling.html; converter checks: tests/render-resampling.mjs. These are synthetic numerical checks, not physical-speaker/listening, long-file or cross-browser certification.

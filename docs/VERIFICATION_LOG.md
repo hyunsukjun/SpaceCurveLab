@@ -140,3 +140,13 @@ laptop-workspace release.
 - **Automated checks:** changed app.js syntax and git whitespace checks passed; source RMS channel-ratio and silence/short-buffer checks passed. Served app.js matched the local file byte-for-byte. Cache version: `20261005-output-time-02`.
 - **Console:** no errors or warnings observed during the local lifecycle checks.
 - **Limitations:** no subjective listening, physical multichannel routing, Safari/Windows validation, long-file stress test, or reverb-history reconstruction verification. Exact pre-fix visual reproduction was not retained; the clipping cause was established from the fixed radius and backing-canvas dimensions.
+
+## 2026-10-06 — Band-limited Render preparation (local, unpublished)
+
+Decoded PCM is converted to 48 kHz with a 96-tap Blackman-windowed sinc before the unchanged spatial DSP. Already-48 kHz input bypasses conversion. Mono/stereo count is retained; output length is round(sourceFrames * 48000 / sourceRate). No parameter, speaker order, Preview, fade or gain changes.
+
+Browser preparation/encoding tests: 30 passed, including four rates, mono/stereo input and stereo/quad/octo WAV headers and duration. 30 kHz rejection: 88.2→48 kHz -90.17 dB; 96→48 kHz -98.35 dB. Previously -3.12 dB and 0 dB respectively in the tested in-app browser. Test: tests/browser-render-resampling.html; converter checks: tests/render-resampling.mjs. These are synthetic numerical checks, not physical-speaker/listening, long-file or cross-browser certification.
+
+### Release gate — 2026-10-06
+
+Actual app loaded a 6-second 96 kHz stereo fixture; Play/Stop succeeded. Saved Stereo/Quad/Octo WAV files were inspected on disk: 2/4/8 channels, 48000 Hz, 24-bit, 288000 frames (6 seconds) each. Stereo WAV reopened in the app as 6 seconds. Browser console had no errors/warnings. Together with the 30-case conversion/encoding test this validates the scoped resampler change; long files, DAW multichannel playback, listening and cross-browser checks remain open.

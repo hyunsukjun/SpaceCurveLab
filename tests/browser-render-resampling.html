@@ -1,0 +1,22 @@
+<meta charset="utf-8"><title>Space conversion boundary</title><h1>Space actual preparation: rate boundary</h1><pre id="result">Running</pre><script type="module">
+import {prepareRenderBuffer} from '../src/render-preparation.js?v=20261006-48k-01';
+import {renderSpatialWav} from '../src/offline-render.js';
+const results=[];
+for(const rate of [44100,48000,88200,96000]) for(const hz of rate>48000?[997,30000]:[997]) {
+const input=new AudioBuffer({numberOfChannels:2,length:rate,sampleRate:rate});
+for(let c=0;c<2;c++){const a=input.getChannelData(c);for(let i=0;i<a.length;i++)a[i]=.2*Math.sin(2*Math.PI*hz*i/rate)*(c?-.5:1);}
+const out=await prepareRenderBuffer(input);let sum=0,stereoError=0;for(let i=4800;i<43200;i++){sum+=out.getChannelData(0)[i]**2;stereoError=Math.max(stereoError,Math.abs(out.getChannelData(1)[i]+.5*out.getChannelData(0)[i]));}
+const gainDb=20*Math.log10(Math.sqrt(sum/38400)/(.2/Math.sqrt(2)));
+results.push({rate,hz,outputRate:out.sampleRate,frames:out.length,duration:out.duration,gainDb,stereoError,pass:out.length===48000&&(hz<24000?Math.abs(gainDb)<.1:gainDb< -50)&&stereoError<1e-6});
+}
+for(const rate of [44100,48000,88200,96000]) for(const channels of [1,2]) {
+const input=new AudioBuffer({numberOfChannels:channels,length:rate,sampleRate:rate});
+for(let c=0;c<channels;c++){const a=input.getChannelData(c);for(let i=0;i<a.length;i++)a[i]=.2*Math.sin(2*Math.PI*997*i/rate);}
+const out=await prepareRenderBuffer(input);
+for(const [format,count] of [['stereo',2],['quad',4],['octo',8]]) {
+const bytes=renderSpatialWav(out,[{x:0,y:.5},{x:1,y:.5}],[{x:0,y:0},{x:1,y:0}],format,true),v=new DataView(bytes);
+const result={rate,inputChannels:channels,preparedChannels:out.numberOfChannels,format,channels:v.getUint16(22,true),sampleRate:v.getUint32(24,true),bits:v.getUint16(34,true),frames:v.getUint32(40,true)/(count*3)};
+result.pass=result.channels===count&&result.sampleRate===48000&&result.bits===24&&result.frames===48000&&out.numberOfChannels===channels&&(rate!==48000||out===input);results.push(result);
+}}
+document.querySelector('#result').textContent=JSON.stringify(results,null,2);
+</script>
