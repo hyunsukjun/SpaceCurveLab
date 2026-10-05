@@ -187,6 +187,18 @@ product discussion. Unknown listening conditions are not inferred.
   but no performance improvement is claimed without measurements on target hardware.
 - **Status:** IMPLEMENTED and locally verified; publication is tracked in Git history.
 
+## SCL-D019 - Source Waveform As OUTPUT TIME
+
+- **Date:** 2026-10-05
+- **Decision:** move the existing waveform below the curve, use it for pointer and keyboard seeking, and remove the redundant Position slider. Retain the right-side Spatial View.
+- **Reason:** one visible time surface links the source event to both curves without adding another waveform or editing curve points accidentally.
+- **Reference:** Timbre `5530711`: bright 1.5px current line, 5px half-width / 7px triangles; hover uses the same color with a 3/4 dashed pattern, hidden during dragging and outside the plot.
+- **Source semantics:** mono has one lane, stereo has L/R lanes, independently of WAV output channels. RMS buckets use one common visual normalization across both lanes, preserving their relative level. This is an input overview, not a spatial render or peak meter.
+- **Audio consequence:** seeking retains the existing source-graph replacement/fade mechanism; it does not reconstruct the preceding reverb history. Preview remains headphone stereo; offline Stereo/Quad/Octo routing and duration remain unchanged.
+- **Octo display correction:** a fixed 216px speaker radius can exceed the 180px half-width of the smallest backing canvas. Limit only the Octo display radius to `min(216, centerX - 30)` and use 14px labels. Preserve 22.5-degree angles, numbering, Quad/stereo display, and audio mapping.
+- **Standalone contract:** shared normalized time, separate waveform/editor input ownership, explicit source-versus-output labels, and readable speaker labels are portable; source restart details are Web Audio-specific.
+- **Status:** locally verified; commit and publication authorized on 2026-10-05. Release identity is tracked in Git history.
+
 ## Future Decision Records Required
 
 - approved listening sweet spots for Direction and Distance

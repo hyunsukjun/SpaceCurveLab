@@ -162,7 +162,7 @@ unrecorded listening or physical-speaker test.
 - **Status:** VERIFIED in local Chrome with generated mono, stereo MP3, and hot stereo fixtures
 - **Purpose:** Keep transport, position, time, and final headphone-preview level in
   one stable location without duplicating controls in the header.
-- **Behavior:** Play/Pause and Stop retain SCL-F003 semantics; Position seeks the
+- **Behavior:** Play/Pause and Stop retain SCL-F003 semantics; OUTPUT TIME seeks the
   source and synchronized visual state; L/R RMS, peak, peak hold, and latched CLIP
   read the final stereo Preview signal without changing it.
 - **Measurement:** two-channel `AnalyserNode` tap after the Preview master gain;

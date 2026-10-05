@@ -486,6 +486,8 @@ canvas {
 }
 
 #waveCanvas {
+  cursor: crosshair;
+  touch-action: none;
   height: clamp(88px, 12vh, 128px);
   height: clamp(88px, 12dvh, 128px);
 }
@@ -550,7 +552,7 @@ canvas {
   bottom: max(var(--cl-space-3), env(safe-area-inset-bottom, 0px));
   left: var(--cl-space-4);
   display: grid;
-  grid-template-columns: auto auto minmax(160px, 1fr) minmax(33vw, 38vw);
+  grid-template-columns: auto auto minmax(33vw, 1fr);
   align-items: center;
   gap: var(--cl-space-4);
   min-height: 66px;
@@ -571,35 +573,9 @@ canvas {
   min-width: 74px;
 }
 
-.scrubberGroup {
-  display: grid;
-  grid-template-columns: auto minmax(90px, 1fr);
-  align-items: center;
-  gap: var(--cl-space-2);
-  min-width: 0;
-  color: var(--cl-text-muted);
-  font-size: 10px;
-  font-weight: 650;
-  text-transform: uppercase;
-}
-
-#playbackScrubber {
-  width: 100%;
-  height: 20px;
-  margin: 0;
-  padding: 0;
-  accent-color: var(--cl-accent);
-  cursor: pointer;
-}
-
-#playbackScrubber:disabled {
-  opacity: 0.42;
-  cursor: default;
-}
-
-#playbackScrubber:focus-visible {
+#waveCanvas:focus-visible {
   outline: 2px solid var(--cl-focus);
-  outline-offset: 2px;
+  outline-offset: -2px;
 }
 
 .outputMeter {
@@ -783,7 +759,7 @@ canvas {
   }
 
   .playbackBar {
-    grid-template-columns: auto auto minmax(190px, 1fr);
+    grid-template-columns: auto minmax(150px, 1fr);
   }
 
   .outputMeter {
@@ -891,7 +867,6 @@ canvas {
     font-size: 14px;
   }
 
-  .scrubberGroup,
   .outputMeter {
     grid-column: 1 / -1;
   }
@@ -902,14 +877,9 @@ canvas {
 }
 
 @media (max-width: 520px) {
-  .scrubberGroup > span,
   .meterTitle,
   .meterValue {
     display: none;
-  }
-
-  .scrubberGroup {
-    grid-template-columns: minmax(0, 1fr);
   }
 
   .outputMeter {

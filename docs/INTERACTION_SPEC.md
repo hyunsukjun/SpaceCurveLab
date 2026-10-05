@@ -50,13 +50,16 @@ implementation may use different event APIs while preserving these behaviors.
 - Ignore key repeat.
 - Do not double-trigger a focused button; blur focused buttons before toggling.
 
-### Position
+### OUTPUT TIME
 
-- The bottom Position slider represents normalized source time from zero to one.
-- Moving it updates time, waveform/curve playheads, readouts, and Spatial View.
+- The existing source waveform below the curve editor replaces the bottom Position slider.
+- Click/drag updates time, waveform/curve playheads, readouts, and Spatial View without editing points.
 - While playing, seeking fades the previous source graph and starts a fresh graph
   at the selected source position; while paused, it preserves the selected position.
-- Seeking to the exact end follows natural-end semantics and returns to zero.
+- Seeking to the exact end while playing returns to zero; while stopped it selects the end, and Play restarts from zero.
+- Current position uses a bright solid line with top/bottom triangles. Hover uses the same bright dashed line, with no triangles or time label; hide it during dragging and outside the plot.
+- Arrow keys seek one second; Shift+Arrow seeks 0.1 seconds; Home/End select boundaries.
+- Show one MONO lane or two L/R lanes from the input, labelled SOURCE WAVEFORM. These are not rendered spatial output channels; choosing Octo must not create eight waveform lanes.
 
 ### Output Meter
 
@@ -145,7 +148,7 @@ implementation may use different event APIs while preserving these behaviors.
 
 ## Timeline And Visual Synchronization
 
-- Position slider, time display, waveform playhead, curve playhead, current values,
+- OUTPUT TIME, time display, waveform playhead, curve playhead, current values,
   motion readout, and object position share one normalized source-time value.
 - Spatial View is view-only in v1.
 

@@ -129,3 +129,14 @@ laptop-workspace release.
 - **Console:** no errors or warnings observed in the in-app browser or Brave.
 - **Not verified:** Safari, Edge/Windows, physical Quad/Octo output, subjective
   listening parity, and performance on minimum-spec hardware.
+
+## 2026-10-05 - OUTPUT TIME And Octo Labels
+
+- **Scope:** HTML/CSS/app UI only. No changes to spatial DSP, curve interpolation, speaker-layout module, output meter analyzer, resampler, or WAV renderer.
+- **Browser:** Codex in-app Chromium. CSS viewports 1280x800, 1920x1080, 720x800 and approximately 1366x768 (reported 1365x768 because browser zoom is 90%). No horizontal page overflow. Laptop waveform, spatial display and transport fit; narrow layout scrolls the full Spatial View above the fixed bar. Octo labels 1-8 are readable.
+- **Default source:** 45-second mono noise. Stopped click/drag selected time without starting playback; playing drag resumed with meter activity. End and restart via Spacebar passed. Waveform seeking preserved point count; curve add/erase returned 2 -> 3 -> 2.
+- **Real sources:** stereo `sample.mp3` (9.103125s decoded) and JUCE example `cello.wav` (mono, approximately 1.04s). File loading, source lane count, stopped click, playing drag and Stop checked. These are execution checks, not listening approval.
+- **Actual downloaded artifacts:** `space-curve-lab-2ch-48k-24bit (4).wav`, `space-curve-lab-4ch-48k-24bit (1).wav`, `space-curve-lab-8ch-48k-24bit (1).wav` in Downloads. Parsed RIFF headers verify 2/4/8 channels, 48000 Hz, 24-bit PCM, 436950 frames / 9.103125s each.
+- **Automated checks:** changed app.js syntax and git whitespace checks passed; source RMS channel-ratio and silence/short-buffer checks passed. Served app.js matched the local file byte-for-byte. Cache version: `20261005-output-time-02`.
+- **Console:** no errors or warnings observed during the local lifecycle checks.
+- **Limitations:** no subjective listening, physical multichannel routing, Safari/Windows validation, long-file stress test, or reverb-history reconstruction verification. Exact pre-fix visual reproduction was not retained; the clipping cause was established from the fixed radius and backing-canvas dimensions.

@@ -64,7 +64,8 @@ the CSS name.
 - Status readouts expose input, active curve, point count, current Direction,
   Distance, Preview, selected output engine, and WAV state.
 - The bottom playback bar follows the shared order: Play/Stop, sole time display,
-  Position, then final L/R output meter. On wide screens the meter receives at
+  then final L/R output meter. OUTPUT TIME below the curve replaces Position.
+  On wide screens the meter receives at
   least about one third of the viewport; narrower layouts wrap it without overlap.
 
 ## Interaction States
@@ -114,7 +115,7 @@ See `docs/IDENTITY_PILOT.md` and `assets/identity/palette.json` for provenance.
   uses a Space-specific minimum of `250px` on side-by-side layouts and `300px`
   after Spatial View moves below it; these values are not copied from Timbre.
 - At `1366x768` and `1280x800`, Waveform, Curve, Spatial View, Play/Stop, time,
-  Position, and the L/R meter remain immediately available without horizontal
+  OUTPUT TIME, and the L/R meter remain immediately available without horizontal
   page overflow.
 - Space has no mode-dependent expanding parameter panel. Direction and Distance
   share the same toolbar and Canvas footprint, so switching modes must not move

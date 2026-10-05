@@ -6,7 +6,7 @@
     <title>Space Curve Lab</title>
     <link rel="icon" type="image/svg+xml" href="assets/identity/space-micro.svg?v=hub-v0.10">
     <link rel="stylesheet" href="assets/identity/tokens.css?v=hub-v0.10">
-    <link rel="stylesheet" href="src/styles.css?v=20261005-laptop-ui-01">
+    <link rel="stylesheet" href="src/styles.css?v=20261005-output-time-02">
   </head>
   <body>
     <main class="app">
@@ -100,11 +100,11 @@
 
         <div class="workspace">
           <div class="curveStack">
-            <div class="canvasFrame timelineFrame">
-              <canvas id="waveCanvas" width="1600" height="150"></canvas>
-            </div>
             <div class="canvasFrame curveFrame">
               <canvas id="curveCanvas" width="1600" height="560"></canvas>
+            </div>
+            <div class="canvasFrame timelineFrame">
+              <canvas id="waveCanvas" width="1600" height="150" role="slider" tabindex="0" aria-label="Output time, source waveform, not spatial output" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></canvas>
             </div>
           </div>
           <aside class="spatialPanel">
@@ -124,10 +124,6 @@
           <button id="stopButton" type="button" disabled>Stop</button>
         </div>
         <output id="timeStatus" aria-label="Current playback time and duration">00:00.00 / 00:00.00</output>
-        <label class="scrubberGroup" for="playbackScrubber">
-          <span>Position</span>
-          <input id="playbackScrubber" type="range" min="0" max="1" step="0.0001" value="0" disabled>
-        </label>
         <section class="outputMeter" aria-label="Stereo headphone preview output level meter">
           <div class="meterTitle">OUT</div>
           <div class="meterChannels">
@@ -166,6 +162,6 @@
       </div>
     </div>
 
-    <script src="src/app.js?v=20260930-02" type="module"></script>
+    <script src="src/app.js?v=20261005-output-time-02" type="module"></script>
   </body>
 </html>
