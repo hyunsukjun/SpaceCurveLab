@@ -16,12 +16,14 @@ export function renderSpatialWav(buffer, directionCurve, distanceCurve, format =
     { value: 0 },
     { value: 0 }
   ];
-  const reverb = Array.from({ length: layout.length }, () => ({
+  // Each input source advances its own room once per audio frame.
+  const reverb = Array.from({ length: buffer.numberOfChannels > 1 ? 2 : 1 }, () =>
+    Array.from({ length: layout.length }, () => ({
     a: new Float32Array(Math.floor(sampleRate * 0.043)),
     b: new Float32Array(Math.floor(sampleRate * 0.079)),
     ai: 0,
     bi: 0
-  }));
+  })));
 
   for (let i = 0; i < frameCount; i += 1) {
     const t = frameCount <= 1 ? 0 : i / (frameCount - 1);
@@ -29,10 +31,10 @@ export function renderSpatialWav(buffer, directionCurve, distanceCurve, format =
     const distance = distanceBypassed ? 0 : sampleDistance(distanceCurve, t);
     const mix = distanceRoomLevels(distance);
     const leftSample = distanceBypassed ? left[i] : shapeDistanceTone(left[i], distance, sampleRate, filters[0]);
-    addPointSource(output, layout, reverb, leftSample, left[i], direction - spread, distance, mix, i);
+    addPointSource(output, layout, reverb[0], leftSample, left[i], direction - spread, distance, mix, i);
     if (buffer.numberOfChannels > 1) {
       const rightSample = distanceBypassed ? right[i] : shapeDistanceTone(right[i], distance, sampleRate, filters[1]);
-      addPointSource(output, layout, reverb, rightSample, right[i], direction + spread, distance, mix, i);
+      addPointSource(output, layout, reverb[1], rightSample, right[i], direction + spread, distance, mix, i);
     }
   }
 

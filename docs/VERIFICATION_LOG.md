@@ -170,3 +170,11 @@ Browser QA using the product renderer generates a moving anti-phase WAV and re-d
 ## 2026-10-06 — Browser download release gate passed
 
 Brave standard Download WAV followed by native Save produced an actual 576044-byte, 48kHz/24-bit/2ch/96000-frame WAV from the 2-second anti-phase input. Measured peak 0.0370549 (not silence). SHA256 1f542a01b6df7d07985d8809838ea424f9602a8ac310e75e432b0dd9d8be8969. Reopening this downloaded file in the app shows 2s/2ch; Play advances cursor and both output meters; no console warnings/errors. This supersedes the pending ordinary-download gate above for this browser/fixture only. In-app automated download acquisition remains a tooling limitation. User authorized commit/deployment after validation; listening on musical stereo material remains a later family tuning step, not a completed perceptual approval.
+
+## 2026-10-06 — Correct multichannel stereo room clock
+
+At baseline 002982d, Quad/Octo shared per-output diffuse tanks between input L/R; addPointSource advanced the same indices twice per stereo frame. An impulse at sample 960 with only one populated input produced its first diffuse reflection at 21.5ms instead of the mono 43ms. This was reproduced for both L-only and R-only in Quad and Octo.
+
+Allocate independent per-source/per-output tanks; each now advances once per audio frame. Delay lengths 43/79ms, feedback coefficients, direct panning, speaker order, distance curves, WAV ceiling/fades/duration and Preview remain unchanged. Stereo multichannel room timing and texture intentionally change; mono and all 2ch outputs are preserved. Stereo diffuse memory doubles versus the old shared-bank implementation: at48k, Octo adds about183KiB of Float32 delay storage. No tail extension.
+
+Node tests/multichannel-room-clock.mjs and browser tests/browser-room-clock.html pass all four cases at43ms, with mono versus correctly aligned one-sided stereo WAV PCM difference zero. QA regression preserves22 unaffected WAV cases byte-for-byte; two-source superposition matches within one24-bit LSB. Existing36 stereo motion cases and resampling regression pass. Browser decoded4/8ch and0.5s correctly. These are synthetic engine/runtime checks, not listening or physical-speaker certification.

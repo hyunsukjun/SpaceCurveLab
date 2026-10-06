@@ -1,0 +1,15 @@
+<!doctype html><meta charset="utf-8"><title>Space room clock verification</title><h1>Space 4/8ch room timing</h1><pre id="result">Running</pre>
+<script type="module">
+import {renderSpatialWav} from '../src/offline-render.js?v=20261006-room-01';
+try {
+ const rate=48000,n=24000,at=960,x=new Float32Array(n),z=new Float32Array(n);x[at]=.1;const flat=y=>[{x:0,y},{x:1,y}],rows=[];
+ for(const format of ['quad','octo'])for(const side of ['left','right']){
+  const channels=side==='left'?[x,z]:[z,x];const wav=renderSpatialWav({sampleRate:rate,length:n,numberOfChannels:2,getChannelData:c=>channels[c]},flat((1800+(side==='left'?45:-45))/3600),flat(1),format,false);
+  const decoded=await new OfflineAudioContext(2,1,rate).decodeAudioData(wav);let first=null;
+  for(let i=at+480;i<n&&first===null;i++)for(let c=0;c<decoded.numberOfChannels;c++)if(Math.abs(decoded.getChannelData(c)[i])>1e-5){first=(i-at)/rate*1000;break;}
+  if(first!==43)throw new Error('Expected 43 ms, got '+first);
+  rows.push({format,side,firstReflectionMs:first,channels:decoded.numberOfChannels,duration:decoded.duration});
+ }
+ result.textContent='PASS\n'+JSON.stringify(rows,null,2);
+}catch(e){result.textContent='FAIL '+e.stack;}
+</script>

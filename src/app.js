@@ -1,5 +1,5 @@
 import { createDistanceProcessor, makeSmallRoomImpulse } from "./distance-engine.js?v=20260927-06";
-import { renderSpatialWav } from "./offline-render.js?v=20261006-stereo-01";
+import { renderSpatialWav } from "./offline-render.js?v=20261006-room-01";
 import { prepareRenderBuffer, RENDER_SAMPLE_RATE } from "./render-preparation.js?v=20261006-48k-01";
 import { getSpeakerLayout } from "./speaker-layout.js?v=20260926-03";
 import { OutputMeterAnalyzer } from "./output-meter.js?v=20260930-02";
