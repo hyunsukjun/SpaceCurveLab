@@ -103,7 +103,7 @@ platform is specified in `REFERENCE_FIXTURES.md`.
 
 ## Offline Stereo Render
 
-Stereo input is averaged to mono before spatial rendering:
+Historical baseline (dc7e78e): stereo input was averaged to mono before spatial rendering. The current stereo-input path supersedes this with independent source processing and a minimum pan separation; see the 2026-10-06 input-preservation contract below. Mono still uses these equations:
 
 ```text
 dry = monoInput or (left + right) / 2
@@ -187,7 +187,7 @@ end are truncated. This is a known product decision/risk to evaluate before Stan
 | Direction | browser HRTF Panner | deterministic pan/speaker weights | high |
 | Reverb | 1.15 s convolution IR | short delay networks | high |
 | Parameter smoothing | Web Audio target times | frame sampling/filter state | medium |
-| Stereo input | linked HRTF pair | mono downmix in 2ch render; linked pair in 4/8ch | high for 2ch |
+| Stereo input | linked HRTF pair | independent sources with protected pan separation in 2ch; linked pair in 4/8ch | high for 2ch |
 | Master/boundary gain | 0.9, up to 8 ms | ceiling 0.98, 8 ms | medium |
 | Sample rate | active AudioContext/device rate | fixed 48 kHz | low/medium; resampler implementation may vary |
 | Randomness | deterministic IR seed | deterministic/no random stage | low repeatability risk |
@@ -208,3 +208,13 @@ speaker tests remain required.
 - rapid curve motion, extreme input levels, DC-heavy files, and physical speaker
   gain consistency need broader testing
 - current perceptual sweet spots are `NEEDS LISTENING TEST`
+
+## 2026-10-06 — Stereo Render input preservation (local candidate)
+
+User authorized eliminating stereo mono-sum loss and avoiding severe cancellation. Two-channel export now has a separate linked-stereo branch; mono and 4/8ch code paths are unchanged. Each source has independent low-pass and two-channel diffuse state. Each contributes at gain 0.5 before the existing distance mapping and output ceiling. The mono-sum equations above describe the historical dc7e78e stereo-input path only.
+
+Let theta be Direction radians and w=1-0.32d. halfSpan=max(0.5,abs(cos(theta))*sqrt(0.5)*w); center=clamp(sin(theta)*sqrt(0.5)*w,-1+halfSpan,1-halfSpan). Left/right source pans are center-halfSpan and center+halfSpan, followed by the existing equal-power cosine/sine gains. The gap floor and fixed source order intentionally prevent the direct two-by-two mix matrix from becoming singular at side positions. This is a stereo projection with limited lateral concentration, NOT literal rear source swapping or HRTF parity. The floor is an engineering candidate, not a listening-approved parameter. No artificial decorrelation, phase inversion, or input-dependent normalization is introduced.
+
+QA: 864 fixed-angle 48k/24-bit WAV cases (0/90/180-degree source phase, 72 angles, bypass on/off, Distance 0/1). No complete loss, and tested rotation RMS span <3dB (anti-phase worst 2.784dB). Mono stereo/quad/octo and stereo quad/octo: 10 byte-identical cases against dc7e78e. L-only/R-only survive; hot rotating input stays within 0.98 ceiling. These narrow tone fixtures do not certify arbitrary music, frequency-dependent cancellation, physical speakers, or moving-curve listening. Browser anti-phase file loading, Play and render completion passed with no warning/error logs; download-event timed out, so actual disk persistence/reopen is NOT verified this turn. Resampling regression passed.
+
+Evidence and repeatable QA are in the family workspace: SPACE_STEREO_SAFETY_CHANGE.md, qa/space-stereo-safety.mjs, evidence/space-stereo-safety.json. No commit/deployment yet. Multichannel shared diffuse state remains a separate pending investigation.

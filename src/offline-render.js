@@ -40,6 +40,9 @@ export function renderSpatialWav(buffer, directionCurve, distanceCurve, format =
 }
 
 function renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceBypassed) {
+  if (buffer.numberOfChannels > 1) {
+    return renderLinkedStereoWav(buffer, directionCurve, distanceCurve, distanceBypassed);
+  }
   const sampleRate = buffer.sampleRate;
   const frameCount = buffer.length;
   const output = [new Float32Array(frameCount), new Float32Array(frameCount)];
@@ -72,6 +75,38 @@ function renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceB
   }
 
   return encodeWav(output, sampleRate, 0.98);
+}
+
+// A 2-channel projection cannot distinguish front/back like HRTF. Keep source
+// order and a minimum pan separation so its direct matrix never becomes singular.
+function renderLinkedStereoWav(buffer, directionCurve, distanceCurve, bypassed) {
+  const rate = buffer.sampleRate;
+  const output = [new Float32Array(buffer.length), new Float32Array(buffer.length)];
+  const inputs = [buffer.getChannelData(0), buffer.getChannelData(1)];
+  const filters = [{ value: 0 }, { value: 0 }];
+  const rooms = inputs.map(() => [
+    { a: new Float32Array(Math.floor(rate * 0.037)), b: new Float32Array(Math.floor(rate * 0.071)), ai: 0, bi: 0 },
+    { a: new Float32Array(Math.floor(rate * 0.041)), b: new Float32Array(Math.floor(rate * 0.083)), ai: 0, bi: 0 }
+  ]);
+  for (let i = 0; i < buffer.length; i += 1) {
+    const t = buffer.length <= 1 ? 0 : i / (buffer.length - 1);
+    const angle = sampleDirection(directionCurve, t) * Math.PI / 180;
+    const distance = bypassed ? 0 : sampleDistance(distanceCurve, t);
+    const mix = distanceRoomLevels(distance);
+    const width = 1 - distance * 0.32;
+    const halfSpan = Math.max(0.5, Math.abs(Math.cos(angle)) * Math.SQRT1_2 * width);
+    const center = clamp(Math.sin(angle) * Math.SQRT1_2 * width, -1 + halfSpan, 1 - halfSpan);
+    const direct = (1 - distance * 0.42) * mix.dry * 0.5;
+    for (let source = 0; source < 2; source += 1) {
+      const pan = clamp(center + (source === 0 ? -halfSpan : halfSpan), -1, 1);
+      const dry = inputs[source][i];
+      const shaped = bypassed ? dry : shapeDistanceTone(dry, distance, rate, filters[source]);
+      output[0][i] += shaped * Math.cos((pan + 1) * Math.PI / 4) * direct;
+      output[1][i] += shaped * Math.sin((pan + 1) * Math.PI / 4) * direct;
+      addStereoDiffuse(output, rooms[source], dry * 0.5, mix.wet, i);
+    }
+  }
+  return encodeWav(output, rate, 0.98);
 }
 
 function addStereoDiffuse(output, reverb, sample, wetMix, frame) {
