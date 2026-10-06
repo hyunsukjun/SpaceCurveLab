@@ -1,14 +1,15 @@
 import { prepareWavChannels } from "./render-resampling.js?v=20261006-48k-01";
 export const RENDER_SAMPLE_RATE = 48000;
 
-export async function prepareRenderBuffer(audioBuffer, targetSampleRate = RENDER_SAMPLE_RATE) {
+export async function prepareRenderBuffer(audioBuffer, targetSampleRate = RENDER_SAMPLE_RATE, signal) {
+  if (signal?.aborted) throw new DOMException("Render cancelled", "AbortError");
   if (!audioBuffer) throw new Error("No audio buffer available for render");
   if (targetSampleRate !== RENDER_SAMPLE_RATE) throw new Error("Render requires 48 kHz");
   if (audioBuffer.sampleRate === targetSampleRate) return audioBuffer;
   const channelCount = Math.max(1, Math.min(audioBuffer.numberOfChannels, 2));
   const left = audioBuffer.getChannelData(0);
   const right = channelCount > 1 ? audioBuffer.getChannelData(1) : left;
-  const output = await prepareWavChannels(left, right, audioBuffer.sampleRate);
+  const output = await prepareWavChannels(left, right, audioBuffer.sampleRate, signal);
   let buffer;
   if (typeof AudioBuffer !== "undefined") {
     buffer = new AudioBuffer({numberOfChannels: channelCount, length: output.left.length, sampleRate: targetSampleRate});

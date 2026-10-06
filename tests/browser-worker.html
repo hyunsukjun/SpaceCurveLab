@@ -1,0 +1,27 @@
+<!doctype html><meta charset="utf-8"><title>Space worker regression</title><h1>Space worker regression</h1><button id="run">Run tests</button><pre id="result">Ready</pre>
+<script type="module">
+import {renderSpatialWav} from '../src/offline-render.js?v=20261006-room-01';
+import {renderSpatialWavAsync} from '../src/render-client.js?v=20261006-worker-01';
+const flat=y=>[{x:0,y},{x:1,y}],rate=48000;
+function input(seconds){const l=Float32Array.from({length:rate*seconds},(_,i)=>.02*Math.sin(2*Math.PI*997*i/rate)),r=Float32Array.from(l,x=>-x);return {sampleRate:rate,length:l.length,numberOfChannels:2,getChannelData:c=>c?r:l};}
+function equal(a,b){const x=new Uint8Array(a),y=new Uint8Array(b);if(x.length!==y.length||x.some((v,i)=>v!==y[i]))throw Error('WAV mismatch');}
+run.onclick=async()=>{run.disabled=true;try{
+ const short=input(.2),rows=[];
+ for(const format of ['stereo','quad','octo'])for(const bypass of [true,false]){
+  const args=[short,flat(.53),flat(1),format,bypass];equal(await renderSpatialWavAsync(...args),renderSpatialWav(...args));rows.push({format,bypass,byteIdentical:true});
+ }
+ const long=input(60),args=[long,flat(.5),flat(1),'octo',false];
+ let cancelled=false,cancelCycles=0;
+ const shortArgs=[short,flat(.5),flat(1),'octo',false],reference=renderSpatialWav(...shortArgs);
+ for(let cycle=0;cycle<5;cycle++){
+  const controller=new AbortController();setTimeout(()=>controller.abort(),50);cancelled=false;
+  try{await renderSpatialWavAsync(...args,controller.signal);}catch(e){if(e.name!=='AbortError')throw e;cancelled=true;}
+  if(!cancelled)throw Error('Cancellation failed');
+  equal(await renderSpatialWavAsync(...shortArgs),reference);cancelCycles++;
+ }
+ let ticks=0;const timer=setInterval(()=>ticks++,20),start=performance.now();let wav;
+ try{wav=await renderSpatialWavAsync(...args);}finally{clearInterval(timer);}
+ if(ticks<3)throw Error('UI heartbeat stalled');const view=new DataView(wav);if(view.getUint32(40,true)!==60*rate*24)throw Error('Length mismatch');
+ result.textContent='PASS\n'+JSON.stringify({rows,cancelled,cancelCycles,recoveryIdentical:true,longSeconds:60,longChannels:8,elapsedMs:performance.now()-start,heartbeatTicks:ticks,sourceIntact:long.getChannelData(0).length===60*rate},null,2);
+}catch(e){result.textContent='FAIL '+e.stack;}finally{run.disabled=false;}};
+</script>

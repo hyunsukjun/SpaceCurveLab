@@ -1,6 +1,6 @@
 import { createDistanceProcessor, makeSmallRoomImpulse } from "./distance-engine.js?v=20260927-06";
-import { renderSpatialWav } from "./offline-render.js?v=20261006-room-01";
-import { prepareRenderBuffer, RENDER_SAMPLE_RATE } from "./render-preparation.js?v=20261006-48k-01";
+import { renderSpatialWavAsync } from "./render-client.js?v=20261006-worker-01";
+import { prepareRenderBuffer, RENDER_SAMPLE_RATE } from "./render-preparation.js?v=20261006-worker-01";
 import { getSpeakerLayout } from "./speaker-layout.js?v=20260926-03";
 import { OutputMeterAnalyzer } from "./output-meter.js?v=20260930-02";
 
@@ -612,23 +612,33 @@ function setPannerPosition(node, x, y, z, immediate = false) {
   }
 }
 
+let renderController = null;
 async function downloadRenderedWav() {
+  if (renderController) {
+    renderController.abort();
+    downloadButton.disabled = true;
+    downloadButton.textContent = "Cancelling";
+    return;
+  }
   if (!buffer) return;
-  downloadButton.disabled = true;
-  downloadButton.textContent = "Rendering";
+  const controller = new AbortController();
+  renderController = controller;
+  const source = buffer;
+  const direction = curves.direction.map(point => ({...point}));
+  const distance = curves.distance.map(point => ({...point}));
+  const format = renderFormat.value;
+  const bypassed = distanceBypass.checked;
+  downloadButton.textContent = "Cancel Render";
   downloadReadout.textContent = "rendering";
   try {
-    const renderBuffer = await prepareRenderBuffer(buffer);
-    const wav = renderSpatialWav(
-      renderBuffer,
-      curves.direction,
-      curves.distance,
-      renderFormat.value,
-      distanceBypass.checked
+    const renderBuffer = await prepareRenderBuffer(source, RENDER_SAMPLE_RATE, controller.signal);
+    const wav = await renderSpatialWavAsync(
+      renderBuffer, direction, distance, format, bypassed, controller.signal
     );
+    if (controller.signal.aborted) throw new DOMException("Render cancelled", "AbortError");
     const blob = new Blob([wav], { type: "audio/wav" });
     const downloadUrl = URL.createObjectURL(blob);
-    const channels = channelCountForFormat(renderFormat.value);
+    const channels = channelCountForFormat(format);
     const link = document.createElement("a");
     link.href = downloadUrl;
     link.download = `space-curve-lab-${channels}ch-${RENDER_SAMPLE_RATE / 1000}k-24bit.wav`;
@@ -638,9 +648,10 @@ async function downloadRenderedWav() {
     setTimeout(() => URL.revokeObjectURL(downloadUrl), 500);
     downloadReadout.textContent = `${channels}ch downloaded`;
   } catch (error) {
-    downloadReadout.textContent = "render failed";
-    console.error(error);
+    downloadReadout.textContent = error.name === "AbortError" ? "cancelled" : "render failed";
+    if (error.name !== "AbortError") console.error(error);
   } finally {
+    renderController = null;
     downloadButton.disabled = false;
     downloadButton.textContent = "Download WAV";
   }
