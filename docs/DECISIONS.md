@@ -265,3 +265,7 @@ Browser tests/browser-worker.html: six format/bypass cases match synchronous WAV
 ## 2026-10-06 — Worker release gate passed
 
 Browser worker suite now repeats cancel/short rerender five times, each WAV byte-identical to synchronous reference; six format/bypass parity cases and source preservation pass.60s Octo finished in1084ms with54 UI timer ticks in this run. Brave normal Download WAV/native Save produced45s/8ch/48k/24-bit/2160000frames, SHA25682dbd1b4bf027090a096a9b34b75bfe9c0a42bc237a238b060e7433e0041d5d3. Actual file reopens as45s/8ch and Play/Stop works without console warnings/errors. Preview still uses first two channels; this is not physical8ch playback certification. This supersedes pending worker file persistence/reopen for this tested case. Memory recovery/low-end devices and musical listening remain unverified. Family evidence: space-worker-download.json, space-worker-final.txt, space-worker-download-reopened.png.
+
+## Give editing and dialogs priority over global transport (2026-10-07)
+
+COMMON CANDIDATE: transport shortcuts must respect the same availability as Play and must not consume form editing or modal button activation. Guard the current handlers without changing DSP or curve data. The old modal handling could start background playback (Audio/Space handler path; directly reproduced in Space) or suppress Cancel keyup (directly reproduced in Spectral). Both phases now defer to the open dialog.
