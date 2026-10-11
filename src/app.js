@@ -1,3 +1,4 @@
+import { readAudioFile } from "./audio-import.js?v=20261011-aiff1";
 import { createDistanceProcessor, makeSmallRoomImpulse } from "./distance-engine.js?v=20260927-06";
 import { renderSpatialWavAsync } from "./render-client.js?v=20261011-weight-reuse1";
 import { prepareRenderBuffer, RENDER_SAMPLE_RATE } from "./render-preparation.js?v=20261006-worker-01";
@@ -268,15 +269,15 @@ async function handleFile(event) {
   seekDisabled = true;
   downloadButton.disabled = true;
   try {
-    const arrayBuffer = await file.arrayBuffer();
     const context = getAudioContext();
+    const arrayBuffer = await readAudioFile(file, context.sampleRate);
     const decodedBuffer = await decodeAudioBuffer(context, arrayBuffer);
     installAudioBuffer(decodedBuffer, `${file.name} / ${formatDuration(decodedBuffer.duration)} / ${decodedBuffer.numberOfChannels}ch`);
   } catch (error) {
     buffer = null;
     waveform = [];
     inputReadout.textContent = "mono/stereo";
-    fileStatus.textContent = "Cannot decode audio file";
+    fileStatus.textContent = error.message?.startsWith("AIFF:") ? error.message : "Cannot decode audio file";
     downloadReadout.textContent = "not ready";
     updateTime(0);
     console.error(error);

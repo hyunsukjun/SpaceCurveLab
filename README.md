@@ -55,3 +55,10 @@ The web application is the executable reference implementation. Platform-indepen
 - `docs/REFERENCE_FIXTURES.md`
 - `docs/VERIFICATION_LOG.md`
 - `docs/LISTENING_NOTES.md`
+
+
+### Portable AIFF input
+
+AIFF (.aif/.aiff), mono/stereo 16/24-bit PCM, is converted locally on import.
+AIFF-C is not supported by this importer; use PCM WAV instead. Original files
+are unchanged. See [support scope and limits](docs/AIFF_IMPORT.md).

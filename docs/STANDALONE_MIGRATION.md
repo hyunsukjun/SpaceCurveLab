@@ -252,3 +252,11 @@ COMMON CANDIDATE: one physical shortcut press dispatches at most one available t
 ## 2026-10-11 — Render scratch ownership
 
 Use render-owned reusable double-precision panning weights for sequential source processing. Do not share mutable scratch across concurrent renders or sources processed in parallel. Preserve summation order and verify reference WAV bytes before claiming equivalent DSP. Safari RSS includes GC/allocator behavior, not just signal buffers.
+
+
+## AIFF input compatibility (2026-10-11)
+
+See [AIFF import contract](AIFF_IMPORT.md): local PCM AIFF 16/24-bit mono/stereo
+normalization into PCM WAV before the established decoder. Existing DSP,
+resampling and Lab-specific channel policies are preserved. Browser and memory
+verification limits are recorded there.

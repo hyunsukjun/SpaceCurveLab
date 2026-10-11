@@ -239,3 +239,11 @@ Browser tests/browser-worker.html: six format/bypass cases match synchronous WAV
 Replace per-source/per-frame layout.map/reduce allocation with one render-owned Float64Array and an ordered summation loop. Each call overwrites every weight before use; sequential L/R calls can share the scratch. This removes 17,280,000 weight-array allocations for a 180s stereo render. Preserve double precision, channel and summation order, direction/distance mapping, room state, fades, global peak normalization and WAV format. No realtime Preview changes. Baseline is 9c316a9.
 
 24 mono/stereo × Stereo/Quad/Octo × bypass × moving/static fixtures match baseline WAV bytes in Node. Existing room-clock4 and stereo-motion36 checks pass. Safari fresh-process 180s Octo4 runs complete, each207,360,044bytes; heartbeat max25ms. Memory comparison is a bounded observation, not leak-free/low-spec certification. Full workboard report: SPACE_WEIGHT_REUSE_2026-10-11.md. Listening deferred by user.
+
+
+## AIFF input compatibility (2026-10-11)
+
+See [AIFF import contract](AIFF_IMPORT.md): local PCM AIFF 16/24-bit mono/stereo
+normalization into PCM WAV before the established decoder. Existing DSP,
+resampling and Lab-specific channel policies are preserved. Browser and memory
+verification limits are recorded there.
