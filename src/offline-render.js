@@ -12,6 +12,8 @@ export function renderSpatialWav(buffer, directionCurve, distanceCurve, format =
   const left = buffer.getChannelData(0);
   const right = buffer.numberOfChannels > 1 ? buffer.getChannelData(1) : left;
   const spread = buffer.numberOfChannels > 1 ? 45 : 0;
+  // Scratch space is shared by sequential source calls; keep double precision.
+  const weights = new Float64Array(layout.length);
   const filters = [
     { value: 0 },
     { value: 0 }
@@ -31,10 +33,10 @@ export function renderSpatialWav(buffer, directionCurve, distanceCurve, format =
     const distance = distanceBypassed ? 0 : sampleDistance(distanceCurve, t);
     const mix = distanceRoomLevels(distance);
     const leftSample = distanceBypassed ? left[i] : shapeDistanceTone(left[i], distance, sampleRate, filters[0]);
-    addPointSource(output, layout, reverb[0], leftSample, left[i], direction - spread, distance, mix, i);
+    addPointSource(output, layout, reverb[0], leftSample, left[i], direction - spread, distance, mix, i, weights);
     if (buffer.numberOfChannels > 1) {
       const rightSample = distanceBypassed ? right[i] : shapeDistanceTone(right[i], distance, sampleRate, filters[1]);
-      addPointSource(output, layout, reverb[1], rightSample, right[i], direction + spread, distance, mix, i);
+      addPointSource(output, layout, reverb[1], rightSample, right[i], direction + spread, distance, mix, i, weights);
     }
   }
 
@@ -125,15 +127,18 @@ function addStereoDiffuse(output, reverb, sample, wetMix, frame) {
   }
 }
 
-function addPointSource(output, layout, reverb, directSample, roomSample, direction, distance, mix, frame) {
+function addPointSource(output, layout, reverb, directSample, roomSample, direction, distance, mix, frame, weights) {
   const directGain = 1 - distance * 0.48;
   const roomInput = roomSample * 0.3;
   const value = directSample * directGain * 0.85 * mix.dry;
-  const weights = layout.map((angle) => {
-    const diff = angularDistance(direction, angle.angle);
-    return Math.max(0, Math.cos(diff * Math.PI / 180));
-  });
-  const normal = Math.sqrt(weights.reduce((sum, weight) => sum + weight * weight, 0)) || 1;
+  let sum = 0;
+  for (let channel = 0; channel < layout.length; channel += 1) {
+    const diff = angularDistance(direction, layout[channel].angle);
+    const weight = Math.max(0, Math.cos(diff * Math.PI / 180));
+    weights[channel] = weight;
+    sum += weight * weight;
+  }
+  const normal = Math.sqrt(sum) || 1;
   for (let channel = 0; channel < output.length; channel += 1) {
     const tank = reverb[channel];
     const delayedA = tank.a[tank.ai];

@@ -232,3 +232,10 @@ Node tests/multichannel-room-clock.mjs and browser tests/browser-room-clock.html
 App export now uses render-client.js and a disposable module render-worker.js; existing synchronous renderSpatialWav remains the DSP reference. Source channels are cloned (Preview is not detached), output WAV transfers back. Source, curve points, format and bypass are snapshotted at start. Cancel Render aborts rate preparation or terminates the worker, suppresses download, and restores controls. Errors also restore controls. Worker execution is not a memory reduction or low-end certification.
 
 Browser tests/browser-worker.html: six format/bypass cases match synchronous WAV bytes, cancellation/recovery pass, 60s Octo completes with51 timer ticks rather than blocking main thread for about1s. Actual app180s stereo/8ch cancellation reaches cancelled with controls restored, no console errors. tests/render-preparation-cancel.mjs verifies mid-conversion and pre-abort. New worker download persistence/reopen and repeated memory recovery remain pending; musical listening not performed. Family workboard SPACE_WORKER_CHANGE.md holds baseline profiles and evidence.
+
+
+## 2026-10-11 — Multichannel panning scratch reuse (local candidate)
+
+Replace per-source/per-frame layout.map/reduce allocation with one render-owned Float64Array and an ordered summation loop. Each call overwrites every weight before use; sequential L/R calls can share the scratch. This removes 17,280,000 weight-array allocations for a 180s stereo render. Preserve double precision, channel and summation order, direction/distance mapping, room state, fades, global peak normalization and WAV format. No realtime Preview changes. Baseline is 9c316a9.
+
+24 mono/stereo × Stereo/Quad/Octo × bypass × moving/static fixtures match baseline WAV bytes in Node. Existing room-clock4 and stereo-motion36 checks pass. Safari fresh-process 180s Octo4 runs complete, each207,360,044bytes; heartbeat max25ms. Memory comparison is a bounded observation, not leak-free/low-spec certification. Full workboard report: SPACE_WEIGHT_REUSE_2026-10-11.md. Listening deferred by user.

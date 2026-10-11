@@ -247,3 +247,8 @@ Browser tests/browser-worker.html: six format/bypass cases match synchronous WAV
 ## Portable keyboard availability contract (2026-10-07)
 
 COMMON CANDIDATE: one physical shortcut press dispatches at most one available transport action. Editing controls and open modal dialogs own their keyboard events. Native focus and key-repeat APIs replace DOM checks; sound and transport semantics remain product-specific.
+
+
+## 2026-10-11 — Render scratch ownership
+
+Use render-owned reusable double-precision panning weights for sequential source processing. Do not share mutable scratch across concurrent renders or sources processed in parallel. Preserve summation order and verify reference WAV bytes before claiming equivalent DSP. Safari RSS includes GC/allocator behavior, not just signal buffers.

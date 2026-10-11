@@ -1,0 +1,170 @@
+[
+  {
+    "count": 1,
+    "format": "stereo",
+    "bypass": false,
+    "moving": false,
+    "sha256": "b63deaf403ba80ddf98a400bfcb91f916b77a9795db1fa94c1c665cc5e68ce9e"
+  },
+  {
+    "count": 1,
+    "format": "stereo",
+    "bypass": false,
+    "moving": true,
+    "sha256": "d8233f8ab0975be52867df81fbf26ffac7f82eb65d59d8a4ea80ce8b00d5b229"
+  },
+  {
+    "count": 1,
+    "format": "stereo",
+    "bypass": true,
+    "moving": false,
+    "sha256": "13170e5418941dc0f3723bdc54d53113373cf0cddfa4514e6e057b9689a429c2"
+  },
+  {
+    "count": 1,
+    "format": "stereo",
+    "bypass": true,
+    "moving": true,
+    "sha256": "522b237ff39567c56b0b3c695e17264a72f7ac4a8d10c5c9312de161c184eefe"
+  },
+  {
+    "count": 1,
+    "format": "quad",
+    "bypass": false,
+    "moving": false,
+    "sha256": "ef395fe880e295b20f749c3156d8e819cbae45e3cc03349a35129d928256266e"
+  },
+  {
+    "count": 1,
+    "format": "quad",
+    "bypass": false,
+    "moving": true,
+    "sha256": "ae0ece85693c669276770000fba0927898429642cfae2d0b1a5e86224d636b58"
+  },
+  {
+    "count": 1,
+    "format": "quad",
+    "bypass": true,
+    "moving": false,
+    "sha256": "58f06a29758c2da9710f5ea61c20f6c5fd782dc5060f8e82b889ea0e97167451"
+  },
+  {
+    "count": 1,
+    "format": "quad",
+    "bypass": true,
+    "moving": true,
+    "sha256": "74603fb8af22cb773d91a837c5f9859b69a4a431fb3d33b096400372c72c1243"
+  },
+  {
+    "count": 1,
+    "format": "octo",
+    "bypass": false,
+    "moving": false,
+    "sha256": "cdfc1315585840a00bc5892f797d657220406584c9c4294717e15fe47d84ff8b"
+  },
+  {
+    "count": 1,
+    "format": "octo",
+    "bypass": false,
+    "moving": true,
+    "sha256": "544b06c0c7b5a1aa933feb94eedd8f388e72a3aa900b40b88765b49cd321438c"
+  },
+  {
+    "count": 1,
+    "format": "octo",
+    "bypass": true,
+    "moving": false,
+    "sha256": "d1e25cf52870da5f7347dd326604f825bf796fb3e9acf800fcb9c85713b08810"
+  },
+  {
+    "count": 1,
+    "format": "octo",
+    "bypass": true,
+    "moving": true,
+    "sha256": "b7168d02e9c78a60f934429f4f84ffcff4b617df9007e42cc028ddd618c98fd9"
+  },
+  {
+    "count": 2,
+    "format": "stereo",
+    "bypass": false,
+    "moving": false,
+    "sha256": "c092182525c531d706d451f1ca056e4f4e209498226f6b87fe652b9cf617182c"
+  },
+  {
+    "count": 2,
+    "format": "stereo",
+    "bypass": false,
+    "moving": true,
+    "sha256": "bb5dc03f951c41ab4d0df9a824d481396a23ff320d309684713b861f5a5bed00"
+  },
+  {
+    "count": 2,
+    "format": "stereo",
+    "bypass": true,
+    "moving": false,
+    "sha256": "de39a12379368c791f3cd4dd2bab0901de0f069886b3615879af55bf92bb1acd"
+  },
+  {
+    "count": 2,
+    "format": "stereo",
+    "bypass": true,
+    "moving": true,
+    "sha256": "d23bcaf15c578d7fec050fce3f4a546a1ca04aa448f437c051982832f5316726"
+  },
+  {
+    "count": 2,
+    "format": "quad",
+    "bypass": false,
+    "moving": false,
+    "sha256": "5956b8006e18b7b1d1682b8e443f8d607c869c19674e9ac1a47f4c923238deb9"
+  },
+  {
+    "count": 2,
+    "format": "quad",
+    "bypass": false,
+    "moving": true,
+    "sha256": "3be91d46aa7788dc4f6c39b0ec6f104722645f2d923dec744a918e7be82fef5c"
+  },
+  {
+    "count": 2,
+    "format": "quad",
+    "bypass": true,
+    "moving": false,
+    "sha256": "fe54e5107175a7252665fb4e394bd5795c5bc68ca4aab1ce140b195356100029"
+  },
+  {
+    "count": 2,
+    "format": "quad",
+    "bypass": true,
+    "moving": true,
+    "sha256": "40014d459fee99c625cdc4c4334067f95305556e09cd7f724884736d3862bbea"
+  },
+  {
+    "count": 2,
+    "format": "octo",
+    "bypass": false,
+    "moving": false,
+    "sha256": "98e06fe8141ce2d1b0e49c1f2507abec1b7bea8526fc0068be92a597b6d0d84f"
+  },
+  {
+    "count": 2,
+    "format": "octo",
+    "bypass": false,
+    "moving": true,
+    "sha256": "8cf4a2a119c1fee36e30573ea545d5642993c2c2122d6ab1a1b58eb3230a93f7"
+  },
+  {
+    "count": 2,
+    "format": "octo",
+    "bypass": true,
+    "moving": false,
+    "sha256": "e972055f64b9ab5eee2496b11f957d195610b88203869e5d52802fd641146171"
+  },
+  {
+    "count": 2,
+    "format": "octo",
+    "bypass": true,
+    "moving": true,
+    "sha256": "b6c69da03b98e11471611d94ec37c6d8202c061e7f97617af0118d8bfcbaed27"
+  }
+]

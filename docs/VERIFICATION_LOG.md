@@ -191,3 +191,17 @@ Browser worker suite now repeats cancel/short rerender five times, each WAV byte
 
 ## 2026-10-07 keyboard routing
 Local browser reproduced Space on Reset Cancel starting Preview behind the dialog. After repair, Space cancels without playback; Tab then Space confirms and closes. Space on Render format opens the native menu without playback. Event-routing, stereo-motion and render-resampling checks pass. Physical speaker/listening approval is not implied.
+
+
+## 2026-10-11 — Multichannel panning scratch reuse (local candidate)
+
+Replace per-source/per-frame layout.map/reduce allocation with one render-owned Float64Array and an ordered summation loop. Each call overwrites every weight before use; sequential L/R calls can share the scratch. This removes 17,280,000 weight-array allocations for a 180s stereo render. Preserve double precision, channel and summation order, direction/distance mapping, room state, fades, global peak normalization and WAV format. No realtime Preview changes. Baseline is 9c316a9.
+
+24 mono/stereo × Stereo/Quad/Octo × bypass × moving/static fixtures match baseline WAV bytes in Node. Existing room-clock4 and stereo-motion36 checks pass. Safari fresh-process 180s Octo4 runs complete, each207,360,044bytes; heartbeat max25ms. Memory comparison is a bounded observation, not leak-free/low-spec certification. Full workboard report: SPACE_WEIGHT_REUSE_2026-10-11.md. Listening deferred by user.
+
+Safari baseline comparison additionally passed24 full-WAV cases. Existing browser-worker.html terminal PASS covers6 format/bypass parity cases,5cancel/recovery cycles and60s Octo/source/heartbeat assertions. Long JSON AX truncated; no individual timing values asserted. RSS single1848.25→1318.27MiB; repeated2294.11→1713.77MiB in fresh-process bounded comparison. Not fully reclaimed or leak-free; real-file app download smoke remains open.
+
+
+## 2026-10-11 — Weight reuse real-file export and release preparation
+
+Safari local app: Open Audio selected recovery-8s-test.wav, decoded stereo8s, selected Octo8ch, clicked Download WAV without Play. Actual saved file is9,216,044bytes,384,000frames,48kHz24bit8ch8s; SHA25664ec315ee20080ef80451e1d238698ce6e68c4a1722c79b8e5da5564d6f78528. Synthetic fixture loaded via actual native file picker, not musical listening. App meter stayed -infinity. Cache version updated through index→app→render-client→render-worker→offline-render to20261011-weight-reuse1. Workboard evidence/space-weight-real-download-20261011.json. Public rollout verification is recorded separately after push.

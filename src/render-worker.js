@@ -1,4 +1,4 @@
-import { renderSpatialWav } from './offline-render.js?v=20261006-room-01';
+import { renderSpatialWav } from './offline-render.js?v=20261011-weight-reuse1';
 self.onmessage = ({data}) => {
   try {
     const {channels,sampleRate,direction,distance,format,bypassed} = data;
