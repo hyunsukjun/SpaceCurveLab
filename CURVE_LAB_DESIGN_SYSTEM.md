@@ -124,3 +124,11 @@ See `docs/IDENTITY_PILOT.md` and `assets/identity/palette.json` for provenance.
   curve coordinates, and pointer conversion remain implementation-protected.
 - Reset All uses the destructive command color while Clear Current remains a
   neutral curve-editing command.
+
+
+## Waveform above curves (2026-10-13)
+
+The existing output-time/source-guide waveform now appears above the curve editing
+canvas, following the shared Curve Lab reading order. Its source-guide meaning,
+click/drag/keyboard seek, parameter IDs, normalized curves and DSP remain unchanged.
+This is a layout change only; Audio's output deletion/fades are not added here.

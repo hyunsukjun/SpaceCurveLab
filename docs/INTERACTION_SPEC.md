@@ -176,3 +176,11 @@ Browser tests/browser-worker.html: six format/bypass cases match synchronous WAV
 ## Spacebar routing (2026-10-07)
 
 Spacebar dispatches at most one transport action per physical press. Held-key repeats are consumed, and disabled Play or an absent source blocks dispatch. Input, select, textarea and editable-text targets retain native keydown/keyup behavior. Existing Play/Stop or Play/Pause semantics and DSP are unchanged. While Reset All is open, both Space events are left to the dialog buttons: Cancel and confirmation remain keyboard-operable without toggling background transport.
+
+
+## Waveform above curves (2026-10-13)
+
+The existing output-time/source-guide waveform now appears above the curve editing
+canvas, following the shared Curve Lab reading order. Its source-guide meaning,
+click/drag/keyboard seek, parameter IDs, normalized curves and DSP remain unchanged.
+This is a layout change only; Audio's output deletion/fades are not added here.
