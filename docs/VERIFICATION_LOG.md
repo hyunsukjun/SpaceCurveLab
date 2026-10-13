@@ -231,3 +231,8 @@ User authorized release after bounded validation. Reverb27 decay cases,12800 sta
 Current browser app: imported2-second stereo file, edited Amount to three points, observed changing59–61% readout during playback, and saved2/4/8ch WAVs with no console errors. Saved headers confirm48kHz/24-bit,95999 frames (known one-sample decode/resampling boundary difference), all peaks within0.98. Previous same-build interaction checks cover toggles/value preservation, All Off and Reset All. No blocking regression found within these checks.
 
 Release scope includes shared FDN core, independent Amount curve, static Decay and family-style module toggles. Direct-path Preview/Render differences, background-tab scheduling, endpoint-truncated tails, one-sample browser boundary rounding, comparative listening and physical speakers remain open. Automated kernel parity is not complete perceptual parity or low-spec certification.
+
+
+## 2026-10-14 — Direction-only default verification
+
+Browser fresh load: Direction on, Distance/Reverb off. Enable Distance and Reverb, confirm Reset All: Direction selected/on, both others off, hidden distanceBypass true, Reverb settings hidden. Syntax and diff checks pass. Initial static Distance readout also changed to Off. DSP algorithms unchanged.

@@ -20,7 +20,8 @@ const resetDialog = document.getElementById("resetDialog");
 const cancelResetButton = document.getElementById("cancelResetButton");
 const confirmResetButton = document.getElementById("confirmResetButton");
 const distanceBypass = document.getElementById("distanceBypass");
-const effectEnabled = {direction:true, distance:true, reverb:true};
+const defaultEffectEnabled = {direction:true, distance:false, reverb:false};
+const effectEnabled = {...defaultEffectEnabled};
 const reverbDecay = document.getElementById("reverbDecay");
 function reverbSettings() {
   return {enabled:effectEnabled.reverb, amountCurve:curves.reverb.map(p => ({...p})), decay:Number(reverbDecay.value), linked:false};
@@ -747,10 +748,10 @@ function closeResetDialog() {
 function resetAll() {
   curves.direction = defaults.direction();
   curves.distance = defaults.distance();
-  distanceBypass.checked = false;
+  distanceBypass.checked = !defaultEffectEnabled.distance;
   curves.reverb = defaults.reverb();
-  for (const key of Object.keys(effectEnabled)) effectEnabled[key] = true;
-  setActiveCurve(activeCurve);
+  Object.assign(effectEnabled, defaultEffectEnabled);
+  setActiveCurve("direction");
   reverbDecay.value = '1.2';
   updateRoomControls();
   pauseAt = 0;
