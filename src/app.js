@@ -95,12 +95,12 @@ const activeRadius = 10;
 const channelSpreadDegrees = 45;
 const defaultSampleSettings = {
   duration: 45,
-  burst: 1.2,
-  gap: 1.3,
-  attack: 0.08,
-  decay: 0.34,
+  burst: 0.6,
+  gap: 0.65,
+  attack: 0.04,
+  decay: 0.17,
   sustain: 0.22,
-  release: 0.60,
+  release: 0.30,
   gain: 0.32
 };
 const curves = {
@@ -1164,7 +1164,7 @@ function drawSpeakerRing(cx, cy) {
     spatialCtx.beginPath();
     spatialCtx.arc(x, y, 5, 0, Math.PI * 2);
     spatialCtx.fill();
-    spatialCtx.fillText(String(speaker.channel), x + 8, y + 4);
+    drawSpeakerLabel(String(speaker.channel), x, y, cx);
   }
 }
 
@@ -1183,8 +1183,23 @@ function drawStereoMarkers(cx, cy) {
     spatialCtx.beginPath();
     spatialCtx.arc(x, y, 5, 0, Math.PI * 2);
     spatialCtx.fill();
-    spatialCtx.fillText(marker.label, x + 8, y + 4);
+    drawSpeakerLabel(marker.label, x, y, cx);
   }
+}
+
+// Labels face inward: equal visual gaps on both sides, independent of glyph width.
+// Keep actual speaker coordinates/channel order unchanged.
+function drawSpeakerLabel(label, x, y, centerX) {
+  spatialCtx.save();
+  spatialCtx.textBaseline = "middle";
+  spatialCtx.textAlign = "left";
+  const width = spatialCtx.measureText(label).width;
+  const inset = 42; // frame at28px plus14px breathing room
+  const desiredX = x < centerX ? x + 12 : x - 12 - width;
+  const labelX = clamp(desiredX, inset, spatialCanvas.width - inset - width);
+  const labelY = clamp(y, inset + 7, spatialCanvas.height - inset - 7);
+  spatialCtx.fillText(label, labelX, labelY);
+  spatialCtx.restore();
 }
 
 function pointerToPoint(event) {

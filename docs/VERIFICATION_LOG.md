@@ -243,3 +243,13 @@ Browser fresh load: Direction on, Distance/Reverb off. Enable Distance and Rever
 User requested a better default waveform and release. The prior45s demo repeated45.833ms bursts separated by20.833ms (about15Hz), producing a dense striped overview. Keep45s/mono/seed45066/gain0.32, but use1.2s bursts +1.3s gaps, attack80ms/decay340ms/sustain0.22/release600ms. Repeating six-event amplitude accents0.72/0.9/0.62/1/0.8/0.56 give18 distinct pulses. This intentionally changes only generated demo cadence/envelope, not imported audio or spatial DSP. The waveform remains derived from real PCM; reduce its outline opacity0.62→0.28 to avoid harsh edges.
 
 Browser visual inspection, default playback/pause and download pass with no console errors. Actual WAV:2ch/48kHz/24-bit/exact45s. Direction-only startup preserved. Syntax/diff checks pass; musical listening is not certified.
+
+
+## 2026-10-14 — Spatial labels and faster demo (local)
+
+User identified optical imbalance at stereo R and Octo3/4. Speaker labels now face inward on both sides, using measured glyph width, a12px anchor offset, middle baseline and frame-safe text bounds. Actual speaker dot positions, angles, channel order and audio routing are unchanged. Stereo/Quad/Octo were visually inspected in the1422x800 browser viewport.
+
+Default demo repetition period is halved2.5s→1.25s: burst1.2→0.6s, gap1.3→0.65s; attack/decay/release also halved to40/170/300ms to preserve envelope proportions. Duration45s, gain, seed and accent pattern remain;36 pulses instead of18. Playback/pause and browser console checked; syntax/diff checks pass. No commit/deployment requested for this turn; local changes only.
+
+
+Release authorization: user subsequently requested commit and deployment of the spatial-label and double-tempo demo changes. Prior local-only notes record the earlier stage. No additional DSP changes in this release.
