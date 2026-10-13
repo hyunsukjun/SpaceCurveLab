@@ -1,6 +1,6 @@
 import { distanceRoomLevels } from "./spatial-parameters.js?v=20260927-06";
 
-export function createDistanceProcessor(context, input, output, impulseBuffer) {
+export function createDistanceProcessor(context, input, output, impulseBuffer, independentRoom = false) {
   const bypassGain = context.createGain();
   const directGain = context.createGain();
   const lowpass = context.createBiquadFilter();
@@ -27,7 +27,7 @@ export function createDistanceProcessor(context, input, output, impulseBuffer) {
       const bypassLevel = bypass ? 1 : 0;
       const direct = bypass ? 0 : (1 - safeDistance * 0.48) * mix.dry;
       const cutoff = 19000 - safeDistance * 9500;
-      const wet = mix.wet * 0.4;
+      const wet = independentRoom ? 0 : mix.wet * 0.4;
       if (immediate) {
         bypassGain.gain.setValueAtTime(bypassLevel, time);
         directGain.gain.setValueAtTime(direct, time);

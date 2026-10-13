@@ -1,7 +1,8 @@
+import { roomSend } from './reverb-core.js?v=20261014-room2';
 import {mountTransport} from "./common-transport.js?v=20261013-1";
 import { readAudioFile } from "./audio-import.js?v=20261011-aiff1";
-import { createDistanceProcessor, makeSmallRoomImpulse } from "./distance-engine.js?v=20260927-06";
-import { renderSpatialWavAsync } from "./render-client.js?v=20261011-weight-reuse1";
+import { createDistanceProcessor } from "./distance-engine.js?v=20261014-room2";
+import { renderSpatialWavAsync } from "./render-client.js?v=20261014-room2";
 import { prepareRenderBuffer, RENDER_SAMPLE_RATE } from "./render-preparation.js?v=20261006-worker-01";
 import { getSpeakerLayout } from "./speaker-layout.js?v=20260926-03";
 import { OutputMeterAnalyzer } from "./output-meter.js?v=20260930-02";
@@ -19,6 +20,34 @@ const resetDialog = document.getElementById("resetDialog");
 const cancelResetButton = document.getElementById("cancelResetButton");
 const confirmResetButton = document.getElementById("confirmResetButton");
 const distanceBypass = document.getElementById("distanceBypass");
+const effectEnabled = {direction:true, distance:true, reverb:true};
+const reverbDecay = document.getElementById("reverbDecay");
+function reverbSettings() {
+  return {enabled:effectEnabled.reverb, amountCurve:curves.reverb.map(p => ({...p})), decay:Number(reverbDecay.value), linked:false};
+}
+function updateRoomControls() {
+  document.getElementById("reverbDecayValue").textContent = `${Number(reverbDecay.value).toFixed(1)} s`;
+  downloadReadout.textContent = buffer ? "needs export" : "not ready";
+  if (isPlaying) updatePreview(currentTimeNorm());
+}
+function toggleEffect(name) {
+  effectEnabled[name] = !effectEnabled[name];
+  distanceBypass.checked = !effectEnabled.distance;
+  setActiveCurve(effectEnabled[name] ? name : Object.keys(effectEnabled).find(key => effectEnabled[key]) || name);
+  updateRoomControls();
+  updateReadouts(currentTimeNorm());
+  drawAll();
+}
+function syncEffectButtons() {
+  for (const name of Object.keys(effectEnabled)) {
+    const button = document.getElementById(`${name}Mode`);
+    button.setAttribute('aria-pressed', String(effectEnabled[name]));
+    button.classList.toggle('enabled', effectEnabled[name]);
+    button.classList.toggle('active', effectEnabled[name] && name === activeCurve);
+    button.title = `${name[0].toUpperCase()+name.slice(1)}: ${effectEnabled[name] ? 'on · click to turn off' : 'off · click to enable and edit'}`;
+  }
+  clearCurveButton.disabled = !effectEnabled[activeCurve];
+}
 const directionMode = document.getElementById("directionMode");
 const distanceMode = document.getElementById("distanceMode");
 const penTool = document.getElementById("penTool");
@@ -48,6 +77,7 @@ const meterClipButton = document.getElementById("meterClipButton");
 const colors = {
   direction: "#66d2ff",
   distance: "#ff4b3e",
+  reverb: "#A982FF",
   bg: "#07111c",
   paper: "#0c1f31",
   grid: "rgba(79, 121, 155, 0.24)",
@@ -74,11 +104,13 @@ const defaultSampleSettings = {
 };
 const curves = {
   direction: [{ x: 0, y: 0.5 }, { x: 1, y: 0.5 }],
-  distance: [{ x: 0, y: 0 }, { x: 1, y: 0 }]
+  distance: [{ x: 0, y: 0 }, { x: 1, y: 0 }],
+  reverb: [{ x: 0, y: 0.35 }, { x: 1, y: 0.35 }]
 };
 const defaults = {
   direction: () => [{ x: 0, y: 0.5 }, { x: 1, y: 0.5 }],
-  distance: () => [{ x: 0, y: 0 }, { x: 1, y: 0 }]
+  distance: () => [{ x: 0, y: 0 }, { x: 1, y: 0 }],
+  reverb: () => [{ x: 0, y: 0.35 }, { x: 1, y: 0.35 }]
 };
 
 let activeCurve = "direction";
@@ -90,7 +122,8 @@ let previewMaster = null;
 let outputMeter = null;
 let panners = [];
 let distanceProcessors = [];
-let roomImpulse = null;
+let roomModulePromise = null;
+let roomNode = null;
 let playStartedAt = 0;
 let pauseAt = 0;
 let rafId = null;
@@ -171,8 +204,10 @@ resetDialog.addEventListener("click", (event) => {
   if (event.target === resetDialog) closeResetDialog();
 });
 distanceBypass.addEventListener("change", updateDistanceControls);
-directionMode.addEventListener("click", () => setActiveCurve("direction"));
-distanceMode.addEventListener("click", () => setActiveCurve("distance"));
+for (const name of Object.keys(effectEnabled)) {
+  document.getElementById(`${name}Mode`).addEventListener('click', () => toggleEffect(name));
+}
+reverbDecay.addEventListener('input', updateRoomControls);
 penTool.addEventListener("click", () => setTool("pen"));
 eraserTool.addEventListener("click", () => setTool("eraser"));
 
@@ -380,6 +415,15 @@ async function play() {
   const requestToken = ++playbackToken;
   const context = getAudioContext();
   await context.resume();
+  try {
+    if (!roomModulePromise) roomModulePromise = context.audioWorklet.addModule(new URL('./reverb-worklet.js?v=20261014-room2', import.meta.url));
+    await roomModulePromise;
+  } catch (error) {
+    roomModulePromise = null;
+    fileStatus.textContent = "Reverb engine unavailable. Reload in a browser with AudioWorklet support.";
+    console.error(error);
+    return;
+  }
   if (requestToken !== playbackToken) return;
   stopPlaybackNodes();
 
@@ -389,7 +433,9 @@ async function play() {
   previewMaster.connect(getOutputMeter(context).input);
 
   const inputCount = Math.min(buffer.numberOfChannels, 2);
-  if (!roomImpulse) roomImpulse = makeSmallRoomImpulse(context);
+  roomNode = new AudioWorkletNode(context, 'space-room', {numberOfInputs:1, numberOfOutputs:1, outputChannelCount:[2], channelCount:2, channelCountMode:'max'});
+  source.connect(roomNode);
+  roomNode.connect(previewMaster);
   panners = [];
   distanceProcessors = [];
 
@@ -406,7 +452,7 @@ async function play() {
     panner.refDistance = 1;
     panner.maxDistance = 6;
     panner.rolloffFactor = 0;
-    const processor = createDistanceProcessor(context, distanceInput, panner, roomImpulse);
+    const processor = createDistanceProcessor(context, distanceInput, panner, null, true);
     panner.connect(previewMaster);
     source.connect(splitter);
     panners.push({ node: panner, spread });
@@ -474,6 +520,8 @@ function stopPlaybackNodes(fadeOut = false) {
   const stoppedPanners = panners;
   const stoppedProcessors = distanceProcessors;
   const stoppedMaster = previewMaster;
+  const stoppedRoom = roomNode;
+  roomNode = null;
   source = null;
   previewMaster = null;
   panners = [];
@@ -484,6 +532,7 @@ function stopPlaybackNodes(fadeOut = false) {
     stoppedPanners.forEach(({ node }) => node.disconnect());
     stoppedProcessors.forEach((processor) => processor.disconnect());
     if (stoppedMaster) stoppedMaster.disconnect();
+    if (stoppedRoom) stoppedRoom.disconnect();
   };
 
   if (stoppedSource) {
@@ -586,6 +635,14 @@ function startMeterAnimation() {
 function updatePreview(t, immediate = false) {
   const angle = directionAt(t);
   const distance = distanceAt(t);
+  if (roomNode) {
+    const settings = reverbSettings();
+    const method = immediate ? 'setValueAtTime' : 'setTargetAtTime';
+    const args = immediate ? [audioContext.currentTime] : [audioContext.currentTime, 0.035];
+    roomNode.parameters.get('active')[method](settings.enabled ? 1 : 0, ...args);
+    roomNode.parameters.get('send')[method](roomSend(settings, distance, t), ...args);
+    roomNode.parameters.get('decay')[method](settings.decay, ...args);
+  }
   panners.forEach(({ node, spread }) => {
     const radians = ((angle + spread) % 360) * Math.PI / 180;
     const radius = 1 + distance * 3.5;
@@ -625,16 +682,17 @@ async function downloadRenderedWav() {
   const controller = new AbortController();
   renderController = controller;
   const source = buffer;
-  const direction = curves.direction.map(point => ({...point}));
+  const direction = effectEnabled.direction ? curves.direction.map(point => ({...point})) : defaults.direction();
   const distance = curves.distance.map(point => ({...point}));
   const format = renderFormat.value;
   const bypassed = distanceBypass.checked;
+  const roomSettings = reverbSettings();
   downloadButton.textContent = "Cancel Render";
   downloadReadout.textContent = "rendering";
   try {
     const renderBuffer = await prepareRenderBuffer(source, RENDER_SAMPLE_RATE, controller.signal);
     const wav = await renderSpatialWavAsync(
-      renderBuffer, direction, distance, format, bypassed, controller.signal
+      renderBuffer, direction, distance, format, bypassed, controller.signal, roomSettings
     );
     if (controller.signal.aborted) throw new DOMException("Render cancelled", "AbortError");
     const blob = new Blob([wav], { type: "audio/wav" });
@@ -660,15 +718,18 @@ async function downloadRenderedWav() {
 
 function setActiveCurve(name) {
   activeCurve = name;
-  directionMode.classList.toggle("active", name === "direction");
-  distanceMode.classList.toggle("active", name === "distance");
-  modeReadout.textContent = name === "direction" ? "Direction" : "Distance";
+  selectedPoint = null;
+  hoveredPoint = null;
+  syncEffectButtons();
+  document.querySelector('.roomControls').hidden = name !== 'reverb' || !effectEnabled.reverb;
+  modeReadout.textContent = effectEnabled[name] ? name[0].toUpperCase()+name.slice(1) : 'All Off';
   updateReadouts(currentTimeNorm());
   drawAll();
 }
 
 function clearCurrentCurve() {
   curves[activeCurve] = defaults[activeCurve]();
+  downloadReadout.textContent = buffer ? "needs export" : "not ready";
   updateReadouts(currentTimeNorm());
   drawAll();
 }
@@ -686,6 +747,12 @@ function closeResetDialog() {
 function resetAll() {
   curves.direction = defaults.direction();
   curves.distance = defaults.distance();
+  distanceBypass.checked = false;
+  curves.reverb = defaults.reverb();
+  for (const key of Object.keys(effectEnabled)) effectEnabled[key] = true;
+  setActiveCurve(activeCurve);
+  reverbDecay.value = '1.2';
+  updateRoomControls();
   pauseAt = 0;
   downloadReadout.textContent = buffer ? "ready" : "not ready";
   updateReadouts(0);
@@ -712,7 +779,7 @@ function setTool(tool) {
 }
 
 function onPointerDown(event) {
-  if (event.button !== 0) return;
+  if (event.button !== 0 || !effectEnabled[activeCurve]) return;
   const point = pointerToPoint(event);
   const foundPoint = findPoint(point.x, point.y);
   if (isErasing(event)) {
@@ -775,7 +842,7 @@ function moveSelected(event) {
 }
 
 function findPoint(x, y) {
-  for (const name of ["direction", "distance"]) {
+  for (const name of ["direction", "distance", "reverb"]) {
     if (name !== activeCurve) continue;
     for (let i = 0; i < curves[name].length; i += 1) {
       const screen = curveToCanvas(curves[name][i]);
@@ -895,6 +962,7 @@ function drawCurves(playheadNorm) {
   drawCurveGrid();
   drawCurveLine("direction", colors.direction);
   drawCurveLine("distance", colors.distance);
+  drawCurveLine("reverb", colors.reverb);
   drawPlayhead(curveCtx, curveCanvas, playheadNorm);
   drawHoverLabel();
 }
@@ -924,7 +992,7 @@ function drawCurveGrid() {
     curveCtx.stroke();
   }
 
-  if (activeCurve === "distance") {
+  if (activeCurve !== "direction") {
     drawDistanceAxis(w);
   } else {
     drawDirectionAxis(w);
@@ -959,9 +1027,9 @@ function formatRotationAxisLabel(rotation) {
 
 function drawDistanceAxis(width) {
   const marks = [
-    { value: 1, label: "1 Far", strong: true },
-    { value: 0.5, label: "0.5", strong: false },
-    { value: 0, label: "0 Near", strong: true }
+    { value: 1, label: activeCurve === "reverb" ? "100%" : "1 Far", strong: true },
+    { value: 0.5, label: activeCurve === "reverb" ? "50%" : "0.5", strong: false },
+    { value: 0, label: activeCurve === "reverb" ? "0%" : "0 Near", strong: true }
   ];
   for (const mark of marks) {
     const y = valueToY(mark.value, "distance");
@@ -1027,7 +1095,7 @@ function drawHoverLabel() {
   const screen = curveToCanvas(point, hoveredPoint.curve);
   const label = hoveredPoint.curve === "direction"
     ? `${directionValue(point.y).toFixed(0)} deg`
-    : `${distanceValue(point.y).toFixed(2)}`;
+    : hoveredPoint.curve === "reverb" ? `${Math.round(point.y*100)}%` : `${distanceValue(point.y).toFixed(2)}`;
   curveCtx.fillStyle = "rgba(5, 11, 18, 0.94)";
   curveCtx.fillRect(screen.x + 12, screen.y - 30, 92, 24);
   curveCtx.fillStyle = colors.text;
@@ -1182,7 +1250,7 @@ function updateDistanceControls() {
 }
 
 function directionAt(t) {
-  return directionValue(sampleCurve("direction", t));
+  return effectEnabled.direction ? directionValue(sampleCurve("direction", t)) : 0;
 }
 
 function distanceAt(t) {
@@ -1208,9 +1276,10 @@ function updateReadouts(t) {
   const angle = directionAt(t);
   const distance = distanceAt(t);
   const rotations = angle / 360;
+  document.getElementById("reverbAmountValue").textContent = `${Math.round(sampleCurve("reverb",t)*100)}%${effectEnabled.reverb ? "" : " · Off"}`;
   pointsReadout.textContent = String(curves[activeCurve].length);
   directionReadout.textContent = `${angle.toFixed(0)} deg`;
-  distanceReadout.textContent = distanceBypass.checked ? "Bypassed" : `${distance < 0.5 ? "Near" : "Far"} ${distance.toFixed(2)}`;
+  distanceReadout.textContent = distanceBypass.checked ? "Off" : `${distance < 0.5 ? "Near" : "Far"} ${distance.toFixed(2)}`;
   motionReadout.textContent = `${rotations.toFixed(2)} rotations`;
   engineReadout.textContent = renderFormat.value === "stereo" ? "headphone 2ch" : "speaker map";
   spatialModeLabel.textContent = spatialLabelForFormat(renderFormat.value);

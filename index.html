@@ -6,7 +6,7 @@
     <title>Space Curve Lab</title>
     <link rel="icon" type="image/svg+xml" href="assets/identity/space-micro.svg?v=hub-v0.10">
     <link rel="stylesheet" href="assets/identity/tokens.css?v=hub-v0.10">
-    <link rel="stylesheet" href="src/styles.css?v=20261005-output-time-02">
+    <link rel="stylesheet" href="src/styles.css?v=20261014-room3">
     <link rel="stylesheet" href="src/common-transport.css?v=20261013-1">
   </head>
   <body>
@@ -38,8 +38,9 @@
       <section class="editor">
         <div class="legend">
           <div class="modeButtons">
-            <button id="directionMode" class="active curveMode" type="button">Direction</button>
-            <button id="distanceMode" class="curveMode" type="button">Distance</button>
+            <button id="directionMode" class="curveMode enabled active" type="button" aria-pressed="true" title="Direction: on · click to turn off">Direction</button>
+            <button id="distanceMode" class="curveMode enabled" type="button" aria-pressed="true" title="Distance: on · click to turn off">Distance</button>
+            <button id="reverbMode" class="curveMode enabled" type="button" aria-pressed="true" title="Reverb: on · click to turn off">Reverb</button>
             <div class="toolToggle" role="group" aria-label="Curve editing tool">
               <button id="penTool" class="active" type="button" aria-label="Pen" aria-pressed="true" title="Pen: add or move points">
                 <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L9 17l-4 1 1-4Z"/></svg>
@@ -55,15 +56,18 @@
             <span><b class="distanceSwatch"></b>distance near/far</span>
           </div>
           <div class="curveActions">
-            <label class="toggle">
-              <input id="distanceBypass" type="checkbox">
-              Distance Bypass
-            </label>
+            <input id="distanceBypass" type="checkbox" hidden>
+
             <button id="clearCurveButton" type="button">Clear Current</button>
             <button id="resetButton" type="button">Reset All</button>
           </div>
         </div>
 
+        <div class="roomControls" role="group" aria-label="Reverb settings" hidden>
+          <span>Draw Reverb Amount · <output id="reverbAmountValue">35%</output></span>
+          <label>Decay <input id="reverbDecay" type="range" min="0.3" max="4" step="0.1" value="1.2"><output id="reverbDecayValue">1.2 s</output></label>
+          <span>Tail ends at file length</span>
+        </div>
         <div class="panel">
           <div class="readout">
             <span>Input</span>
@@ -157,7 +161,7 @@
     <div id="resetDialog" class="dialogBackdrop" hidden>
       <div class="confirmDialog" role="dialog" aria-modal="true" aria-labelledby="resetDialogTitle" aria-describedby="resetDialogDescription">
         <h2 id="resetDialogTitle">Reset all curves?</h2>
-        <p id="resetDialogDescription">Direction and Distance will return to their default state. This action cannot be undone.</p>
+        <p id="resetDialogDescription">Direction, Distance and Reverb will return to their default state. This action cannot be undone.</p>
         <div class="dialogActions">
           <button id="cancelResetButton" type="button">Cancel</button>
           <button id="confirmResetButton" type="button">Reset All</button>
@@ -165,6 +169,6 @@
       </div>
     </div>
 
-    <script src="src/app.js?v=20261013-transport1" type="module"></script>
+    <script src="src/app.js?v=20261014-room3" type="module"></script>
   </body>
 </html>

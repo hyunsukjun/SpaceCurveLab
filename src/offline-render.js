@@ -1,9 +1,10 @@
+import { SpaceReverb, roomSend } from './reverb-core.js?v=20261014-room2';
 import { getSpeakerLayout } from "./speaker-layout.js";
 import { distanceRoomLevels } from "./spatial-parameters.js?v=20260927-06";
 
-export function renderSpatialWav(buffer, directionCurve, distanceCurve, format = "quad", distanceBypassed = false) {
+export function renderSpatialWav(buffer, directionCurve, distanceCurve, format = "quad", distanceBypassed = false, roomSettings = null) {
   if (format === "stereo") {
-    return renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceBypassed);
+    return renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceBypassed, roomSettings);
   }
   const layout = getSpeakerLayout(format);
   const sampleRate = buffer.sampleRate;
@@ -32,6 +33,7 @@ export function renderSpatialWav(buffer, directionCurve, distanceCurve, format =
     const direction = sampleDirection(directionCurve, t);
     const distance = distanceBypassed ? 0 : sampleDistance(distanceCurve, t);
     const mix = distanceRoomLevels(distance);
+    if (roomSettings) mix.wet = 0;
     const leftSample = distanceBypassed ? left[i] : shapeDistanceTone(left[i], distance, sampleRate, filters[0]);
     addPointSource(output, layout, reverb[0], leftSample, left[i], direction - spread, distance, mix, i, weights);
     if (buffer.numberOfChannels > 1) {
@@ -40,12 +42,13 @@ export function renderSpatialWav(buffer, directionCurve, distanceCurve, format =
     }
   }
 
+  addIndependentRoom(output, buffer, distanceCurve, distanceBypassed, roomSettings);
   return encodeWav(output, sampleRate, 0.98);
 }
 
-function renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceBypassed) {
+function renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceBypassed, roomSettings) {
   if (buffer.numberOfChannels > 1) {
-    return renderLinkedStereoWav(buffer, directionCurve, distanceCurve, distanceBypassed);
+    return renderLinkedStereoWav(buffer, directionCurve, distanceCurve, distanceBypassed, roomSettings);
   }
   const sampleRate = buffer.sampleRate;
   const frameCount = buffer.length;
@@ -66,6 +69,7 @@ function renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceB
     const direction = sampleDirection(directionCurve, t);
     const distance = distanceBypassed ? 0 : sampleDistance(distanceCurve, t);
     const mix = distanceRoomLevels(distance);
+    if (roomSettings) mix.wet = 0;
     const dry = buffer.numberOfChannels > 1 ? (left[i] + right[i]) * 0.5 : left[i];
     const shaped = distanceBypassed ? dry : shapeDistanceTone(dry, distance, sampleRate, filters[0]);
     const pan = Math.sin(direction * Math.PI / 180);
@@ -78,12 +82,13 @@ function renderStereoSpatialWav(buffer, directionCurve, distanceCurve, distanceB
     addStereoDiffuse(output, reverb, dry, mix.wet, i);
   }
 
+  addIndependentRoom(output, buffer, distanceCurve, distanceBypassed, roomSettings);
   return encodeWav(output, sampleRate, 0.98);
 }
 
 // A 2-channel projection cannot distinguish front/back like HRTF. Keep source
 // order and a minimum pan separation so its direct matrix never becomes singular.
-function renderLinkedStereoWav(buffer, directionCurve, distanceCurve, bypassed) {
+function renderLinkedStereoWav(buffer, directionCurve, distanceCurve, bypassed, roomSettings) {
   const rate = buffer.sampleRate;
   const output = [new Float32Array(buffer.length), new Float32Array(buffer.length)];
   const inputs = [buffer.getChannelData(0), buffer.getChannelData(1)];
@@ -97,6 +102,7 @@ function renderLinkedStereoWav(buffer, directionCurve, distanceCurve, bypassed) 
     const angle = sampleDirection(directionCurve, t) * Math.PI / 180;
     const distance = bypassed ? 0 : sampleDistance(distanceCurve, t);
     const mix = distanceRoomLevels(distance);
+    if (roomSettings) mix.wet = 0;
     const width = 1 - distance * 0.32;
     const halfSpan = Math.max(0.5, Math.abs(Math.cos(angle)) * Math.SQRT1_2 * width);
     const center = clamp(Math.sin(angle) * Math.SQRT1_2 * width, -1 + halfSpan, 1 - halfSpan);
@@ -110,6 +116,7 @@ function renderLinkedStereoWav(buffer, directionCurve, distanceCurve, bypassed) 
       addStereoDiffuse(output, rooms[source], dry * 0.5, mix.wet, i);
     }
   }
+  addIndependentRoom(output, buffer, distanceCurve, bypassed, roomSettings);
   return encodeWav(output, rate, 0.98);
 }
 
@@ -249,4 +256,17 @@ function writeString(view, offset, value) {
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
+}
+
+function addIndependentRoom(output, buffer, distanceCurve, bypassed, settings) {
+  if (!settings?.enabled) return;
+  const room = new SpaceReverb(buffer.sampleRate, output.length, settings.decay);
+  const left = buffer.getChannelData(0);
+  const right = buffer.numberOfChannels > 1 ? buffer.getChannelData(1) : null;
+  for (let i = 0; i < buffer.length; i++) {
+    const t = buffer.length <= 1 ? 0 : i / (buffer.length - 1);
+    const send = roomSend(settings, bypassed ? 0 : sampleDistance(distanceCurve, t), t);
+    const wet = room.process(left[i] * send, right ? right[i] * send : 0);
+    for (let c = 0; c < output.length; c++) output[c][i] += wet[c];
+  }
 }

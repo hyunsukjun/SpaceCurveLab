@@ -160,3 +160,13 @@ sample counts and cycle duration vary slightly with sample rate.
 - gain calibration across real Quad and Octo systems
 - whether the linked stereo spread should remain 45 degrees per side in Standalone
 - listening-based parity tolerance between Preview and each render format
+
+
+## 2026-10-14 — Independent FDN Reverb (local candidate)
+
+See [implementation and verification contract](REVERB_IMPLEMENTATION_2026-10-14.md). Adds Reverb enable, Amount35%, nominal Decay1.2s (0.3–4s), optional Distance-linked send (default on), and positive Distance On control. One shared eight-line FDN replaces the app's previous room paths; no duplicate room send. Direction/Distance curves and48k/24-bit/channel layouts remain. Reset All restores the new settings. Audio voicing is NEEDS LISTENING TEST; full Preview/Render spatial parity is not claimed.
+
+
+## 2026-10-14 — Reverb becomes an independent curve
+
+Supersedes the earlier same-day scalar/link UI: [Reverb curve contract](REVERB_CURVE_2026-10-14.md). Direction → Distance → Reverb edit selectors each have a separate power button; values survive Off. Reverb uses normalized0–100% smoothstep send curve, default35%; fixed Decay appears only for Reverb. No visible checkbox/link controls or app Distance-to-room coupling. Preview/export both read the curve. Local verified candidate, not deployed or listening-approved.

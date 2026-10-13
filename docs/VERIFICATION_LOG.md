@@ -205,3 +205,29 @@ Safari baseline comparison additionally passed24 full-WAV cases. Existing browse
 ## 2026-10-11 — Weight reuse real-file export and release preparation
 
 Safari local app: Open Audio selected recovery-8s-test.wav, decoded stereo8s, selected Octo8ch, clicked Download WAV without Play. Actual saved file is9,216,044bytes,384,000frames,48kHz24bit8ch8s; SHA25664ec315ee20080ef80451e1d238698ce6e68c4a1722c79b8e5da5564d6f78528. Synthetic fixture loaded via actual native file picker, not musical listening. App meter stayed -infinity. Cache version updated through index→app→render-client→render-worker→offline-render to20261011-weight-reuse1. Workboard evidence/space-weight-real-download-20261011.json. Public rollout verification is recorded separately after push.
+
+
+## 2026-10-14 — Independent FDN Reverb (local candidate)
+
+See [implementation and verification contract](REVERB_IMPLEMENTATION_2026-10-14.md). Adds Reverb enable, Amount35%, nominal Decay1.2s (0.3–4s), optional Distance-linked send (default on), and positive Distance On control. One shared eight-line FDN replaces the app's previous room paths; no duplicate room send. Direction/Distance curves and48k/24-bit/channel layouts remain. Reset All restores the new settings. Audio voicing is NEEDS LISTENING TEST; full Preview/Render spatial parity is not claimed.
+
+
+## 2026-10-14 — Reverb becomes an independent curve
+
+Supersedes the earlier same-day scalar/link UI: [Reverb curve contract](REVERB_CURVE_2026-10-14.md). Direction → Distance → Reverb edit selectors each have a separate power button; values survive Off. Reverb uses normalized0–100% smoothstep send curve, default35%; fixed Decay appears only for Reverb. No visible checkbox/link controls or app Distance-to-room coupling. Preview/export both read the curve. Local verified candidate, not deployed or listening-approved.
+
+
+## 2026-10-14 — Family-style module toggles replace separate power controls
+
+User explicitly rejected separate power buttons. Direction/Distance/Reverb buttons now directly toggle their effect; enabling selects that curve, disabling selects the first remaining enabled module. When all are off, the readout says All Off and pointer editing/Clear Current are disabled. Stored curve points remain intact. Button aria-pressed and colored border represent enabled state; underline represents selected editor. Reset All restores module defaults. This supersedes earlier same-day separate-power descriptions.
+
+Verified in the browser: all three off, Reverb alone on, add a point and toggle off/on retains three points; no console errors. HTML/CSS/event changes only; FDN and export DSP unchanged. Decay remains static: a future Amount/Decay sub-curve selector is a proposal only. No commit/deployment this turn.
+
+
+## 2026-10-14 — Reverb Amount release gate
+
+User authorized release after bounded validation. Reverb27 decay cases,12800 static and51200 moving-send worklet/reference frames,12 format/bypass/link fixtures and curve-specific2/4/8ch comparisons pass. Existing24 legacy WAV fixtures, resampling, preparation abort,4 room-clock cases,5 transport keyboard tests and28 AIFF checks pass.
+
+Current browser app: imported2-second stereo file, edited Amount to three points, observed changing59–61% readout during playback, and saved2/4/8ch WAVs with no console errors. Saved headers confirm48kHz/24-bit,95999 frames (known one-sample decode/resampling boundary difference), all peaks within0.98. Previous same-build interaction checks cover toggles/value preservation, All Off and Reset All. No blocking regression found within these checks.
+
+Release scope includes shared FDN core, independent Amount curve, static Decay and family-style module toggles. Direct-path Preview/Render differences, background-tab scheduling, endpoint-truncated tails, one-sample browser boundary rounding, comparative listening and physical speakers remain open. Automated kernel parity is not complete perceptual parity or low-spec certification.
