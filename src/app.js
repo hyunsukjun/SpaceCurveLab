@@ -1,3 +1,4 @@
+import {mountTransport} from "./common-transport.js?v=20261013-1";
 import { readAudioFile } from "./audio-import.js?v=20261011-aiff1";
 import { createDistanceProcessor, makeSmallRoomImpulse } from "./distance-engine.js?v=20260927-06";
 import { renderSpatialWavAsync } from "./render-client.js?v=20261011-weight-reuse1";
@@ -124,11 +125,8 @@ window.addEventListener("resize", () => {
 });
 
 fileInput.addEventListener("change", handleFile);
-playButton.addEventListener("click", () => {
-  if (isPlaying) stop(false);
-  else play();
-});
-stopButton.addEventListener("click", stop);
+playButton.addEventListener("click", () => { if(!isPlaying) play(); });
+stopButton.addEventListener("click", () => stop(false));
 meterClipButton.addEventListener("click", () => {
   meterClipLatched = false;
   meterClipButton.classList.remove("clipped");
@@ -566,9 +564,10 @@ function updateMeterDisplay(now) {
     }
 
     if (measured.clipped) meterClipLatched = true;
-    row.querySelector(".meterRms").style.transform = `scaleX(${meterPosition(display.rms)})`;
-    row.querySelector(".meterPeak").style.transform = `scaleX(${meterPosition(display.peak)})`;
+    row.querySelector(".meterRms").style.clipPath = `inset(0 ${(1-meterPosition(display.rms))*100}% 0 0)`;
+    row.querySelector(".meterPeak").style.clipPath = `inset(0 ${(1-meterPosition(display.peak))*100}% 0 0)`;
     row.querySelector(".meterHold").style.left = `${meterPosition(display.hold) * 100}%`;
+    row.querySelector(".meterHold").style.opacity = display.hold > 0.001 ? "1" : "0";
     const peakDb = linearToDb(display.peak);
     row.querySelector(".meterValue").textContent = Number.isFinite(peakDb) ? peakDb.toFixed(1) : "-∞";
   });
@@ -1283,3 +1282,5 @@ function setupCanvasSizing() {
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
+
+mountTransport({state:()=>({duration:buffer?.duration||0,seconds:currentTimeNorm()*(buffer?.duration||0),playing:isPlaying,disabled:seekDisabled||playButton.disabled}),seek:seekToProgress});
