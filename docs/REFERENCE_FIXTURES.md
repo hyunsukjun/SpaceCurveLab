@@ -157,3 +157,10 @@ See [implementation and verification contract](REVERB_IMPLEMENTATION_2026-10-14.
 ## 2026-10-14 — Reverb becomes an independent curve
 
 Supersedes the earlier same-day scalar/link UI: [Reverb curve contract](REVERB_CURVE_2026-10-14.md). Direction → Distance → Reverb edit selectors each have a separate power button; values survive Off. Reverb uses normalized0–100% smoothstep send curve, default35%; fixed Decay appears only for Reverb. No visible checkbox/link controls or app Distance-to-room coupling. Preview/export both read the curve. Local verified candidate, not deployed or listening-approved.
+
+
+## 2026-10-14 — Readable default noise pulses
+
+User requested a better default waveform and release. The prior45s demo repeated45.833ms bursts separated by20.833ms (about15Hz), producing a dense striped overview. Keep45s/mono/seed45066/gain0.32, but use1.2s bursts +1.3s gaps, attack80ms/decay340ms/sustain0.22/release600ms. Repeating six-event amplitude accents0.72/0.9/0.62/1/0.8/0.56 give18 distinct pulses. This intentionally changes only generated demo cadence/envelope, not imported audio or spatial DSP. The waveform remains derived from real PCM; reduce its outline opacity0.62→0.28 to avoid harsh edges.
+
+Browser visual inspection, default playback/pause and download pass with no console errors. Actual WAV:2ch/48kHz/24-bit/exact45s. Direction-only startup preserved. Syntax/diff checks pass; musical listening is not certified.

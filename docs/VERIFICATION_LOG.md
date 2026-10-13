@@ -236,3 +236,10 @@ Release scope includes shared FDN core, independent Amount curve, static Decay a
 ## 2026-10-14 — Direction-only default verification
 
 Browser fresh load: Direction on, Distance/Reverb off. Enable Distance and Reverb, confirm Reset All: Direction selected/on, both others off, hidden distanceBypass true, Reverb settings hidden. Syntax and diff checks pass. Initial static Distance readout also changed to Off. DSP algorithms unchanged.
+
+
+## 2026-10-14 — Readable default noise pulses
+
+User requested a better default waveform and release. The prior45s demo repeated45.833ms bursts separated by20.833ms (about15Hz), producing a dense striped overview. Keep45s/mono/seed45066/gain0.32, but use1.2s bursts +1.3s gaps, attack80ms/decay340ms/sustain0.22/release600ms. Repeating six-event amplitude accents0.72/0.9/0.62/1/0.8/0.56 give18 distinct pulses. This intentionally changes only generated demo cadence/envelope, not imported audio or spatial DSP. The waveform remains derived from real PCM; reduce its outline opacity0.62→0.28 to avoid harsh edges.
+
+Browser visual inspection, default playback/pause and download pass with no console errors. Actual WAV:2ch/48kHz/24-bit/exact45s. Direction-only startup preserved. Syntax/diff checks pass; musical listening is not certified.

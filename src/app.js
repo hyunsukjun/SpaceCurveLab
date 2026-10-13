@@ -95,12 +95,12 @@ const activeRadius = 10;
 const channelSpreadDegrees = 45;
 const defaultSampleSettings = {
   duration: 45,
-  burst: 0.045833,
-  gap: 0.020833,
-  attack: 0.003,
-  decay: 0.014,
+  burst: 1.2,
+  gap: 1.3,
+  attack: 0.08,
+  decay: 0.34,
   sustain: 0.22,
-  release: 0.018,
+  release: 0.60,
   gain: 0.32
 };
 const curves = {
@@ -322,7 +322,7 @@ async function handleFile(event) {
 function loadDefaultSample() {
   const context = getAudioContext();
   const sampleBuffer = createDefaultNoiseIntervalSample(context);
-  installAudioBuffer(sampleBuffer, `Default noise interval / ${formatDuration(sampleBuffer.duration)} / mono`);
+  installAudioBuffer(sampleBuffer, `Default noise pulses / ${formatDuration(sampleBuffer.duration)} / mono`);
 }
 
 function installAudioBuffer(audioBuffer, label) {
@@ -357,10 +357,11 @@ function createDefaultNoiseIntervalSample(context) {
 
   for (let start = 0; start < frameCount; start += cycleFrames) {
     const end = Math.min(frameCount, start + burstFrames);
+    const phraseGain = [0.72, 0.9, 0.62, 1, 0.8, 0.56][Math.floor(start / cycleFrames) % 6];
     for (let frame = start; frame < end; frame += 1) {
       const localFrame = frame - start;
       const envelope = noiseEnvelope(localFrame, attackFrames, decayFrames, releaseStart, burstFrames, settings.sustain);
-      data[frame] = (random() * 2 - 1) * envelope * settings.gain;
+      data[frame] = (random() * 2 - 1) * envelope * settings.gain * phraseGain;
     }
   }
 
@@ -910,7 +911,7 @@ function drawWave(playheadNorm) {
     }
     waveCtx.closePath();
     waveCtx.fill();
-    waveCtx.strokeStyle = "rgba(170, 188, 204, 0.62)";
+    waveCtx.strokeStyle = "rgba(170, 188, 204, 0.28)";
     waveCtx.lineWidth = 1;
     waveCtx.stroke();
     waveCtx.fillStyle = "#9bb4c9";

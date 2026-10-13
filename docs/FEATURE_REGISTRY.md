@@ -273,3 +273,10 @@ Verified in the browser: all three off, Reverb alone on, add a point and toggle 
 ## 2026-10-14 — Direction-only startup default
 
 User requested Direction enabled and selected on launch, Distance and Reverb disabled. Reset All restores this same state. Distance bypass is true initially; room enabled is false for Preview and Render. Stored defaults remain Distance0, Reverb Amount35%, Decay1.2s and are applied when enabled. No algorithm or curve-range change.
+
+
+## 2026-10-14 — Readable default noise pulses
+
+User requested a better default waveform and release. The prior45s demo repeated45.833ms bursts separated by20.833ms (about15Hz), producing a dense striped overview. Keep45s/mono/seed45066/gain0.32, but use1.2s bursts +1.3s gaps, attack80ms/decay340ms/sustain0.22/release600ms. Repeating six-event amplitude accents0.72/0.9/0.62/1/0.8/0.56 give18 distinct pulses. This intentionally changes only generated demo cadence/envelope, not imported audio or spatial DSP. The waveform remains derived from real PCM; reduce its outline opacity0.62→0.28 to avoid harsh edges.
+
+Browser visual inspection, default playback/pause and download pass with no console errors. Actual WAV:2ch/48kHz/24-bit/exact45s. Direction-only startup preserved. Syntax/diff checks pass; musical listening is not certified.
