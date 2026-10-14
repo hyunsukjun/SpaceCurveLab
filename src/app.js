@@ -196,6 +196,17 @@ window.addEventListener("keyup", (event) => {
 });
 clearCurveButton.addEventListener("click", clearCurrentCurve);
 resetButton.addEventListener("click", openResetDialog);
+// Keep keyboard navigation inside the modal until it is dismissed.
+window.addEventListener("keydown", (event) => {
+  if (resetDialog.hidden || event.key !== "Tab") return;
+  event.preventDefault();
+  event.stopPropagation();
+  const first = cancelResetButton;
+  const last = confirmResetButton;
+  const current = document.activeElement;
+  (current === first ? last : current === last ? first : event.shiftKey ? last : first).focus();
+}, true);
+
 cancelResetButton.addEventListener("click", closeResetDialog);
 confirmResetButton.addEventListener("click", () => {
   closeResetDialog();
