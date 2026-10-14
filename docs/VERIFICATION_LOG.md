@@ -253,3 +253,7 @@ Default demo repetition period is halved2.5s→1.25s: burst1.2→0.6s, gap1.3→
 
 
 Release authorization: user subsequently requested commit and deployment of the spatial-label and double-tempo demo changes. Prior local-only notes record the earlier stage. No additional DSP changes in this release.
+
+
+## 2026-10-14 — Keyboard UI release verification
+Runtime e664f03: Open Audio is reachable by Tab with visible focus; Enter opens the chooser and a 4-second stereo48k WAV loads. Reset dialog initially leaked Shift+Tab to background CLIP; fixed Tab/Shift+Tab cycling, Space cancel, Enter confirm, focus restoration and no unintended playback verified in IAB. transport-keyboard and reset-focus suites plus JS syntax passed. Reverb/Octo expanded layout remains scroll-accessible. Actual125% zoom and other-device/native-dialog checks remain unverified. No DSP or listening decision; filter response difference remains for listening. Family report: COMMON_UI_KEYBOARD_PANELS_2026-10-14.md under CurveLabWebV1; deployment evidence retained there.
