@@ -45,7 +45,7 @@ function syncEffectButtons() {
     button.setAttribute('aria-pressed', String(effectEnabled[name]));
     button.classList.toggle('enabled', effectEnabled[name]);
     button.classList.toggle('active', effectEnabled[name] && name === activeCurve);
-    button.title = `${name[0].toUpperCase()+name.slice(1)}: ${effectEnabled[name] ? 'on · click to turn off' : 'off · click to enable and edit'}`;
+    button.dataset.helpState = `${name[0].toUpperCase()+name.slice(1)}: ${effectEnabled[name] ? 'on · click to turn off' : 'off · click to enable and edit'}`;
   }
   clearCurveButton.disabled = !effectEnabled[activeCurve];
 }

@@ -341,3 +341,8 @@ Browser visual inspection, default playback/pause and download pass with no cons
 User identified optical imbalance at stereo R and Octo3/4. Speaker labels now face inward on both sides, using measured glyph width, a12px anchor offset, middle baseline and frame-safe text bounds. Actual speaker dot positions, angles, channel order and audio routing are unchanged. Stereo/Quad/Octo were visually inspected in the1422x800 browser viewport.
 
 Default demo repetition period is halved2.5s→1.25s: burst1.2→0.6s, gap1.3→0.65s; attack/decay/release also halved to40/170/300ms to preserve envelope proportions. Duration45s, gain, seed and accent pattern remain;36 pulses instead of18. Playback/pause and browser console checked; syntax/diff checks pass. No commit/deployment requested for this turn; local changes only.
+
+
+## 2026-10-14 — Family parameter help
+
+Static parameter descriptions are available on the relevant buttons using the Audio help design; current values, axes and activation feedback remain visible. See `docs/PARAMETER_HELP.md` (or `PARAMETER_HELP.md` in this directory). No DSP or curve mapping changes.
