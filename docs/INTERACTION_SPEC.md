@@ -226,3 +226,10 @@ Verified in the browser: all three off, Reverb alone on, add a point and toggle 
 ## 2026-10-14 — Direction-only startup default
 
 User requested Direction enabled and selected on launch, Distance and Reverb disabled. Reset All restores this same state. Distance bypass is true initially; room enabled is false for Preview and Render. Stored defaults remain Distance0, Reverb Amount35%, Decay1.2s and are applied when enabled. No algorithm or curve-range change.
+
+
+## 2026-10-14 — Family file information
+
+Approved circular dotted-i disclosure immediately left of Open Audio. Default format guidance moves into this optional panel; privacy and actual error/status notices remain. Space operates disclosure without audio transport; Escape/outside click dismiss. Output guidance: Source duration · 2 / 4 / 8 channels · 48 kHz / 24-bit WAV. Input limits reflect current implementation, not a device-memory guarantee. No DSP, admission, export, IDs or defaults changed.
+
+Family verification: all six information panels passed desktop/narrow bounds and Space/Escape/outside-click checks; shared keyboard regression 27/27 passed. Existing dynamic errors and audio handlers unchanged. User approved commit and publication on 2026-10-14. Release evidence in family FILE_HELP_2026-10-14.md. Earlier Audio-only pilot status is superseded.
