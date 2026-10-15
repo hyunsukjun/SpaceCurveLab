@@ -891,8 +891,8 @@ function drawWave(playheadNorm) {
   waveCtx.font = "11px system-ui, sans-serif";
   waveCtx.textBaseline = "middle";
   waveCtx.fillStyle = "#9bb4c9";
-  waveCtx.fillText("OUTPUT TIME", 10, 12);
-  waveCtx.fillText(width > 640 ? "SOURCE WAVEFORM · NOT SPATIAL OUTPUT" : "SOURCE WAVEFORM", Math.max(left + 10, 105), 12);
+  waveCtx.fillText("Output Time", 10, 12);
+  waveCtx.fillText(width > 640 ? "Source waveform · Not spatial output" : "Source waveform", Math.max(left + 10, 105), 12);
   waveCtx.strokeStyle = "rgba(72, 111, 143, 0.24)";
   waveCtx.lineWidth = 1;
   for (let i = 0; i <= 10; i += 1) {
@@ -986,7 +986,7 @@ function drawCurveGrid() {
   const plotBottom = h - plotPaddingBottom;
   curveCtx.strokeStyle = colors.grid;
   curveCtx.fillStyle = colors.ink;
-  curveCtx.font = "650 12px system-ui, sans-serif";
+  curveCtx.font = "500 12px system-ui, sans-serif";
   curveCtx.textBaseline = "middle";
   curveCtx.fillStyle = "rgba(5, 11, 18, 0.34)";
   curveCtx.fillRect(0, 0, axisWidth, h);
@@ -1026,7 +1026,7 @@ function drawDirectionAxis(width) {
     curveCtx.lineTo(width - 18, y);
     curveCtx.stroke();
     curveCtx.fillStyle = rotation === 0 ? "rgba(232, 240, 246, 0.96)" : "rgba(170, 188, 204, 0.78)";
-    curveCtx.font = "650 12px system-ui, sans-serif";
+    curveCtx.font = "500 12px system-ui, sans-serif";
     curveCtx.textAlign = "right";
     curveCtx.fillText(label, axisWidth - 12, y);
   }
@@ -1052,7 +1052,7 @@ function drawDistanceAxis(width) {
     curveCtx.lineTo(width - 18, y);
     curveCtx.stroke();
     curveCtx.fillStyle = mark.strong ? "rgba(232, 240, 246, 0.94)" : "rgba(170, 188, 204, 0.74)";
-    curveCtx.font = mark.strong ? "700 12px system-ui, sans-serif" : "650 12px system-ui, sans-serif";
+    curveCtx.font = mark.strong ? "600 12px system-ui, sans-serif" : "500 12px system-ui, sans-serif";
     curveCtx.textAlign = "right";
     curveCtx.fillText(mark.label, axisWidth - 12, y);
   }
@@ -1113,7 +1113,7 @@ function drawHoverLabel() {
   curveCtx.fillStyle = "rgba(5, 11, 18, 0.94)";
   curveCtx.fillRect(screen.x + 12, screen.y - 30, 92, 24);
   curveCtx.fillStyle = colors.text;
-  curveCtx.font = "650 12px system-ui, sans-serif";
+  curveCtx.font = "500 12px system-ui, sans-serif";
   curveCtx.fillText(label, screen.x + 20, screen.y - 14);
 }
 
