@@ -28,7 +28,7 @@ function reverbSettings() {
 }
 function updateRoomControls() {
   document.getElementById("reverbDecayValue").textContent = `${Number(reverbDecay.value).toFixed(1)} s`;
-  downloadReadout.textContent = buffer ? "needs export" : "not ready";
+  setExportStatus(buffer ? "needs export" : "not ready");
   if (isPlaying) updatePreview(currentTimeNorm());
 }
 function toggleEffect(name) {
@@ -169,7 +169,7 @@ meterClipButton.addEventListener("click", () => {
 downloadButton.addEventListener("click", downloadRenderedWav);
 renderFormat.addEventListener("change", () => {
   updateReadouts(currentTimeNorm());
-  downloadReadout.textContent = buffer ? "ready" : "not ready";
+  setExportStatus(buffer ? "ready" : "not ready");
   drawAll();
 });
 
@@ -323,7 +323,7 @@ async function handleFile(event) {
     waveform = [];
     inputReadout.textContent = "mono/stereo";
     fileStatus.textContent = error.message?.startsWith("AIFF:") ? error.message : "Cannot decode audio file";
-    downloadReadout.textContent = "not ready";
+    setExportStatus("not ready");
     updateTime(0);
     console.error(error);
   }
@@ -348,7 +348,7 @@ function installAudioBuffer(audioBuffer, label) {
   seekDisabled = false;
   downloadButton.disabled = false;
   pauseAt = 0;
-  downloadReadout.textContent = "ready";
+  setExportStatus("ready");
   updateTime(0);
 }
 
@@ -701,7 +701,7 @@ async function downloadRenderedWav() {
   const bypassed = distanceBypass.checked;
   const roomSettings = reverbSettings();
   downloadButton.textContent = "Cancel Render";
-  downloadReadout.textContent = "rendering";
+  setExportStatus("rendering");
   try {
     const renderBuffer = await prepareRenderBuffer(source, RENDER_SAMPLE_RATE, controller.signal);
     const wav = await renderSpatialWavAsync(
@@ -718,9 +718,9 @@ async function downloadRenderedWav() {
     link.click();
     link.remove();
     setTimeout(() => URL.revokeObjectURL(downloadUrl), 500);
-    downloadReadout.textContent = `${channels}ch downloaded`;
+    setExportStatus(`${channels}ch downloaded`);
   } catch (error) {
-    downloadReadout.textContent = error.name === "AbortError" ? "cancelled" : "render failed";
+    setExportStatus(error.name === "AbortError" ? "cancelled" : "render failed");
     if (error.name !== "AbortError") console.error(error);
   } finally {
     renderController = null;
@@ -742,7 +742,7 @@ function setActiveCurve(name) {
 
 function clearCurrentCurve() {
   curves[activeCurve] = defaults[activeCurve]();
-  downloadReadout.textContent = buffer ? "needs export" : "not ready";
+  setExportStatus(buffer ? "needs export" : "not ready");
   updateReadouts(currentTimeNorm());
   drawAll();
 }
@@ -767,7 +767,7 @@ function resetAll() {
   reverbDecay.value = '1.2';
   updateRoomControls();
   pauseAt = 0;
-  downloadReadout.textContent = buffer ? "ready" : "not ready";
+  setExportStatus(buffer ? "ready" : "not ready");
   updateReadouts(0);
   drawAll();
 }
@@ -803,7 +803,7 @@ function onPointerDown(event) {
         points.splice(foundPoint.index, 1);
         selectedPoint = null;
         hoveredPoint = null;
-        downloadReadout.textContent = buffer ? "ready" : "not ready";
+        setExportStatus(buffer ? "ready" : "not ready");
         updateReadouts(currentTimeNorm());
         drawAll();
       }
@@ -835,7 +835,7 @@ function onPointerMove(event) {
 function onPointerUp(event) {
   if (curveCanvas.hasPointerCapture(event.pointerId)) curveCanvas.releasePointerCapture(event.pointerId);
   selectedPoint = null;
-  downloadReadout.textContent = buffer ? "ready" : "not ready";
+  setExportStatus(buffer ? "ready" : "not ready");
 }
 
 function moveSelected(event) {
@@ -1272,7 +1272,7 @@ function distanceValue(y) {
 }
 
 function updateDistanceControls() {
-  downloadReadout.textContent = buffer ? "ready" : "not ready";
+  setExportStatus(buffer ? "ready" : "not ready");
   updateReadouts(currentTimeNorm());
   if (isPlaying) updatePreview(currentTimeNorm());
 }
@@ -1311,7 +1311,6 @@ function updateReadouts(t) {
   motionReadout.textContent = `${rotations.toFixed(2)} rotations`;
   engineReadout.textContent = renderFormat.value === "stereo" ? "headphone 2ch" : "speaker map";
   spatialModeLabel.textContent = spatialLabelForFormat(renderFormat.value);
-  document.getElementById("selectedValue").textContent = !effectEnabled[activeCurve] ? "Off" : activeCurve === "direction" ? directionReadout.textContent : activeCurve === "distance" ? distanceReadout.textContent : document.getElementById("reverbAmountValue").textContent;
 }
 
 function channelCountForFormat(format) {
@@ -1382,3 +1381,10 @@ function clamp(value, min, max) {
 }
 
 mountTransport({state:()=>({duration:buffer?.duration||0,seconds:currentTimeNorm()*(buffer?.duration||0),playing:isPlaying,disabled:seekDisabled||playButton.disabled}),seek:seekToProgress});
+
+// Idle readiness is conveyed by the Download control; retain actionable feedback.
+function setExportStatus(message) {
+  const output = document.getElementById("downloadReadout");
+  output.textContent = message;
+  output.parentElement.hidden = ["", "ready", "not ready", "needs export"].includes(message);
+}
