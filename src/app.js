@@ -1,3 +1,5 @@
+import {analyzeSourceColors} from "./source-colors.js";
+import {summarizeChannels,paintEnvelope,peakOf,paintToneLegend} from "./source-envelope.js";
 import { roomSend } from './reverb-core.js?v=20261014-room2';
 import {mountTransport} from "./common-transport.js?v=20261013-1";
 import { readAudioFile } from "./audio-import.js?v=20261011-aiff1";
@@ -121,6 +123,7 @@ let activeCurve = "direction";
 let audioContext;
 let buffer = null;
 let waveform = [];
+let sourceColors=null,sourceRaster=null;
 let source = null;
 let previewMaster = null;
 let outputMeter = null;
@@ -341,9 +344,8 @@ function loadDefaultSample() {
 
 function installAudioBuffer(audioBuffer, label) {
   buffer = audioBuffer;
-  waveform = Array.from({ length: Math.min(2, buffer.numberOfChannels) }, (_, channel) => buildWaveform(buffer, 1800, channel));
-  const waveformPeak = Math.max(0, ...waveform.flat());
-  if (waveformPeak > 0) waveform = waveform.map((lane) => lane.map((value) => value / waveformPeak));
+  waveform=summarizeChannels(Array.from({length:Math.min(2,buffer.numberOfChannels)},(_,c)=>buffer.getChannelData(c)));sourceColors=null;sourceRaster=null;
+  analyzeSourceColors(audioBuffer,colors=>{if(buffer===audioBuffer){sourceColors=colors;drawWave(currentTimeNorm());}});
   inputReadout.textContent = buffer.numberOfChannels === 1 ? "mono" : "stereo";
   fileStatus.textContent = label;
   playButton.disabled = false;
@@ -885,55 +887,38 @@ function drawWave(playheadNorm) {
   const width = w;
   const left = axisWidth;
   const plotWidth = w - axisWidth - 18;
-  waveCtx.clearRect(0, 0, w, h);
-  waveCtx.fillStyle = colors.paper;
-  waveCtx.fillRect(0, 0, w, h);
-  waveCtx.font = "11px system-ui, sans-serif";
-  waveCtx.textBaseline = "middle";
-  waveCtx.fillStyle = "#9bb4c9";
-  waveCtx.fillText("Output Time", 10, 12);
-  waveCtx.fillText(width > 640 ? "Source waveform · Not spatial output" : "Source waveform", Math.max(left + 10, 105), 12);
-  waveCtx.strokeStyle = "rgba(72, 111, 143, 0.24)";
-  waveCtx.lineWidth = 1;
+  const scale=window.devicePixelRatio||1,key=`${w}:${h}:${scale}`;
+  if(!sourceRaster||sourceRaster.key!==key||sourceRaster.waveform!==waveform||sourceRaster.colors!==sourceColors){
+    const image=document.createElement('canvas');image.width=Math.ceil(w*scale);image.height=Math.ceil(h*scale);const c=image.getContext('2d');c.setTransform(scale,0,0,scale,0,0);
+  c.clearRect(0, 0, w, h);
+  c.fillStyle = colors.paper;
+  c.fillRect(0, 0, w, h);
+  c.font = "11px system-ui, sans-serif";
+  c.textBaseline = "middle";
+  c.fillStyle = "#9bb4c9";
+  c.fillText("Output Time", 10, 12);
+  c.fillText(width > 800 ? "Source waveform · Not spatial output" : "Source waveform", Math.max(left + 10, 105), 12);
+  c.strokeStyle = "rgba(72, 111, 143, 0.24)";
+  c.lineWidth = 1;
   for (let i = 0; i <= 10; i += 1) {
     const x = left + plotWidth * i / 10;
-    waveCtx.beginPath();
-    waveCtx.moveTo(x, 21);
-    waveCtx.lineTo(x, h - 19);
-    waveCtx.stroke();
+    c.beginPath();
+    c.moveTo(x, 21);
+    c.lineTo(x, h - 19);
+    c.stroke();
   }
-  waveform.forEach((lane, channel) => {
-    const laneHeight = (h - 40) / waveform.length;
-    const mid = 21 + laneHeight * (channel + 0.5);
-    const amp = laneHeight * 0.42;
-    waveCtx.fillStyle = "rgba(128, 158, 186, 0.48)";
-    waveCtx.beginPath();
-    lane.forEach((value, i) => {
-      const x = left + plotWidth * i / Math.max(1, lane.length - 1);
-      const y = mid - value * amp;
-      if (i === 0) waveCtx.moveTo(x, y);
-      else waveCtx.lineTo(x, y);
-    });
-    for (let i = lane.length - 1; i >= 0; i -= 1) {
-      const value = lane[i];
-      const x = left + plotWidth * i / Math.max(1, lane.length - 1);
-      const y = mid + value * amp;
-      waveCtx.lineTo(x, y);
-    }
-    waveCtx.closePath();
-    waveCtx.fill();
-    waveCtx.strokeStyle = "rgba(170, 188, 204, 0.28)";
-    waveCtx.lineWidth = 1;
-    waveCtx.stroke();
-    waveCtx.fillStyle = "#9bb4c9";
-    waveCtx.fillText(waveform.length === 1 ? "MONO" : channel === 0 ? "L" : "R", 10, mid);
-  });
+  const referencePeak=peakOf(waveform);
+  waveform.forEach((lane,channel)=>{const laneHeight=(h-40)/waveform.length,mid=21+laneHeight*(channel+.5);paintEnvelope(c,lane,sourceColors?.[channel],left,plotWidth,mid,laneHeight*.42,window.devicePixelRatio||1,referencePeak);c.fillStyle='#9bb4c9';c.fillText(waveform.length===1?'MONO':channel===0?'L':'R',10,mid);});
+  paintToneLegend(c,w);
   const divisions = width < 600 ? 2 : 4;
   for (let i = 0; i <= divisions; i += 1) {
-    waveCtx.fillStyle = "#9bb4c9";
-    waveCtx.textAlign = i === 0 ? "left" : i === divisions ? "right" : "center";
-    waveCtx.fillText(formatDuration((buffer?.duration || 0) * i / divisions), left + plotWidth * i / divisions, h - 8);
+    c.fillStyle = "#9bb4c9";
+    c.textAlign = i === 0 ? "left" : i === divisions ? "right" : "center";
+    c.fillText(formatDuration((buffer?.duration || 0) * i / divisions), left + plotWidth * i / divisions, h - 8);
   }
+    sourceRaster={key,waveform,colors:sourceColors,image};
+  }
+  waveCtx.setTransform(1,0,0,1,0,0);waveCtx.clearRect(0,0,waveCtx.canvas.width,waveCtx.canvas.height);waveCtx.drawImage(sourceRaster.image,0,0);waveCtx.setTransform(scale,0,0,scale,0,0);
   waveCtx.strokeStyle = "#e6edf1";
   waveCtx.fillStyle = "#e6edf1";
   waveCtx.lineWidth = 1.5;
@@ -1336,25 +1321,6 @@ function currentTimeNorm() {
   return clamp(pauseAt / buffer.duration, 0, 1);
 }
 
-function buildWaveform(audioBuffer, buckets, selectedChannel = 0) {
-  const length = audioBuffer.length;
-  const data = audioBuffer.getChannelData(selectedChannel);
-  const values = [];
-  for (let i = 0; i < buckets; i += 1) {
-    const start = Math.floor((i / buckets) * length);
-    const end = Math.floor(((i + 1) / buckets) * length);
-    let sum = 0;
-    let count = 0;
-    for (let j = start; j < end; j += 1) {
-      const sample = data[j] || 0;
-      sum += sample * sample;
-      count += 1;
-    }
-    const rms = count ? Math.sqrt(sum / count) : 0;
-    values.push(rms);
-  }
-  return values;
-}
 
 function formatDuration(seconds) {
   const hundredths = Math.round(Math.max(0, Number.isFinite(seconds) ? seconds : 0) * 100);

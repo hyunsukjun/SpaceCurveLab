@@ -263,3 +263,14 @@ Runtime e664f03: Open Audio is reachable by Tab with visible focus; Enter opens 
 - Small-screen 8ch map, Reverb controls, curve point addition (2 to 3), Play, Pause and Return to start passed; captured console error list empty.
 - Canvas coordinate and transport keyboard tests: 8 passed. Audio DSP, speaker mapping and export unchanged; no new listening/export certification.
 - Evidence: work/CurveLabWebV1/evidence/space-compact-spatial-20261015.json and .png in the verification workspace.
+
+## 2026-10-15 — Source-tone waveform (local review, not released)
+
+- Follow the Audio/Timbre source-tone palette: blue → teal → gold → peach indicates low-to-high spectral centroid of the original source. It does not represent processed output, level, clipping, or sound quality.
+- Signed min/max summary up to 16,000 buckets preserves transients; display gain is normalized without changing samples. HiDPI polygon rendering replaces the coarse waveform. Static waveform raster is cached while cursor/selection overlays update independently.
+- Worker analysis samples at most 1,024 Hann/FFT windows per channel (1,024 samples/window, max two channels). File replacement cancels stale work; analysis failure falls back to blue. Long files are sampled and brief events may be missed; this is a visual guide, not a spectrogram.
+- Existing DSP, playback/export, normalized curves, timing and channel routing remain unchanged.
+- Local source-color tests and syntax/diff checks passed. Browser import and play/pause checked. Brave at 900×700 with actual 125% and 150% zoom checked; vertical scrolling is retained on short screens. No subjective listening, Windows, or native confirmation-keyboard claim.
+- Await user visual review before commit/deployment.
+
+Space: mono/stereo source lanes retained with a shared display peak. Earlier RMS silhouette replaced by signed peak envelope for clearer transients. Spatial View and spatial processing are unchanged; waveform remains source-only. Mono default and stereo file import/play/pause checked.

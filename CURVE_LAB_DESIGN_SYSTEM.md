@@ -279,3 +279,14 @@ Validation follow-up: default wide layout and narrow354px(Timbre)/390px(other La
 ## 2026-10-15 — Space Spatial View label refinement (local review)
 Speaker/channel labels700→600, Listener700→500. Minimum displayed text9→10CSS px through existing logical480px scaling. Existing speaker coordinates, channel numbers, inward placement, edge clamps and marker colors preserved. Listener text offset still follows the existing label-size clearance formula.
 Interface-only; no audio processing, routing, timing, parameters or normalized curves changed. Syntax/diff checks passed; browser visual review and horizontal-overflow checks passed across observed wide/narrow viewports. Space2/4/8ch displays checked; Spectral keyboard seek1second and rewind checked. No playback/listening or new WAV verification claimed. No commit or deployment; user preview pending. Evidence: shared QA evidence/labels-review-audit.json and labels screenshots.
+
+## 2026-10-15 — Source-tone waveform (local review, not released)
+
+- Follow the Audio/Timbre source-tone palette: blue → teal → gold → peach indicates low-to-high spectral centroid of the original source. It does not represent processed output, level, clipping, or sound quality.
+- Signed min/max summary up to 16,000 buckets preserves transients; display gain is normalized without changing samples. HiDPI polygon rendering replaces the coarse waveform. Static waveform raster is cached while cursor/selection overlays update independently.
+- Worker analysis samples at most 1,024 Hann/FFT windows per channel (1,024 samples/window, max two channels). File replacement cancels stale work; analysis failure falls back to blue. Long files are sampled and brief events may be missed; this is a visual guide, not a spectrogram.
+- Existing DSP, playback/export, normalized curves, timing and channel routing remain unchanged.
+- Local source-color tests and syntax/diff checks passed. Browser import and play/pause checked. Brave at 900×700 with actual 125% and 150% zoom checked; vertical scrolling is retained on short screens. No subjective listening, Windows, or native confirmation-keyboard claim.
+- Await user visual review before commit/deployment.
+
+Space: mono/stereo source lanes retained with a shared display peak. Earlier RMS silhouette replaced by signed peak envelope for clearer transients. Spatial View and spatial processing are unchanged; waveform remains source-only. Mono default and stereo file import/play/pause checked.
