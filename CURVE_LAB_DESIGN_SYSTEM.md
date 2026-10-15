@@ -237,3 +237,7 @@ Transport and surrounding page #373B43, no outer border. Fixed transport docks a
 ### Space canvas density correction — 2026-10-15
 - Wave/curve labels and points draw in CSS-pixel coordinates, with device-density backing stores. Spatial View retains a square logical viewbox. Resize changes display geometry only; normalized curves and DSP timing remain unchanged.
 - Verified point editing/erasing, waveform seek/play, and 8-channel display; 3 coordinate roundtrip tests and 5 keyboard tests passed.
+
+### COMMON CANDIDATE — title and identity geometry (2026-10-15)
+Audio is the geometry reference: at 900 CSS px and above, mark 38×38 px, title 23 px/1.1, weight 600, tracking −.025em, mark-to-copy gap 10 px. Below 900 px retain Audio’s compact 40×40 px mark and 22 px title with 12 px gap. Center the mark vertically against the brand copy; retain each Lab’s symbol, palette, subtitle, and status content. This does not prescribe identical header heights when content wraps. Shared implementation: `src/brand-layout.css`.
+- Browser layout validation: 1280, 768, 600, and 390 CSS px widths; consistent title/mark/gap measurements, no title clipping or document horizontal overflow. Existing SVG assets and audio/interaction JavaScript unchanged.
