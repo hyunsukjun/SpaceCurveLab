@@ -260,3 +260,8 @@ At >=900 CSS px, grow the main curve canvas into remaining viewport height measu
 
 ### Space candidate — compact Spatial View (2026-10-15, uncommitted)
 At <=1040 CSS px, keep the spatial monitor below the main editor as a full-width row: metadata on the left, square monitor on the right. Monitor side clamps to 180–240px using 28dvh; <=440px uses 180px. Larger desktop layout is unchanged. Preserve 480-unit square geometry, speaker coordinates/channel order and DSP. Canvas labels have a minimum 9 CSS px size, calculated on resize, to remain readable at compact sizes. This is a Space-specific responsive rule, not a new collapsing/details interaction.
+
+### COMMON CANDIDATE — viewport height at every width (2026-10-15, approved)
+Supersedes the 300px fixed curve below 900px: at every width calculate space left after actual controls, waveform, auxiliary panels and transport. Keep a 220px editable minimum; overflow remains natural vertical scrolling, never canvas/transport overlap. Do not hide controls or rescale normalized curve values. Audio/Timbre retain their existing height-aware layout in this incremental pass and are regression references.
+
+- Release verification: 30 browser layout cases across six Labs passed for no horizontal overflow or editor/transport overlap. Modified four Labs retained point addition; Space/Spectral/Oscillator transport smoke passed. Granular real-file playback was not repeated for this presentation-only change. Evidence: shared verification workspace evidence/height-aware-family-20261015.json.
