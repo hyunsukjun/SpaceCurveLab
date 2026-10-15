@@ -370,3 +370,6 @@ Speaker/channel labels700→600, Listener700→500. Minimum displayed text9→10
 Interface-only; no audio processing, routing, timing, parameters or normalized curves changed. Syntax/diff checks passed; browser visual review and horizontal-overflow checks passed across observed wide/narrow viewports. Space2/4/8ch displays checked; Spectral keyboard seek1second and rewind checked. No playback/listening or new WAV verification claimed. No commit or deployment; user preview pending. Evidence: shared QA evidence/labels-review-audit.json and labels screenshots.
 
 Release approval: user approved the labels preview for commit and deployment. Final diff remains presentation-only; syntax/diff checks passed. Prior browser visual/seek evidence retained; no DSP or listening claim.
+
+## 2026-10-15 — Support wording alignment (reviewed; release authorized)
+File help explicitly states that reverb tails beyond the source end are not included. Documents the existing source-length render policy; no DSP or duration change.
