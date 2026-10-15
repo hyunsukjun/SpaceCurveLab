@@ -319,7 +319,7 @@ async function handleFile(event) {
     const context = getAudioContext();
     const arrayBuffer = await readAudioFile(file, context.sampleRate);
     const decodedBuffer = await decodeAudioBuffer(context, arrayBuffer);
-    installAudioBuffer(decodedBuffer, `${file.name} / ${formatDuration(decodedBuffer.duration)} / ${decodedBuffer.numberOfChannels}ch`);
+    installAudioBuffer(decodedBuffer, `${file.name} - ${decodedBuffer.duration.toFixed(2)} s · ${decodedBuffer.numberOfChannels} ch`);
   } catch (error) {
     buffer = null;
     waveform = [];
@@ -335,7 +335,7 @@ async function handleFile(event) {
 function loadDefaultSample() {
   const context = getAudioContext();
   const sampleBuffer = createDefaultNoiseIntervalSample(context);
-  installAudioBuffer(sampleBuffer, `Default noise pulses / ${formatDuration(sampleBuffer.duration)} / mono`);
+  installAudioBuffer(sampleBuffer, `Default noise pulses - ${sampleBuffer.duration.toFixed(2)} s · mono`);
 }
 
 function installAudioBuffer(audioBuffer, label) {
@@ -1356,9 +1356,9 @@ function buildWaveform(audioBuffer, buckets, selectedChannel = 0) {
 }
 
 function formatDuration(seconds) {
-  const safe = Math.max(0, seconds);
-  const minutes = Math.floor(safe / 60);
-  const rest = safe - minutes * 60;
+  const hundredths = Math.round(Math.max(0, Number.isFinite(seconds) ? seconds : 0) * 100);
+  const minutes = Math.floor(hundredths / 6000);
+  const rest = (hundredths % 6000) / 100;
   return `${String(minutes).padStart(2, "0")}:${rest.toFixed(2).padStart(5, "0")}`;
 }
 
