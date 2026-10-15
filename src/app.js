@@ -59,6 +59,7 @@ const spatialCanvas = document.getElementById("spatialCanvas");
 const waveCtx = waveCanvas.getContext("2d");
 const curveCtx = curveCanvas.getContext("2d");
 const spatialCtx = spatialCanvas.getContext("2d");
+let spatialLabelMinimum = 12; // Logical units for at least 9 CSS-pixel monitor labels.
 // Drawing/input coordinates are CSS pixels; backing stores track device density.
 const canvasSizes = { wave: {width:1,height:1}, curve: {width:1,height:1}, spatial: {width:480,height:480} };
 const eraseModifier = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgentData?.platform || "")
@@ -1142,8 +1143,8 @@ function drawSpatial(playheadNorm) {
   spatialCtx.arc(cx, cy, 13, 0, Math.PI * 2);
   spatialCtx.fill();
   spatialCtx.fillStyle = colors.muted;
-  spatialCtx.font = "700 12px system-ui, sans-serif";
-  spatialCtx.fillText("Listener", cx - 24, cy + 34);
+  spatialCtx.font = `700 ${Math.max(12, spatialLabelMinimum)}px system-ui, sans-serif`;
+  spatialCtx.fillText("Listener", cx - spatialCtx.measureText("Listener").width / 2, cy + Math.max(34, spatialLabelMinimum * 1.8));
   const radians = (angle % 360) * Math.PI / 180;
   const x = cx + Math.sin(radians) * radius;
   const y = cy - Math.cos(radians) * radius;
@@ -1167,7 +1168,7 @@ function drawSpeakerRing(cx, cy) {
   const layout = getSpeakerLayout(renderFormat.value);
   const radius = renderFormat.value === "octo" ? Math.min(216, cx - 30) : 216;
   spatialCtx.fillStyle = "#66d2ff";
-  spatialCtx.font = renderFormat.value === "octo" ? "700 14px system-ui, sans-serif" : "700 11px system-ui, sans-serif";
+  spatialCtx.font = `700 ${Math.max(renderFormat.value === "octo" ? 14 : 11, spatialLabelMinimum)}px system-ui, sans-serif`;
   for (const speaker of layout) {
     const radians = speaker.angle * Math.PI / 180;
     const x = cx + Math.sin(radians) * radius;
@@ -1186,7 +1187,7 @@ function drawStereoMarkers(cx, cy) {
     { label: "R", angle: 45 }
   ];
   spatialCtx.fillStyle = "#66d2ff";
-  spatialCtx.font = "700 12px system-ui, sans-serif";
+  spatialCtx.font = `700 ${Math.max(12, spatialLabelMinimum)}px system-ui, sans-serif`;
   for (const marker of markers) {
     const radians = marker.angle * Math.PI / 180;
     const x = cx + Math.sin(radians) * radius;
@@ -1374,6 +1375,7 @@ function setupCanvasSizing() {
     if (canvas.height !== pixelHeight) canvas.height = pixelHeight;
     // Spatial geometry uses a square 480-unit view box, scaled uniformly.
     canvasSizes[key] = key === "spatial" ? {width:480,height:480} : {width,height};
+    if (key === "spatial") spatialLabelMinimum = 9 * 480 / width;
     const logical = canvasSizes[key];
     context.setTransform(pixelWidth / logical.width, 0, 0, pixelHeight / logical.height, 0, 0);
   }

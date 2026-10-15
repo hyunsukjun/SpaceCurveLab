@@ -4,3 +4,26 @@
 .app > .playbackBar, .app > .playbackDock { position:static; inset:auto; margin-bottom:0; }
 .workspace, .curveStack { height:auto; align-content:start; }
 #curveCanvas { height:var(--available-curve-height,300px) !important; }
+
+/* Compact spatial monitor when the workspace stacks; retain a square viewbox. */
+@media (max-width:1040px) {
+  .spatialPanel {
+    width:100%;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) clamp(180px,28dvh,240px);
+    align-items:center;
+    gap:12px;
+  }
+  .spatialHeader {
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    gap:8px;
+    padding:4px;
+  }
+  #spatialModeLabel { flex:none; text-align:left; }
+  #spatialCanvas { width:100%; height:auto; aspect-ratio:1; }
+}
+@media (max-width:440px) {
+  .spatialPanel { grid-template-columns:minmax(0,1fr) 180px; gap:8px; }
+}

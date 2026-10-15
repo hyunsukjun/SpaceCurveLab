@@ -257,3 +257,9 @@ Release authorization: user subsequently requested commit and deployment of the 
 
 ## 2026-10-14 — Keyboard UI release verification
 Runtime e664f03: Open Audio is reachable by Tab with visible focus; Enter opens the chooser and a 4-second stereo48k WAV loads. Reset dialog initially leaked Shift+Tab to background CLIP; fixed Tab/Shift+Tab cycling, Space cancel, Enter confirm, focus restoration and no unintended playback verified in IAB. transport-keyboard and reset-focus suites plus JS syntax passed. Reverb/Octo expanded layout remains scroll-accessible. Actual125% zoom and other-device/native-dialog checks remain unverified. No DSP or listening decision; filter response difference remains for listening. Family report: COMMON_UI_KEYBOARD_PANELS_2026-10-14.md under CurveLabWebV1; deployment evidence retained there.
+
+## 2026-10-15 — Compact Spatial View candidate, not committed
+- Local browser checked at actual CSS viewports 1280x800, 1024x640, 853x533, 600x800 and 390x780; square spatial bounds, no horizontal overflow or editor/transport overlap. 1024x640 and 853x533 represent 125%/150% available areas from 1280x800; native browser zoom itself was not revalidated.
+- Small-screen 8ch map, Reverb controls, curve point addition (2 to 3), Play, Pause and Return to start passed; captured console error list empty.
+- Canvas coordinate and transport keyboard tests: 8 passed. Audio DSP, speaker mapping and export unchanged; no new listening/export certification.
+- Evidence: work/CurveLabWebV1/evidence/space-compact-spatial-20261015.json and .png in the verification workspace.

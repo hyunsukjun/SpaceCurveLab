@@ -257,3 +257,6 @@ Transport clocks use mm:ss.hh, rounded before splitting minutes/seconds (59.999 
 
 ### COMMON CANDIDATE — expanded editor
 At >=900 CSS px, grow the main curve canvas into remaining viewport height measured from actual document layout, including controls, footer and any signal chain. Minimum curve height is 220px; below 900px use 300px with natural vertical scrolling. Footer stays in document flow to avoid overlap. Recompute on resize and control-layout changes. Preserve normalized curves, pointer mapping, and DSP timing.
+
+### Space candidate — compact Spatial View (2026-10-15, uncommitted)
+At <=1040 CSS px, keep the spatial monitor below the main editor as a full-width row: metadata on the left, square monitor on the right. Monitor side clamps to 180–240px using 28dvh; <=440px uses 180px. Larger desktop layout is unchanged. Preserve 480-unit square geometry, speaker coordinates/channel order and DSP. Canvas labels have a minimum 9 CSS px size, calculated on resize, to remain readable at compact sizes. This is a Space-specific responsive rule, not a new collapsing/details interaction.
