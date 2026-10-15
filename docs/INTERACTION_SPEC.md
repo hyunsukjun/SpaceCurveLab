@@ -259,3 +259,5 @@ Idle WAV ready/not ready/needs export badges are hidden. The Download control re
 
 ### Canvas density / resize correction — 2026-10-15 (local review)
 Waveform and curve draw in CSS-pixel dimensions measured from their displayed rectangles; backing stores follow device pixel ratio. Pointer/seek mapping uses those same logical dimensions, preserving normalized data, ranges and timing. Element ResizeObserver handles control wrapping. Spatial View uses a 480-unit square view box so circles and speaker layout remain proportionate. No audio graph change.
+
+Expanded-editor layout (2026-10-15): viewport/control resizing changes canvas display dimensions only. Existing canvas sizing observers update backing stores and pointer coordinates; Oscillator additionally observes its main canvas. Curve data and transport state are retained. If controls plus minimum canvas exceed viewport height, use page scrolling rather than covering controls or compressing the editor.
