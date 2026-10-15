@@ -1311,6 +1311,7 @@ function updateReadouts(t) {
   motionReadout.textContent = `${rotations.toFixed(2)} rotations`;
   engineReadout.textContent = renderFormat.value === "stereo" ? "headphone 2ch" : "speaker map";
   spatialModeLabel.textContent = spatialLabelForFormat(renderFormat.value);
+  document.getElementById("selectedValue").textContent = !effectEnabled[activeCurve] ? "Off" : activeCurve === "direction" ? directionReadout.textContent : activeCurve === "distance" ? distanceReadout.textContent : document.getElementById("reverbAmountValue").textContent;
 }
 
 function channelCountForFormat(format) {
