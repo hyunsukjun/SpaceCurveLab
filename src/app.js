@@ -59,6 +59,8 @@ const spatialCanvas = document.getElementById("spatialCanvas");
 const waveCtx = waveCanvas.getContext("2d");
 const curveCtx = curveCanvas.getContext("2d");
 const spatialCtx = spatialCanvas.getContext("2d");
+// Drawing/input coordinates are CSS pixels; backing stores track device density.
+const canvasSizes = { wave: {width:1,height:1}, curve: {width:1,height:1}, spatial: {width:480,height:480} };
 const eraseModifier = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgentData?.platform || "")
   ? "metaKey"
   : "ctrlKey";
@@ -226,8 +228,8 @@ eraserTool.addEventListener("click", () => setTool("eraser"));
 curveCanvas.addEventListener("pointerdown", onPointerDown);
 function waveProgress(event) {
   const rect = waveCanvas.getBoundingClientRect();
-  const x = (event.clientX - rect.left) * waveCanvas.width / rect.width;
-  return clamp((x - axisWidth) / (waveCanvas.width - axisWidth - 18), 0, 1);
+  const x = (event.clientX - rect.left) * canvasSizes.wave.width / rect.width;
+  return clamp((x - axisWidth) / (canvasSizes.wave.width - axisWidth - 18), 0, 1);
 }
 
 waveCanvas.addEventListener("pointerdown", (event) => {
@@ -246,8 +248,8 @@ waveCanvas.addEventListener("pointermove", (event) => {
     void seekToProgress(waveProgress(event));
   } else if (wavePointer === null) {
     const rect = waveCanvas.getBoundingClientRect();
-    const x = (event.clientX - rect.left) * waveCanvas.width / rect.width;
-    waveHover = event.pointerType !== "touch" && x >= axisWidth && x <= waveCanvas.width - 18
+    const x = (event.clientX - rect.left) * canvasSizes.wave.width / rect.width;
+    waveHover = event.pointerType !== "touch" && x >= axisWidth && x <= canvasSizes.wave.width - 18
       ? waveProgress(event) : null;
     drawWave(currentTimeNorm());
   }
@@ -876,15 +878,12 @@ function drawAll(playheadNorm = currentTimeNorm()) {
 }
 
 function drawWave(playheadNorm) {
-  const w = waveCanvas.width;
-  const rect = waveCanvas.getBoundingClientRect();
-  const h = rect.height || 96;
-  const sx = w / Math.max(1, rect.width);
+  const w = canvasSizes.wave.width;
+  const h = canvasSizes.wave.height;
   waveCtx.save();
-  waveCtx.setTransform(sx, 0, 0, waveCanvas.height / h, 0, 0);
-  const width = w / sx;
-  const left = axisWidth / sx;
-  const plotWidth = (w - axisWidth - 18) / sx;
+  const width = w;
+  const left = axisWidth;
+  const plotWidth = w - axisWidth - 18;
   waveCtx.clearRect(0, 0, w, h);
   waveCtx.fillStyle = colors.paper;
   waveCtx.fillRect(0, 0, w, h);
@@ -967,8 +966,8 @@ function drawWave(playheadNorm) {
 }
 
 function drawCurves(playheadNorm) {
-  const w = curveCanvas.width;
-  const h = curveCanvas.height;
+  const w = canvasSizes.curve.width;
+  const h = canvasSizes.curve.height;
   curveCtx.clearRect(0, 0, w, h);
   curveCtx.fillStyle = colors.paper;
   curveCtx.fillRect(0, 0, w, h);
@@ -981,8 +980,8 @@ function drawCurves(playheadNorm) {
 }
 
 function drawCurveGrid() {
-  const w = curveCanvas.width;
-  const h = curveCanvas.height;
+  const w = canvasSizes.curve.width;
+  const h = canvasSizes.curve.height;
   const plotBottom = h - plotPaddingBottom;
   curveCtx.strokeStyle = colors.grid;
   curveCtx.fillStyle = colors.ink;
@@ -1067,7 +1066,7 @@ function drawCurveLine(name, color) {
   curveCtx.lineJoin = "round";
   curveCtx.beginPath();
   const left = axisWidth;
-  const right = curveCanvas.width - 18;
+  const right = canvasSizes.curve.width - 18;
   for (let x = left; x <= right; x += 3) {
     const t = (x - left) / Math.max(1, right - left);
     const yValue = sampleCurve(name, t);
@@ -1093,12 +1092,13 @@ function drawCurveLine(name, color) {
 }
 
 function drawPlayhead(context, canvas, playheadNorm) {
-  const x = axisWidth + (canvas.width - axisWidth - 18) * clamp(playheadNorm, 0, 1);
+  const size = canvas === curveCanvas ? canvasSizes.curve : canvasSizes.wave;
+  const x = axisWidth + (size.width - axisWidth - 18) * clamp(playheadNorm, 0, 1);
   context.strokeStyle = "rgba(226, 236, 244, 0.9)";
   context.lineWidth = 2;
   context.beginPath();
   context.moveTo(x, 0);
-  context.lineTo(x, canvas.height);
+  context.lineTo(x, size.height);
   context.stroke();
 }
 
@@ -1117,8 +1117,8 @@ function drawHoverLabel() {
 }
 
 function drawSpatial(playheadNorm) {
-  const w = spatialCanvas.width;
-  const h = spatialCanvas.height;
+  const w = canvasSizes.spatial.width;
+  const h = canvasSizes.spatial.height;
   const cx = w / 2;
   const cy = h / 2;
   const angle = directionAt(playheadNorm);
@@ -1207,8 +1207,8 @@ function drawSpeakerLabel(label, x, y, centerX) {
   const width = spatialCtx.measureText(label).width;
   const inset = 42; // frame at28px plus14px breathing room
   const desiredX = x < centerX ? x + 12 : x - 12 - width;
-  const labelX = clamp(desiredX, inset, spatialCanvas.width - inset - width);
-  const labelY = clamp(y, inset + 7, spatialCanvas.height - inset - 7);
+  const labelX = clamp(desiredX, inset, canvasSizes.spatial.width - inset - width);
+  const labelY = clamp(y, inset + 7, canvasSizes.spatial.height - inset - 7);
   spatialCtx.fillText(label, labelX, labelY);
   spatialCtx.restore();
 }
@@ -1216,15 +1216,15 @@ function drawSpeakerLabel(label, x, y, centerX) {
 function pointerToPoint(event) {
   const rect = curveCanvas.getBoundingClientRect();
   return {
-    x: (event.clientX - rect.left) * (curveCanvas.width / rect.width),
-    y: (event.clientY - rect.top) * (curveCanvas.height / rect.height)
+    x: (event.clientX - rect.left) * (canvasSizes.curve.width / rect.width),
+    y: (event.clientY - rect.top) * (canvasSizes.curve.height / rect.height)
   };
 }
 
 function canvasToCurve(x, y) {
-  const w = curveCanvas.width;
+  const w = canvasSizes.curve.width;
   const plotTop = plotPaddingTop;
-  const plotBottom = curveCanvas.height - plotPaddingBottom;
+  const plotBottom = canvasSizes.curve.height - plotPaddingBottom;
   const distanceY = clamp((plotBottom - y) / Math.max(1, plotBottom - plotTop), 0, 1);
   return {
     x: clamp((x - axisWidth) / (w - axisWidth - 18), 0, 1),
@@ -1235,7 +1235,7 @@ function canvasToCurve(x, y) {
 }
 
 function curveToCanvas(point, name = activeCurve) {
-  const x = axisWidth + (curveCanvas.width - axisWidth - 18) * point.x;
+  const x = axisWidth + (canvasSizes.curve.width - axisWidth - 18) * point.x;
   const y = name === "direction"
     ? valueToY(directionValue(point.y))
     : valueToY(point.y, "distance");
@@ -1244,7 +1244,7 @@ function curveToCanvas(point, name = activeCurve) {
 
 function valueToY(value, scale = "direction") {
   const plotTop = plotPaddingTop;
-  const plotBottom = curveCanvas.height - plotPaddingBottom;
+  const plotBottom = canvasSizes.curve.height - plotPaddingBottom;
   const plotHeight = Math.max(1, plotBottom - plotTop);
   const normalized = scale === "distance"
     ? clamp(value, 0, 1)
@@ -1254,7 +1254,7 @@ function valueToY(value, scale = "direction") {
 
 function directionValueFromCanvas(y) {
   const plotTop = plotPaddingTop;
-  const plotBottom = curveCanvas.height - plotPaddingBottom;
+  const plotBottom = canvasSizes.curve.height - plotPaddingBottom;
   const normalized = clamp((plotBottom - y) / Math.max(1, plotBottom - plotTop), 0, 1);
   return normalized * 3600 - 1800;
 }
@@ -1363,17 +1363,25 @@ function formatDuration(seconds) {
 }
 
 function setupCanvasSizing() {
-  for (const canvas of [waveCanvas, curveCanvas]) {
+  const ratio = window.devicePixelRatio || 1;
+  for (const [canvas, context, key] of [[waveCanvas,waveCtx,"wave"],[curveCanvas,curveCtx,"curve"],[spatialCanvas,spatialCtx,"spatial"]]) {
     const rect = canvas.getBoundingClientRect();
-    const width = Math.max(900, Math.floor(rect.width || 1200));
-    const height = canvas === waveCanvas ? 150 : 560;
-    canvas.width = width;
-    canvas.height = height;
+    const width = Math.max(1, rect.width);
+    const height = Math.max(1, rect.height);
+    const pixelWidth = Math.max(1, Math.round(width * ratio));
+    const pixelHeight = Math.max(1, Math.round(height * ratio));
+    if (canvas.width !== pixelWidth) canvas.width = pixelWidth;
+    if (canvas.height !== pixelHeight) canvas.height = pixelHeight;
+    // Spatial geometry uses a square 480-unit view box, scaled uniformly.
+    canvasSizes[key] = key === "spatial" ? {width:480,height:480} : {width,height};
+    const logical = canvasSizes[key];
+    context.setTransform(pixelWidth / logical.width, 0, 0, pixelHeight / logical.height, 0, 0);
   }
-  const spatialRect = spatialCanvas.getBoundingClientRect();
-  const side = Math.max(360, Math.floor(spatialRect.width || 520));
-  spatialCanvas.width = side;
-  spatialCanvas.height = side;
+}
+
+if ("ResizeObserver" in window) {
+  const canvasObserver = new ResizeObserver(() => { setupCanvasSizing(); drawAll(); });
+  [waveCanvas,curveCanvas,spatialCanvas].forEach(canvas => canvasObserver.observe(canvas));
 }
 
 function clamp(value, min, max) {

@@ -256,3 +256,6 @@ User requested removal of the newly introduced Details disclosures across the fa
 
 ## Export feedback visibility
 Idle WAV ready/not ready/needs export badges are hidden. The Download control retains its normal state. Progress, cancellation, limits and failure feedback remain visible; status values are not audio-engine inputs.
+
+### Canvas density / resize correction — 2026-10-15 (local review)
+Waveform and curve draw in CSS-pixel dimensions measured from their displayed rectangles; backing stores follow device pixel ratio. Pointer/seek mapping uses those same logical dimensions, preserving normalized data, ranges and timing. Element ResizeObserver handles control wrapping. Spatial View uses a 480-unit square view box so circles and speaker layout remain proportionate. No audio graph change.
