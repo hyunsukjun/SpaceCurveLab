@@ -1,4 +1,4 @@
-import {drawEditorGrid, frequencyTicks, frequencyLabel, spacedMarks, canvasLabelFont} from "./canvas-grid.js";
+import {canvasAxisWidth, drawEditorGrid, frequencyTicks, frequencyLabel, spacedMarks, canvasLabelFont} from "./canvas-grid.js";
 import {analyzeSourceColors} from "./source-colors.js";
 import {summarizeChannels,paintEnvelope,peakOf,paintToneLegend} from "./source-envelope.js";
 import { roomSend } from './reverb-core.js?v=20261014-room2';
@@ -94,7 +94,7 @@ const colors = {
   listener: "#e8f0f6"
 };
 
-const axisWidth = 104;
+const axisWidth = canvasAxisWidth;
 const plotPaddingTop = 18;
 const plotPaddingBottom = 24;
 const activeRadius = 10;
