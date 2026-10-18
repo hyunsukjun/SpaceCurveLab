@@ -1,3 +1,4 @@
+import {drawEditorGrid, frequencyTicks, frequencyLabel, spacedMarks, canvasLabelFont} from "./canvas-grid.js";
 import {analyzeSourceColors} from "./source-colors.js";
 import {summarizeChannels,paintEnvelope,peakOf,paintToneLegend} from "./source-envelope.js";
 import { roomSend } from './reverb-core.js?v=20261014-room2';
@@ -971,7 +972,7 @@ function drawCurveGrid() {
   const plotBottom = h - plotPaddingBottom;
   curveCtx.strokeStyle = colors.grid;
   curveCtx.fillStyle = colors.ink;
-  curveCtx.font = "500 12px system-ui, sans-serif";
+  curveCtx.font = canvasLabelFont;
   curveCtx.textBaseline = "middle";
   curveCtx.fillStyle = "rgba(5, 11, 18, 0.34)";
   curveCtx.fillRect(0, 0, axisWidth, h);
@@ -981,14 +982,7 @@ function drawCurveGrid() {
   curveCtx.lineTo(axisWidth, plotBottom);
   curveCtx.stroke();
 
-  for (let i = 0; i <= 10; i += 1) {
-    const x = axisWidth + (w - axisWidth - 18) * (i / 10);
-    curveCtx.strokeStyle = colors.grid;
-    curveCtx.beginPath();
-    curveCtx.moveTo(x, plotPaddingTop);
-    curveCtx.lineTo(x, plotBottom);
-    curveCtx.stroke();
-  }
+  drawEditorGrid(curveCtx, axisWidth, plotPaddingTop, w-axisWidth-18, plotBottom-plotPaddingTop);
 
   if (activeCurve !== "direction") {
     drawDistanceAxis(w);
@@ -1008,10 +1002,10 @@ function drawDirectionAxis(width) {
     curveCtx.strokeStyle = rotation === 0 ? "rgba(123, 164, 196, 0.58)" : "rgba(72, 111, 143, 0.2)";
     curveCtx.beginPath();
     curveCtx.moveTo(axisWidth, y);
-    curveCtx.lineTo(width - 18, y);
+    curveCtx.lineTo(rotation === 0 ? width - 18 : axisWidth + 5, y);
     curveCtx.stroke();
     curveCtx.fillStyle = rotation === 0 ? "rgba(232, 240, 246, 0.96)" : "rgba(170, 188, 204, 0.78)";
-    curveCtx.font = "500 12px system-ui, sans-serif";
+    curveCtx.font = canvasLabelFont;
     curveCtx.textAlign = "right";
     curveCtx.fillText(label, axisWidth - 12, y);
   }
@@ -1034,10 +1028,10 @@ function drawDistanceAxis(width) {
     curveCtx.strokeStyle = mark.value === 0.5 ? "rgba(95, 141, 177, 0.48)" : "rgba(72, 111, 143, 0.24)";
     curveCtx.beginPath();
     curveCtx.moveTo(axisWidth, y);
-    curveCtx.lineTo(width - 18, y);
+    curveCtx.lineTo(axisWidth + 5, y);
     curveCtx.stroke();
     curveCtx.fillStyle = mark.strong ? "rgba(232, 240, 246, 0.94)" : "rgba(170, 188, 204, 0.74)";
-    curveCtx.font = mark.strong ? "600 12px system-ui, sans-serif" : "500 12px system-ui, sans-serif";
+    curveCtx.font = mark.strong ? "500 11px system-ui, sans-serif" : canvasLabelFont;
     curveCtx.textAlign = "right";
     curveCtx.fillText(mark.label, axisWidth - 12, y);
   }
@@ -1098,7 +1092,7 @@ function drawHoverLabel() {
   curveCtx.fillStyle = "rgba(5, 11, 18, 0.94)";
   curveCtx.fillRect(screen.x + 12, screen.y - 30, 92, 24);
   curveCtx.fillStyle = colors.text;
-  curveCtx.font = "500 12px system-ui, sans-serif";
+  curveCtx.font = "500 12px system-ui, -apple-system, sans-serif";
   curveCtx.fillText(label, screen.x + 20, screen.y - 14);
 }
 
