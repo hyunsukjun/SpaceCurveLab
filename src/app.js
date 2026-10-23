@@ -982,7 +982,11 @@ function drawCurveGrid() {
   curveCtx.lineTo(axisWidth, plotBottom);
   curveCtx.stroke();
 
+  // Quiet background grid; retain scales, points and curve contrast.
+  curveCtx.save();
+  curveCtx.globalAlpha *= 0.65;
   drawEditorGrid(curveCtx, axisWidth, plotPaddingTop, w-axisWidth-18, plotBottom-plotPaddingTop);
+  curveCtx.restore();
 
   if (activeCurve !== "direction") {
     drawDistanceAxis(w);
