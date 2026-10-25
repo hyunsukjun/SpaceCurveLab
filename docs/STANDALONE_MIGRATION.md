@@ -295,3 +295,8 @@ Supersedes the earlier same-day scalar/link UI: [Reverb curve contract](REVERB_C
 ## Optical layout review — 2026-10-14
 
 Treat mathematically correct coordinates as a starting point, not visual approval. Speaker/channel labels need mirrored inward placement, measured text width, baseline alignment and clear distance from frame/ring strokes. Preserve physical speaker coordinates while adjusting label anchors independently. Inspect Stereo/Quad/Octo at actual display size, especially right-side labels3/4 and R, and repeat at narrow and high-DPI layouts during standalone QA. This local web pass covers the1422x800 viewport only, not all display configurations.
+
+
+## 10 ms playback boundary candidate — 2026-10-25
+
+The current local candidate supersedes earlier automatic transport-boundary durations with the [10 ms playback/WAV contract](PLAYBACK_BOUNDARY.md). Source/effect envelopes are separate. See that contract for pause-state retention, existing tail-length limits and verification status. Uncommitted; listening acceptance pending.

@@ -1,3 +1,4 @@
+import { BOUNDARY_SECONDS } from "./playback-boundary.js";
 import {canvasAxisWidth, drawEditorGrid, frequencyTicks, frequencyLabel, spacedMarks, canvasLabelFont} from "./canvas-grid.js";
 import {analyzeSourceColors} from "./source-colors.js";
 import {summarizeChannels,paintEnvelope,peakOf,paintToneLegend} from "./source-envelope.js";
@@ -5,7 +6,7 @@ import { roomSend } from './reverb-core.js?v=20261014-room2';
 import {mountTransport} from "./common-transport.js?v=20261013-1";
 import { readAudioFile } from "./audio-import.js?v=20261011-aiff1";
 import { createDistanceProcessor } from "./distance-engine.js?v=20261014-room2";
-import { renderSpatialWavAsync } from "./render-client.js?v=20261014-room2";
+import { renderSpatialWavAsync } from "./render-client.js?v=20261025-fade10";
 import { prepareRenderBuffer, RENDER_SAMPLE_RATE } from "./render-preparation.js?v=20261006-worker-01";
 import { getSpeakerLayout } from "./speaker-layout.js?v=20260926-03";
 import { OutputMeterAnalyzer } from "./output-meter.js?v=20260930-02";
@@ -428,7 +429,22 @@ function decodeAudioBuffer(context, arrayBuffer) {
   });
 }
 
+let retainedPause = false;
+let pausePending = false;
 async function play() {
+  if (pausePending) return;
+  if (retainedPause && audioContext && source && previewMaster) {
+    const token = ++playbackToken;
+    retainedPause = false;
+    schedulePreviewEnvelope(previewMaster.gain, audioContext.currentTime, Math.max(0, buffer.duration - pauseAt));
+    playStartedAt = audioContext.currentTime - pauseAt;
+    await audioContext.resume();
+    if (token !== playbackToken) return;
+    isPlaying = true;
+    playButton.textContent = "Pause";
+    tick();
+    return;
+  }
   if (!buffer) return;
   if (pauseAt >= buffer.duration - 0.02) pauseAt = 0;
   const requestToken = ++playbackToken;
@@ -492,7 +508,42 @@ async function play() {
   tick();
 }
 
-function stop(resetPosition = true) {
+async function stop(resetPosition = true) {
+  if (!resetPosition && pausePending) return;
+  if (!resetPosition && isPlaying && audioContext && previewMaster) {
+    const token = ++playbackToken;
+    pausePending = true;
+    const context = audioContext, gain = previewMaster.gain;
+    const now = context.currentTime;
+    gain.cancelAndHoldAtTime(now);
+    gain.linearRampToValueAtTime(0, now + BOUNDARY_SECONDS);
+    while (context.currentTime < now + BOUNDARY_SECONDS && token === playbackToken && context.state === "running") {
+      await new Promise(resolve => setTimeout(resolve, 2));
+    }
+    if (token !== playbackToken) return;
+    try { await context.suspend(); } catch (error) {
+      if (token === playbackToken) {
+        pausePending = false;
+        stop(true);
+        fileStatus.textContent = "Playback pause failed. Please try again.";
+      }
+      console.error(error);
+      return;
+    }
+    if (token !== playbackToken) {
+      // A newer Play may have completed while the old suspend was pending.
+      if (isPlaying && context === audioContext) await context.resume();
+      return;
+    }
+    pauseAt = Math.min(buffer.duration, context.currentTime - playStartedAt);
+    isPlaying = false; pausePending = false; retainedPause = true;
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = null; playButton.textContent = "Play";
+    updateTime(pauseAt); updateReadouts(currentTimeNorm()); drawAll();
+    return;
+  }
+  retainedPause = false;
+  pausePending = false;
   playbackToken += 1;
   seekPlaybackRequested = false;
   if (isPlaying && audioContext) {
@@ -508,6 +559,7 @@ function stop(resetPosition = true) {
 }
 
 async function seekToProgress(value) {
+  retainedPause = false; pausePending = false;
   if (!buffer || seekDisabled) return;
   const progress = clamp(value, 0, 1);
   if (isPlaying) seekPlaybackRequested = true;
@@ -558,11 +610,10 @@ function stopPlaybackNodes(fadeOut = false) {
     try {
       if (fadeOut && audioContext && stoppedMaster) {
         const now = audioContext.currentTime;
-        stoppedMaster.gain.cancelScheduledValues(now);
-        stoppedMaster.gain.setValueAtTime(stoppedMaster.gain.value, now);
-        stoppedMaster.gain.linearRampToValueAtTime(0, now + 0.008);
+        stoppedMaster.gain.cancelAndHoldAtTime(now);
+        stoppedMaster.gain.linearRampToValueAtTime(0, now + BOUNDARY_SECONDS);
         stoppedSource.onended = null;
-        stoppedSource.stop(now + 0.009);
+        stoppedSource.stop(now + BOUNDARY_SECONDS + 0.001);
         setTimeout(disconnectGraph, 30);
         return;
       }
@@ -575,7 +626,7 @@ function stopPlaybackNodes(fadeOut = false) {
 }
 
 function schedulePreviewEnvelope(gainParam, startTime, duration) {
-  const fade = Math.min(0.008, duration * 0.25);
+  const fade = Math.min(BOUNDARY_SECONDS, duration * 0.5);
   gainParam.cancelScheduledValues(startTime);
   gainParam.setValueAtTime(0, startTime);
   gainParam.linearRampToValueAtTime(0.9, startTime + fade);

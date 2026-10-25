@@ -261,3 +261,8 @@ Idle WAV ready/not ready/needs export badges are hidden. The Download control re
 Waveform and curve draw in CSS-pixel dimensions measured from their displayed rectangles; backing stores follow device pixel ratio. Pointer/seek mapping uses those same logical dimensions, preserving normalized data, ranges and timing. Element ResizeObserver handles control wrapping. Spatial View uses a 480-unit square view box so circles and speaker layout remain proportionate. No audio graph change.
 
 Expanded-editor layout (2026-10-15): viewport/control resizing changes canvas display dimensions only. Existing canvas sizing observers update backing stores and pointer coordinates; Oscillator additionally observes its main canvas. Curve data and transport state are retained. If controls plus minimum canvas exceed viewport height, use page scrolling rather than covering controls or compressing the editor.
+
+
+## 10 ms playback boundary candidate — 2026-10-25
+
+The current local candidate supersedes earlier automatic transport-boundary durations with the [10 ms playback/WAV contract](PLAYBACK_BOUNDARY.md). Source/effect envelopes are separate. See that contract for pause-state retention, existing tail-length limits and verification status. Uncommitted; listening acceptance pending.

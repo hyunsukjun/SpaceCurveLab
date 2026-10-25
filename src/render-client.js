@@ -8,7 +8,7 @@ export function renderSpatialWavAsync(buffer,direction,distance,format,bypassed,
     const fail=error=>{cleanup();reject(error);};
     const abort=()=>fail(new DOMException('Render cancelled','AbortError'));
     try {
-      worker=new Worker(new URL('./render-worker.js?v=20261014-room2',import.meta.url),{type:'module'});
+      worker=new Worker(new URL('./render-worker.js?v=20261025-fade10',import.meta.url),{type:'module'});
       signal?.addEventListener('abort',abort,{once:true});
       worker.onmessage=({data})=>{cleanup();if(data.error)reject(new Error(data.error));else resolve(data.wav);};
       worker.onerror=event=>{event.preventDefault();fail(new Error(event.message || 'Render worker failed'));};

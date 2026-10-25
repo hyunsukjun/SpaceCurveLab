@@ -1,3 +1,4 @@
+import { boundaryGain } from "./playback-boundary.js";
 import { SpaceReverb, roomSend } from './reverb-core.js?v=20261014-room2';
 import { getSpeakerLayout } from "./speaker-layout.js";
 import { distanceRoomLevels } from "./spatial-parameters.js?v=20260927-06";
@@ -202,10 +203,9 @@ function encodeWav(channels, sampleRate, ceiling = 1) {
   const bytesPerSample = 3;
   const blockAlign = channelCount * bytesPerSample;
   const dataSize = frameCount * blockAlign;
-  const fadeFrames = Math.max(2, Math.min(frameCount, Math.floor(sampleRate * 0.008)));
   let peak = 0;
   for (let frame = 0; frame < frameCount; frame += 1) {
-    const envelope = boundaryEnvelope(frame, frameCount, fadeFrames);
+    const envelope = boundaryGain(frame, frameCount, sampleRate);
     for (let channel = 0; channel < channelCount; channel += 1) {
       peak = Math.max(peak, Math.abs(channels[channel][frame] * envelope));
     }
@@ -229,7 +229,7 @@ function encodeWav(channels, sampleRate, ceiling = 1) {
   let offset = 44;
   for (let frame = 0; frame < frameCount; frame += 1) {
     for (let channel = 0; channel < channelCount; channel += 1) {
-      const envelope = boundaryEnvelope(frame, frameCount, fadeFrames);
+      const envelope = boundaryGain(frame, frameCount, sampleRate);
       const sample = clamp(channels[channel][frame] * envelope * safetyGain, -1, 1);
       const encoded = Math.round(sample < 0 ? sample * 0x800000 : sample * 0x7fffff);
       view.setUint8(offset, encoded & 0xff);
@@ -241,12 +241,6 @@ function encodeWav(channels, sampleRate, ceiling = 1) {
   return buffer;
 }
 
-function boundaryEnvelope(frame, frameCount, fadeFrames) {
-  if (frameCount <= 1) return 0;
-  const fadeIn = frame / Math.max(1, fadeFrames - 1);
-  const fadeOut = (frameCount - 1 - frame) / Math.max(1, fadeFrames - 1);
-  return clamp(Math.min(fadeIn, fadeOut), 0, 1);
-}
 
 function writeString(view, offset, value) {
   for (let i = 0; i < value.length; i += 1) {
