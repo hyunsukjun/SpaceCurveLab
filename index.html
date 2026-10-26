@@ -105,19 +105,19 @@
             <strong id="inputReadout">mono/stereo</strong>
           </div>
           <div class="readout primaryReadout">
-            <span>Curve</span>
+            <span>Editing</span>
             <strong id="modeReadout">Direction</strong>
           </div>
           <div class="readout">
-            <span>Points</span>
+            <span>Curve points</span>
             <strong id="pointsReadout">2</strong>
           </div>
           <div class="readout">
-            <span>Angle</span>
+            <span title="Direction curve at the output playhead, not a selected point or measured audio.">Angle · playhead</span>
             <strong id="directionReadout">0 deg</strong>
           </div>
           <div class="readout">
-            <span>Distance</span>
+            <span title="Distance curve at the output playhead. Off and bypass retain their existing meaning.">Distance · playhead</span>
             <strong id="distanceReadout">Off</strong>
           </div>
           <div class="readout previewReadout">
@@ -197,7 +197,7 @@
     </div>
 
     <script src="src/file-help.js?v=20261014-family1" type="module"></script>
-    <script src="src/app.js?v=20261026-graphite1" type="module"></script>
+    <script src="src/app.js?v=20261027-context1" type="module"></script>
   <div id="directionModeHelp" class="parameterHelp" role="tooltip" hidden><strong>Direction · −1800° to +1800°</strong><span>Move the sound around the listener. Positive = clockwise; negative = counterclockwise. 360° is one full turn.</span><span class="helpState"></span></div>
 <div id="distanceModeHelp" class="parameterHelp" role="tooltip" hidden><strong>Distance · 0–1</strong><span>Move from near (0) to far (1), changing level, filtering and spatial impression. This is not a calibrated distance in meters.</span><span class="helpState"></span></div>
 <div id="reverbModeHelp" class="parameterHelp" role="tooltip" hidden><strong>Reverb Amount · 0–100%</strong><span>Draw how much sound is sent to the reverb. Decay is a separate 0.3–4 s setting. The tail ends at the file length.</span><span class="helpState"></span></div>

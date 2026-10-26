@@ -266,3 +266,7 @@ Expanded-editor layout (2026-10-15): viewport/control resizing changes canvas di
 ## 10 ms playback boundary candidate — 2026-10-25
 
 The current local candidate supersedes earlier automatic transport-boundary durations with the [10 ms playback/WAV contract](PLAYBACK_BOUNDARY.md). Source/effect envelopes are separate. See that contract for pause-state retention, existing tail-length limits and verification status. Uncommitted; listening acceptance pending.
+
+## Readout context family release — 2026-10-27
+
+Angle and Distance captions identify output-playhead curve values; Off, bypass, spatial/channel mapping unchanged. No new gesture, seeking, point selection, transport command or audio mutation is introduced by displaying these values. See `READOUT_CONTEXT_CONTRACT.md` for basis, source-range rules, verification boundary and portability.
