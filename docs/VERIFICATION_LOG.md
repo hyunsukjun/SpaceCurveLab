@@ -274,3 +274,7 @@ Runtime e664f03: Open Audio is reachable by Tab with visible focus; Enter opens 
 - Await user visual review before commit/deployment.
 
 Space: mono/stereo source lanes retained with a shared display peak. Earlier RMS silhouette replaced by signed peak envelope for clearer transients. Spatial View and spatial processing are unchanged; waveform remains source-only. Mono default and stereo file import/play/pause checked.
+
+## 2026-10-27 — Shift group / Option erase UI release preparation
+
+Direction, Distance and Reverb retain their maps, time axis and normal editing. Shared five-Lab UI evidence: 20 focused command suites; 39 parameter group cases, 195 cancellation cases and 273 unchanged ordinary model/message traces; 39 browser synthetic parameter cases; 15 actual Brave Option/Shift-click/normal-drag scenarios. Actual 125%/150% layout checks passed. User individually tested held-Shift movement in the five prepared Labs and reported no major issue. User explicitly approved commit/deployment. These are scoped UI checks, not new listening, Windows/touch, full import/export or product-wide acceptance. DSP modules/worklets unchanged. See [gesture contract](CURVE_GESTURE_CONTRACT.md).

@@ -99,7 +99,7 @@ implementation may use different event APIs while preserving these behaviors.
 
 ## Temporary Eraser Modifier
 
-- macOS: Command plus primary click temporarily erases in Pen mode.
+- macOS: Option plus primary click temporarily erases in Pen mode.
 - Windows/other PC baseline: Ctrl plus primary click temporarily erases.
 - Releasing the modifier returns behavior and cursor to the selected persistent tool.
 - Losing window focus clears the temporary state.
@@ -270,3 +270,7 @@ The current local candidate supersedes earlier automatic transport-boundary dura
 ## Readout context family release — 2026-10-27
 
 Angle and Distance captions identify output-playhead curve values; Off, bypass, spatial/channel mapping unchanged. No new gesture, seeking, point selection, transport command or audio mutation is introduced by displaying these values. See `READOUT_CONTEXT_CONTRACT.md` for basis, source-range rules, verification boundary and portability.
+
+## Shift group / Option erase — 2026-10-27
+
+Current gesture contract supersedes earlier Mac Command erase statements only. Shift captures the clicked point and ordered suffix in the active curve, fixes all X and applies one normalized Y delta with common bounds. Option-click temporarily erases on Mac, Ctrl-click on PC. Esc/cancellation restores the pending group. Existing normal editing and source/transport semantics remain. See [gesture contract](CURVE_GESTURE_CONTRACT.md).

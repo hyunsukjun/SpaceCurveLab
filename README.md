@@ -68,3 +68,7 @@ are unchanged. See [support scope and limits](docs/AIFF_IMPORT.md).
 Bottom controls are Return to start / Play / Pause. Space toggles Play/Pause.
 Pause keeps the current position; Return to start seeks to zero. The thin slider
 navigates output time. Source guides, sound engines and export policies are unchanged.
+
+## Shift group / Option erase — 2026-10-27
+
+Shift-drag a point and following points vertically with X fixed; Mac Option-click erases an interior point (PC Ctrl-click unchanged). Original editing, mappings and DSP remain. User-reviewed UI checks are recorded in the gesture contract; commit/deployment was explicitly authorized on 2026-10-27. See [gesture contract](docs/CURVE_GESTURE_CONTRACT.md).
