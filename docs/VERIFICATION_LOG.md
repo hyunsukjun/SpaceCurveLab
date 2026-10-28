@@ -282,3 +282,7 @@ Direction, Distance and Reverb retain their maps, time axis and normal editing. 
 ## 2026-10-28 — Readout hierarchy and contextual shortcut guide
 
 Scoped UI release approved after local review. Space: same-data before/after at 1440/600/390px; candidate 1440/1100/900/600/390px; help bounds at 1440/600/390px. Direction/Distance/Reverb readouts, point add/Option erase, Files and Shortcuts key ownership, default-source Play/Pause and console checked. Channel selector remains before Pen/Eraser; spatial mappings, DSP, Preview/WAV layout and rendering sources retain baseline bytes. No new actual native zoom, listening, physical speaker/Windows/touch or WAV export claim. Five-Lab release has 30 focused checks; deployment evidence is separate.
+
+## 2026-10-28 — Engine caption visibility follow-up
+
+Local IAB before/after at actual CSS widths1440/900/390px retains the same seven fields and values; only the Engine caption becomes WAV routing. Input, headphone Preview, channel selector and status computation remain. All JavaScript/DSP bytes match the prior release. Actual Brave final confirmation, native zoom, listening, Windows/touch and WAV export are not newly certified.

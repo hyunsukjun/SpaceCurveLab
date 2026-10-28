@@ -334,3 +334,7 @@ IMPLEMENTED / UI checks verified as stated in the contract. Add Shift suffix Y-o
 ## Readout hierarchy and shortcut reference — 2026-10-28
 
 IMPLEMENTED / USER-APPROVED WEB UI. Existing fields/IDs/labels/units/value origins retained; edit target and point count lead musical values, followed by input/engine/safety references. All values stay visible. An optional Shortcuts guide exposes only current per-Lab bindings; no source-volume/Undo feature is copied from Audio. The channel selector sets the WAV layout; headphone Preview stays stereo. The waveform is a source guide, not spatial output.
+
+## Toolbar and information visibility — 2026-10-28
+
+IMPLEMENTED / USER-APPROVED WEB UI. Keep the existing dynamic engineReadout values and Preview distinction. Rename its caption from Engine to WAV routing; the selected output layout and the existing routing computation are unchanged. No new controls, shortcuts, processing or value model. The user approved commit/deployment after visual review on 2026-10-28; publication success is verified separately.

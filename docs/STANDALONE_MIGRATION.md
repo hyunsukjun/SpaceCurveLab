@@ -323,3 +323,7 @@ STANDALONE ASSET: place output format immediately before Pen/Eraser, following t
 ## Readout hierarchy and key context — 2026-10-28
 
 STANDALONE ASSET / approved web UI. Preserve edit target, selected-point values, playhead/Preview values, input/output/IR time and engine/safety distinctions. Use role order/proximity and an optional context-specific shortcut reference. The channel selector sets the WAV layout; headphone Preview stays stereo. The waveform is a source guide, not spatial output. Native menus/tooltips/key conventions may replace web details/popover mechanics; web pixels/breakpoints are not native specifications. No native implementation or listening approval implied.
+
+## Toolbar hierarchy and technical metadata — 2026-10-28
+
+STANDALONE ASSET / approved web UI. Keep the existing dynamic engineReadout values and Preview distinction. Rename its caption from Engine to WAV routing; the selected output layout and the existing routing computation are unchanged. Group editing help with editing tools and reset utilities with upper file/task actions. Separate fixed implementation identity from actionable state. Native layout, focus conventions and dimensions require independent validation; no native implementation or listening acceptance implied.
