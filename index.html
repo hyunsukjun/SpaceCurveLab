@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="src/transport-polish.css?v=20261015-2">
   <link rel="stylesheet" href="src/transport-surface.css?v=20261015-2">
   <link rel="stylesheet" href="src/brand-layout.css?v=20261015-1">
-    <link rel="stylesheet" href="src/readout-layout.css?v=20261028-channel-tools1">
+    <link rel="stylesheet" href="src/readout-layout.css?v=20261028-family-guide1">
     <link rel="stylesheet" href="src/header-rhythm.css?v=20261015-2">
     <link rel="stylesheet" href="src/expanded-editor.css?v=20261015-spatial2">
     <link rel="stylesheet" href="src/typography.css?v=20261015-family1">
@@ -82,6 +82,10 @@
                 </button>
               </div>
             </div>
+            <details id="shortcutHelp" class="fileHelp shortcutHelp">
+              <summary title="Existing shortcuts by editing area">Shortcuts</summary>
+              <div class="fileHelpPanel" aria-label="Keyboard shortcuts"><strong>Keyboard shortcuts</strong><h3>Curve editing</h3><dl><dt>Shift-drag</dt><dd>Move this and following points vertically. X stays fixed.</dd><dt>Option-click</dt><dd>Mac: delete a point. PC: Ctrl-click. Endpoints stay protected.</dd><dt>Esc</dt><dd>Cancel the pending Shift group drag.</dd></dl><h3>Playback</h3><dl><dt>Space</dt><dd>Play/pause outside inputs, selectors and help.</dd><dt>← / →</dt><dd>Source waveform guide focused: seek 1 s; Shift: 0.1 s. Home / End: boundaries.</dd></dl><p>The channel selector sets the WAV layout; headphone Preview stays stereo. The waveform is a source guide, not spatial output. Esc closes this guide.</p></div>
+            </details>
           </div>
           <div class="curveLegend">
             <span><b class="directionSwatch"></b>direction -1800/+1800 degrees</span>
@@ -101,16 +105,12 @@
           <label>Decay <input id="reverbDecay" type="range" min="0.3" max="4" step="0.1" value="1.2"><output id="reverbDecayValue">1.2 s</output></label>
           <span>Tail ends at file length</span>
         </div>
-        <div class="panel currentValues">
-          <div class="readout">
-            <span>Input</span>
-            <strong id="inputReadout">mono/stereo</strong>
-          </div>
+        <div class="panel currentValues contextReadouts">
           <div class="readout primaryReadout">
             <span>Editing</span>
             <strong id="modeReadout">Direction</strong>
           </div>
-          <div class="readout">
+          <div class="readout editContextEnd">
             <span>Curve points</span>
             <strong id="pointsReadout">2</strong>
           </div>
@@ -118,9 +118,13 @@
             <span title="Direction curve at the output playhead, not a selected point or measured audio.">Angle · playhead</span>
             <strong id="directionReadout">0 deg</strong>
           </div>
-          <div class="readout">
+          <div class="readout playbackGroupEnd">
             <span title="Distance curve at the output playhead. Off and bypass retain their existing meaning.">Distance · playhead</span>
             <strong id="distanceReadout">Off</strong>
+          </div>
+          <div class="readout">
+            <span>Input</span>
+            <strong id="inputReadout">mono/stereo</strong>
           </div>
           <div class="readout previewReadout">
             <span>Preview</span>
@@ -198,7 +202,7 @@
       </div>
     </div>
 
-    <script src="src/file-help.js?v=20261014-family1" type="module"></script>
+    <script src="src/file-help.js?v=20261028-family-guide1" type="module"></script>
     <script src="src/app.js?v=20261027-shift1" type="module"></script>
   <div id="directionModeHelp" class="parameterHelp" role="tooltip" hidden><strong>Direction · −1800° to +1800°</strong><span>Move the sound around the listener. Positive = clockwise; negative = counterclockwise. 360° is one full turn.</span><span class="helpState"></span></div>
 <div id="distanceModeHelp" class="parameterHelp" role="tooltip" hidden><strong>Distance · 0–1</strong><span>Move from near (0) to far (1), changing level, filtering and spatial impression. This is not a calibrated distance in meters.</span><span class="helpState"></span></div>

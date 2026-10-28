@@ -278,3 +278,7 @@ Space: mono/stereo source lanes retained with a shared display peak. Earlier RMS
 ## 2026-10-27 — Shift group / Option erase UI release preparation
 
 Direction, Distance and Reverb retain their maps, time axis and normal editing. Shared five-Lab UI evidence: 20 focused command suites; 39 parameter group cases, 195 cancellation cases and 273 unchanged ordinary model/message traces; 39 browser synthetic parameter cases; 15 actual Brave Option/Shift-click/normal-drag scenarios. Actual 125%/150% layout checks passed. User individually tested held-Shift movement in the five prepared Labs and reported no major issue. User explicitly approved commit/deployment. These are scoped UI checks, not new listening, Windows/touch, full import/export or product-wide acceptance. DSP modules/worklets unchanged. See [gesture contract](CURVE_GESTURE_CONTRACT.md).
+
+## 2026-10-28 — Readout hierarchy and contextual shortcut guide
+
+Scoped UI release approved after local review. Space: same-data before/after at 1440/600/390px; candidate 1440/1100/900/600/390px; help bounds at 1440/600/390px. Direction/Distance/Reverb readouts, point add/Option erase, Files and Shortcuts key ownership, default-source Play/Pause and console checked. Channel selector remains before Pen/Eraser; spatial mappings, DSP, Preview/WAV layout and rendering sources retain baseline bytes. No new actual native zoom, listening, physical speaker/Windows/touch or WAV export claim. Five-Lab release has 30 focused checks; deployment evidence is separate.
