@@ -1,5 +1,7 @@
 # Space Curve Lab
 
+Current default/example: [Bach Prelude No.1 · mallet ·72BPM ·15s MP3](docs/DEFAULT_SOURCE.md). Prepared automatically without autoplay; Open Audio replaces it.
+
 Prototype mode: this is an independent static Web Audio prototype that follows the existing Audio Curve Lab / Timbre Curve Lab file pattern without changing those projects.
 
 ## Reused System Language

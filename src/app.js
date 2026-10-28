@@ -1,3 +1,4 @@
+import {createSourceLoadGate, fetchDefaultSource} from "./default-source.js?v=20261029-bach1";
 import {beginVerticalGroup, moveVerticalGroup, restoreVerticalGroup, verticalGroupSuffix, drawVerticalGroupRing} from "./curve-group-edit.js?v=20261027-shift1";
 import { BOUNDARY_SECONDS } from "./playback-boundary.js";
 import {canvasAxisWidth, drawEditorGrid, frequencyTicks, frequencyLabel, spacedMarks, canvasLabelFont} from "./canvas-grid.js?v=20261026-graphite1";
@@ -11,6 +12,8 @@ import { renderSpatialWavAsync } from "./render-client.js?v=20261025-fade10";
 import { prepareRenderBuffer, RENDER_SAMPLE_RATE } from "./render-preparation.js?v=20261006-worker-01";
 import { getSpeakerLayout } from "./speaker-layout.js?v=20260926-03";
 import { OutputMeterAnalyzer } from "./output-meter.js?v=20260930-02";
+
+const sourceLoadGate = createSourceLoadGate();
 
 const fileInput = document.getElementById("fileInput");
 const fileStatus = document.getElementById("fileStatus");
@@ -170,7 +173,7 @@ window.addEventListener("resize", () => {
   drawAll();
 });
 
-fileInput.addEventListener("change", handleFile);
+fileInput.addEventListener("change", event => loadAudioFile(event.target.files?.[0]));
 playButton.addEventListener("click", () => { if(!isPlaying) play(); });
 stopButton.addEventListener("click", () => stop(false));
 meterClipButton.addEventListener("click", () => {
@@ -337,9 +340,10 @@ window.addEventListener("keydown", (event) => {
   closeResetDialog();
 });
 
-async function handleFile(event) {
-  const [file] = event.target.files;
+async function loadAudioFile(file, { request = null } = {}) {
   if (!file) return;
+  const sourceRequest = request || sourceLoadGate.begin();
+  if (!sourceRequest.current()) return;
   stop();
   fileStatus.textContent = "Loading audio";
   playButton.disabled = true;
@@ -350,8 +354,10 @@ async function handleFile(event) {
     const context = getAudioContext();
     const arrayBuffer = await readAudioFile(file, context.sampleRate);
     const decodedBuffer = await decodeAudioBuffer(context, arrayBuffer);
+    if (!sourceRequest.current()) return;
     installAudioBuffer(decodedBuffer, `${file.name} - ${decodedBuffer.duration.toFixed(2)} s · ${decodedBuffer.numberOfChannels} ch`);
   } catch (error) {
+    if (!sourceRequest.current()) return;
     buffer = null;
     waveform = [];
     inputReadout.textContent = "mono/stereo";
@@ -363,10 +369,21 @@ async function handleFile(event) {
   drawAll();
 }
 
-function loadDefaultSample() {
-  const context = getAudioContext();
-  const sampleBuffer = createDefaultNoiseIntervalSample(context);
-  installAudioBuffer(sampleBuffer, `Default noise pulses - ${sampleBuffer.duration.toFixed(2)} s · mono`);
+async function loadDefaultSample() {
+  const request = sourceLoadGate.begin();
+  fileStatus.textContent = "Loading default sample…";
+  playButton.disabled = true;
+  stopButton.disabled = true;
+  downloadButton.disabled = true;
+  seekDisabled = true;
+  try {
+    const file = await fetchDefaultSource(request.signal);
+    if (request.current()) await loadAudioFile(file, { request });
+  } catch (error) {
+    if (!request.current()) return;
+    fileStatus.textContent = "Default sample unavailable. Open an audio file to begin.";
+    setExportStatus("not ready");
+  }
 }
 
 function installAudioBuffer(audioBuffer, label) {
@@ -632,6 +649,8 @@ function stopPlaybackNodes(fadeOut = false) {
   };
 
   if (stoppedSource) {
+    // Retired nodes cannot end a newer Play after a paused seek resumes the context.
+    stoppedSource.onended = null;
     try {
       if (fadeOut && audioContext && stoppedMaster) {
         const now = audioContext.currentTime;

@@ -338,3 +338,10 @@ IMPLEMENTED / USER-APPROVED WEB UI. Existing fields/IDs/labels/units/value origi
 ## Toolbar and information visibility — 2026-10-28
 
 IMPLEMENTED / USER-APPROVED WEB UI. Keep the existing dynamic engineReadout values and Preview distinction. Rename its caption from Engine to WAV routing; the selected output layout and the existing routing computation are unchanged. No new controls, shortcuts, processing or value model. The user approved commit/deployment after visual review on 2026-10-28; publication success is verified separately.
+
+
+## 2026-10-29 — Shared musical default source
+
+Use the approved shared Bach mallet MP3 in the role documented in [default source](DEFAULT_SOURCE.md). The previous45-second mono noise example is replaced by this15-second stereo input. The input label reports stereo; existing stereo spatial routing, speaker layouts, output channel choices and channel order are unchanged. DSP and musical mappings are unchanged.
+
+Space transport verification also exposed a pre-existing paused-seek ownership race: an old source end event could stop the new Play when the context resumed. Retired source callbacks are cleared on both faded and immediate cleanup. Active natural end and audio graph/DSP are unchanged. The failing-before/passing-after test is `tests/source-node-ownership.mjs`.
