@@ -1,4 +1,5 @@
 import {prepareHrtf, createPreviewPosition} from './preview-spatial.js?v=20261029-preview1';
+import {schedulePreviewEnvelope, releasePreviewEnvelope} from './preview-envelope.js?v=20261029-anchor1';
 import {createSourceLoadGate, fetchDefaultSource} from "./default-source.js?v=20261029-bach1";
 import {beginVerticalGroup, moveVerticalGroup, restoreVerticalGroup, verticalGroupSuffix, drawVerticalGroupRing} from "./curve-group-edit.js?v=20261027-shift1";
 import { BOUNDARY_SECONDS } from "./playback-boundary.js";
@@ -565,8 +566,7 @@ async function stop(resetPosition = true) {
     pausePending = true;
     const context = audioContext, gain = previewMaster.gain;
     const now = context.currentTime;
-    gain.cancelAndHoldAtTime(now);
-    gain.linearRampToValueAtTime(0, now + BOUNDARY_SECONDS);
+    releasePreviewEnvelope(gain, now);
     while (context.currentTime < now + BOUNDARY_SECONDS && token === playbackToken && context.state === "running") {
       await new Promise(resolve => setTimeout(resolve, 2));
     }
@@ -662,8 +662,7 @@ function stopPlaybackNodes(fadeOut = false) {
     try {
       if (fadeOut && audioContext && stoppedMaster) {
         const now = audioContext.currentTime;
-        stoppedMaster.gain.cancelAndHoldAtTime(now);
-        stoppedMaster.gain.linearRampToValueAtTime(0, now + BOUNDARY_SECONDS);
+        releasePreviewEnvelope(stoppedMaster.gain, now);
         stoppedSource.onended = null;
         stoppedSource.stop(now + BOUNDARY_SECONDS + 0.001);
         setTimeout(disconnectGraph, 30);
@@ -675,15 +674,6 @@ function stopPlaybackNodes(fadeOut = false) {
     }
   }
   disconnectGraph();
-}
-
-function schedulePreviewEnvelope(gainParam, startTime, duration) {
-  const fade = Math.min(BOUNDARY_SECONDS, duration * 0.5);
-  gainParam.cancelScheduledValues(startTime);
-  gainParam.setValueAtTime(0, startTime);
-  gainParam.linearRampToValueAtTime(0.9, startTime + fade);
-  if (duration > fade * 2) gainParam.setValueAtTime(0.9, startTime + duration - fade);
-  gainParam.linearRampToValueAtTime(0, startTime + duration);
 }
 
 function tick() {

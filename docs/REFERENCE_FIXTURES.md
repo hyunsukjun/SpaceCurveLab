@@ -178,3 +178,8 @@ Default demo repetition period is halved2.5s→1.25s: burst1.2→0.6s, gap1.3→
 New tests/preview-spatial.mjs covers one preparation per context, retry after failure,25ms response, opposite directions and full±1800deg turns with positive radius. Actual-browser evidence includes source-aligned startup pairs and identical-time motion controls. Existing render byte/length/channel fixtures retained.
 
 See [scope, measurements and remaining limits](PREVIEW_SPATIAL_2026-10-29.md). Baseline e2849f1. User approved commit/deployment on2026-10-29; publication evidence is separate. Residual HRTF work remains parked.
+
+
+## Preview envelope anchor fixtures — 2026-10-29
+
+Local boundary fixture: tests/preview-envelope.mjs (mock getter deliberately wrong). Native fixtures: constant 0.3 through master .9 at 44.1/48/96 kHz; interrupt attack, plateau, natural release, repeated release, short 12 ms output and ordinary baseline. Actual app uses mono 997 Hz WAV (48 kHz, 4 s) for captured HRTF release and default 15 s MP3 for retained-graph lifecycle. Actual Stereo/Quad/Octo WAV pairs are separate from HRTF Preview. See [evidence/limits](PREVIEW_ENVELOPE_2026-10-29.md); fixture success is not listening acceptance.

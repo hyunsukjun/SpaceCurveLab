@@ -175,3 +175,8 @@ Supersedes the earlier same-day scalar/link UI: [Reverb curve contract](REVERB_C
 ## 2026-10-14 — Direction-only startup default
 
 User requested Direction enabled and selected on launch, Distance and Reverb disabled. Reset All restores this same state. Distance bypass is true initially; room enabled is false for Preview and Render. Stored defaults remain Distance0, Reverb Amount35%, Decay1.2s and are applied when enabled. No algorithm or curve-range change.
+
+
+## Preview transport envelope anchoring — 2026-10-29
+
+No new user parameter. Existing Preview master .9, attack 10 ms and natural-end boundary remain. Pause/retired-graph release starts from the evaluated envelope at audio-clock now, reaches zero within 10 ms, and does not extend an already earlier natural/repeated-release deadline. This is transport gain scheduling, separate from Direction/Distance/Reverb parameter smoothing and WAV boundaries. [Contract and local verification](PREVIEW_ENVELOPE_2026-10-29.md). User approved commit/publication on 2026-10-29; public verification is separate.

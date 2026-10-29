@@ -16,3 +16,8 @@ The former 8 ms envelope is replaced. Pause retains the source/room graph by sus
 ## Verification and limits
 
 Shared local evidence: `work/CurveLabWebV1/qa/fade10/` in the Interface workspace. Includes finite-output/short-file tests, release-frame and resume checks, completed browser WAV checks for six Labs and dry/IR Oscillator, plus affected regression logs. Browser/device listening is not inferred from these numeric checks. Release authorization does not imply subjective listening acceptance.
+
+
+## Preview release anchor — 2026-10-29 (release approved)
+
+The previous release could drop abruptly before its intended 10 ms ramp. The candidate explicitly anchors current scheduled gain at the current audio time in Pause and retiring-graph fades; interrupted attack, natural-end overlap and repeated release retain their current values and earlier deadline. Source/room retention, pause position, HRTF preparation/motion, spatial maps, curves, channels, WAV and tail duration are preserved. See [contract, evidence and limits](PREVIEW_ENVELOPE_2026-10-29.md). Local verification is complete; user authorized commit/publication on 2026-10-29. Public proof is separate; listening acceptance remains unclaimed.

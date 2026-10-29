@@ -356,3 +356,11 @@ IMPLEMENTED, USER-AUTHORIZED RELEASE. Reject empty/invalid decoded audio and non
 Space Preview now awaits HRTF preparation before fresh playback and smooths angle/radius instead of a Cartesian chord. Existing musical mappings and render path retained. Local non-listening verification only; rapid-pan noise remains partially unresolved.
 
 See [scope, measurements and remaining limits](PREVIEW_SPATIAL_2026-10-29.md). Baseline e2849f1. User approved commit/deployment on2026-10-29; publication evidence is separate. Residual HRTF work remains parked.
+
+
+## SCL-F016 - Current-gain Preview release anchor
+
+- **Status:** IMPLEMENTED; bounded local numeric/browser verification, user-approved release.
+- **Behavior:** Pause and fading retired graphs release from the gain at the current audio time, at most 10 ms and no later than an existing release end.
+- **Scope:** transport envelope only; same .9 steady gain and spatial graph, source duration, retained pause state and WAV.
+- **Evidence/limits:** [Preview envelope contract](PREVIEW_ENVELOPE_2026-10-29.md); no listening, publication or Native acceptance.

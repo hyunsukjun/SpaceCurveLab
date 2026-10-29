@@ -293,3 +293,8 @@ Local IAB before/after at actual CSS widths1440/900/390px retains the same seven
 Local pre-commit checks:48 stage-isolation captures,48 readiness captures,80 actual-app before/after captures,12 focused command checks and6 lifecycle scenarios pass as scoped. Actual WAV downloads12: Chrome3/3 byte-pair matches; Brave metadata/shape only, not byte identity. Rapid-motion transition energy reduced but not eliminated. No listening, Safari/Firefox/Windows, physical-device or deployment certification.
 
 See [scope, measurements and remaining limits](PREVIEW_SPATIAL_2026-10-29.md). Baseline e2849f1. User approved commit/deployment on2026-10-29; publication evidence is separate. Residual HRTF work remains parked.
+
+
+## Preview release anchor — 2026-10-29 (release approved)
+
+The previous release could drop abruptly before its intended 10 ms ramp. The candidate explicitly anchors current scheduled gain at the current audio time in Pause and retiring-graph fades; interrupted attack, natural-end overlap and repeated release retain their current values and earlier deadline. Source/room retention, pause position, HRTF preparation/motion, spatial maps, curves, channels, WAV and tail duration are preserved. See [contract, evidence and limits](PREVIEW_ENVELOPE_2026-10-29.md). Local verification is complete; user authorized commit/publication on 2026-10-29. Public proof is separate; listening acceptance remains unclaimed.

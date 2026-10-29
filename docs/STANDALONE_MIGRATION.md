@@ -343,3 +343,8 @@ Preserve candidate validation before ownership swap, full-channel/tail finite ch
 Asset: explicit spatial-engine readiness with cancellable ownership, positive-radius angular control and separate startup/motion/headroom fixtures. Chromium shared-HRTF-cache preparation is a browser workaround, not a Native implementation prescription. Native code and acceptance unchanged.
 
 See [scope, measurements and remaining limits](PREVIEW_SPATIAL_2026-10-29.md). Baseline e2849f1. User approved commit/deployment on2026-10-29; publication evidence is separate. Residual HRTF work remains parked.
+
+
+## Preview release anchor — 2026-10-29 (release approved)
+
+The previous release could drop abruptly before its intended 10 ms ramp. The candidate explicitly anchors current scheduled gain at the current audio time in Pause and retiring-graph fades; interrupted attack, natural-end overlap and repeated release retain their current values and earlier deadline. Source/room retention, pause position, HRTF preparation/motion, spatial maps, curves, channels, WAV and tail duration are preserved. See [contract, evidence and limits](PREVIEW_ENVELOPE_2026-10-29.md). Local verification is complete; user authorized commit/publication on 2026-10-29. Public proof is separate; listening acceptance remains unclaimed.
