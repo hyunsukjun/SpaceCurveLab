@@ -438,3 +438,13 @@ See [scope, measurements and remaining limits](PREVIEW_SPATIAL_2026-10-29.md). B
 ## Preview release anchor — 2026-10-29 (release approved)
 
 The previous release could drop abruptly before its intended 10 ms ramp. The candidate explicitly anchors current scheduled gain at the current audio time in Pause and retiring-graph fades; interrupted attack, natural-end overlap and repeated release retain their current values and earlier deadline. Source/room retention, pause position, HRTF preparation/motion, spatial maps, curves, channels, WAV and tail duration are preserved. See [contract, evidence and limits](PREVIEW_ENVELOPE_2026-10-29.md). Local verification is complete; user authorized commit/publication on 2026-10-29. Public proof is separate; listening acceptance remains unclaimed.
+
+
+## Output sample-peak guard — 2026-10-30 (local review)
+
+Supersedes historical no-output-protection statements only. Linked0.98 Preview sample ceiling,instant attack/60ms recovery,no new latency; below-ceiling unity history stays unchanged. Nonfinite processed output stops/reports with explicit retry recovery. Space WAV/global normalization,HRTF/room/mapping/time remain unchanged. See [policy,evidence and unverified listening limits](OUTPUT_PEAK_PROTECTION_2026-10-30.md). Not committed/deployed; no Native implementation.
+
+
+## Output protection release authorization — 2026-10-30
+
+The user approved verification, commit and public deployment of the reviewed output-protection candidate. Source processing, parameter mappings, spatial/channel rules and time axes remain unchanged. Protection may alter dynamics when engaged; this is not listening, physical-device or full-product acceptance. Publication proof is tracked separately in Interface QA `space-spectral-output-release-20261030`.

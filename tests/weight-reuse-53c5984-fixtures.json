@@ -1,0 +1,201 @@
+{
+  "baselineCommit": "53c5984ffc677b18ec92eb4b740eb9bce9a59426",
+  "baselineModuleHashes": [
+    {
+      "path": "src/offline-render.js",
+      "sha256": "070429e28943b5d53ddd729377b36cf72b5095f291cd97c6785179abf009a7dc",
+      "baselineMatches": true
+    },
+    {
+      "path": "src/distance-engine.js",
+      "sha256": "ee3983e61db13f540556568c6bfd38a659424631090ad08f3417e2846979f03a",
+      "baselineMatches": true
+    },
+    {
+      "path": "src/speaker-layout.js",
+      "sha256": "9f2da3fd6dc2c501d9d8b97a1e24f9412b758f933c359ed385d1c00093f78a9f",
+      "baselineMatches": true
+    },
+    {
+      "path": "src/reverb-core.js",
+      "sha256": "267d243365bf1b3c9467be198adff61467c2c3458fa87be8c863004037e0f82a",
+      "baselineMatches": true
+    },
+    {
+      "path": "src/playback-boundary.js",
+      "sha256": "0d93513ea82b09cbb52bce57e1de6bf4a58b73e4c35db9004adbb2d714841bc8",
+      "baselineMatches": true
+    }
+  ],
+  "scope": "Frozen pre-output-guard reference53c5984, not regenerated from candidate. Historical9c316a9 fixtures retained separately.",
+  "fixtures": [
+    {
+      "count": 1,
+      "format": "stereo",
+      "bypass": false,
+      "moving": false,
+      "sha256": "3211b22bf0c6fd69e4e4e015ff5d791190a2efe1487136df1691acd11aaf2368"
+    },
+    {
+      "count": 1,
+      "format": "stereo",
+      "bypass": false,
+      "moving": true,
+      "sha256": "e47cbf76b4314189141178b65f6387e597043e848336ecfb61629571173fc06d"
+    },
+    {
+      "count": 1,
+      "format": "stereo",
+      "bypass": true,
+      "moving": false,
+      "sha256": "db46d79a51ee734e4849707de9922f471edd106c4bda835777558f5b95ebffd9"
+    },
+    {
+      "count": 1,
+      "format": "stereo",
+      "bypass": true,
+      "moving": true,
+      "sha256": "08c379c8185bc9e48351f910d3fe4799426b3a28e4cb7b700d2eff6eb889763c"
+    },
+    {
+      "count": 1,
+      "format": "quad",
+      "bypass": false,
+      "moving": false,
+      "sha256": "08243200cc7d89b4b66d36e9af7359755168e7d6006e4441c1ec6ef5b187b888"
+    },
+    {
+      "count": 1,
+      "format": "quad",
+      "bypass": false,
+      "moving": true,
+      "sha256": "074aec066cf83980d6c682685d220e7b24cff66e48088b1fe157792245dc84ea"
+    },
+    {
+      "count": 1,
+      "format": "quad",
+      "bypass": true,
+      "moving": false,
+      "sha256": "329f7546ac845d3617457a2226c26b10c238d89b1d7c9d5e387c06e888c0d4c7"
+    },
+    {
+      "count": 1,
+      "format": "quad",
+      "bypass": true,
+      "moving": true,
+      "sha256": "d247e4152dbbffec0e0687450c4255129e141ea737bc426a3cafbb5e9dd714ba"
+    },
+    {
+      "count": 1,
+      "format": "octo",
+      "bypass": false,
+      "moving": false,
+      "sha256": "cdc6a63a20deca66919b20e7a9af4108c8ce69eea73ea218f67653ddee0eeb98"
+    },
+    {
+      "count": 1,
+      "format": "octo",
+      "bypass": false,
+      "moving": true,
+      "sha256": "3983f85e62097112000d24d0ce9d7fe47baf7745b0ab6b36c106fc86e68b38c4"
+    },
+    {
+      "count": 1,
+      "format": "octo",
+      "bypass": true,
+      "moving": false,
+      "sha256": "991c5fbdc8bf346fa82e9a8ed5abe20528cc93fd5d186319ba4796245b15142a"
+    },
+    {
+      "count": 1,
+      "format": "octo",
+      "bypass": true,
+      "moving": true,
+      "sha256": "340bec6cd220d6494300c2a799ccae33c23e40a02002d44003405e046e3e7e44"
+    },
+    {
+      "count": 2,
+      "format": "stereo",
+      "bypass": false,
+      "moving": false,
+      "sha256": "b9409341157e45f3cf86e97d200b6152c4637b3c408fa7f325a170b5ecb5200c"
+    },
+    {
+      "count": 2,
+      "format": "stereo",
+      "bypass": false,
+      "moving": true,
+      "sha256": "9ac24f0952b15dd5165784bcd8e52541f8dcbe97f90d657e5ae5ea50c8ced2a6"
+    },
+    {
+      "count": 2,
+      "format": "stereo",
+      "bypass": true,
+      "moving": false,
+      "sha256": "344d5d1bd13598953f9a100802ac72f3adf2f31e93ea293a8fbb8c866c245d9e"
+    },
+    {
+      "count": 2,
+      "format": "stereo",
+      "bypass": true,
+      "moving": true,
+      "sha256": "b2ac04c0417c2cc23a6b9198db3ac59acf87a72536ebfb24ca94d99961bb7ba8"
+    },
+    {
+      "count": 2,
+      "format": "quad",
+      "bypass": false,
+      "moving": false,
+      "sha256": "0960f651f9be99c92eea03f9a650116573721e5985ad27b5b0510645eab90c75"
+    },
+    {
+      "count": 2,
+      "format": "quad",
+      "bypass": false,
+      "moving": true,
+      "sha256": "d6ec8a91e0366beb15072e6a83844370be6b09cc977ee5ece60ad94d5917dcd9"
+    },
+    {
+      "count": 2,
+      "format": "quad",
+      "bypass": true,
+      "moving": false,
+      "sha256": "315eff1d2b8a049b5d34595267698359bc6ac1f668e11bc4bcbbcd36d360950d"
+    },
+    {
+      "count": 2,
+      "format": "quad",
+      "bypass": true,
+      "moving": true,
+      "sha256": "ef696af6085615105b61423dbe3a2897b81583ab76d1b2c05bb143550c263936"
+    },
+    {
+      "count": 2,
+      "format": "octo",
+      "bypass": false,
+      "moving": false,
+      "sha256": "6adab971134f6fb533f64b348fd06c99750fe4325ce66dfdd4955d44dab3be5d"
+    },
+    {
+      "count": 2,
+      "format": "octo",
+      "bypass": false,
+      "moving": true,
+      "sha256": "d78b955ac2bdcdd3d9e572e4e2b8496bba609bfa676b2a4ebc38e464ac3bdf50"
+    },
+    {
+      "count": 2,
+      "format": "octo",
+      "bypass": true,
+      "moving": false,
+      "sha256": "4388a0c7b4d539063b16f701b9c86a99da110c8e2cc427663ed7ab28657f7a99"
+    },
+    {
+      "count": 2,
+      "format": "octo",
+      "bypass": true,
+      "moving": true,
+      "sha256": "09458452a48fd8e1b641b48996dd225af8cce08ebbd4b94d02e3cbd4afb188ef"
+    }
+  ]
+}

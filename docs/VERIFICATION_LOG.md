@@ -298,3 +298,13 @@ See [scope, measurements and remaining limits](PREVIEW_SPATIAL_2026-10-29.md). B
 ## Preview release anchor — 2026-10-29 (release approved)
 
 The previous release could drop abruptly before its intended 10 ms ramp. The candidate explicitly anchors current scheduled gain at the current audio time in Pause and retiring-graph fades; interrupted attack, natural-end overlap and repeated release retain their current values and earlier deadline. Source/room retention, pause position, HRTF preparation/motion, spatial maps, curves, channels, WAV and tail duration are preserved. See [contract, evidence and limits](PREVIEW_ENVELOPE_2026-10-29.md). Local verification is complete; user authorized commit/publication on 2026-10-29. Public proof is separate; listening acceptance remains unclaimed.
+
+
+## Output sample-peak guard — 2026-10-30 (local review)
+
+Supersedes historical no-output-protection statements only. Linked0.98 Preview sample ceiling,instant attack/60ms recovery,no new latency; below-ceiling unity history stays unchanged. Nonfinite processed output stops/reports with explicit retry recovery. Space WAV/global normalization,HRTF/room/mapping/time remain unchanged. See [policy,evidence and unverified listening limits](OUTPUT_PEAK_PROTECTION_2026-10-30.md). Not committed/deployed; no Native implementation.
+
+
+## Output protection pre-release recheck — 2026-10-30
+
+Reviewed candidate runtime matched its recorded hashes. Native guard8 browser/rate/level cases preserved first-nonzero frame and linked stereo ratios. Actual Space8 before/after captures: quiet fixed peak unchanged, hot moving+room peak about4.9957→0.980000019, finite. Context startup/scheduling varies between captures; this is not hardware latency equivalence.4 lifecycle runs retain source/room/panner/guard during Pause/resume,3repeat cycles and playing rewind/natural end.12 actual2/4/8ch WAV saves preserve format/length; Chrome3 baseline byte pairs exact, Brave byte identity not claimed.13current focused suites and actual guard fail-closed test pass. Historical fixture failure and independent baseline renewal recorded. No listening acceptance.

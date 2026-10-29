@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFileSync} from 'node:fs';
-const fixtures=JSON.parse(readFileSync(new URL('./weight-reuse-fixtures.json',import.meta.url))); 
+// Preserve9c316a9 fixtures as history; compare against the shipped pre-guard53c5984 WAV contract.
+const {fixtures,baselineCommit}=JSON.parse(readFileSync(new URL('./weight-reuse-53c5984-fixtures.json',import.meta.url)));
 import {renderSpatialWav as after} from '../src/offline-render.js';
 const rows=[];
 for(const count of [1,2])for(const format of ['stereo','quad','octo'])for(const bypass of [false,true])for(const moving of [false,true]){
@@ -12,4 +13,4 @@ for(const count of [1,2])for(const format of ['stereo','quad','octo'])for(const 
  const b=Buffer.from(after(input,direction,distance,format,bypass));const sha256=createHash('sha256').update(b).digest('hex');const expected=fixtures.find(x=>x.count===count&&x.format===format&&x.bypass===bypass&&x.moving===moving);assert.equal(sha256,expected.sha256,JSON.stringify(expected));
  rows.push({count,format,bypass,moving,sha256});
 }
-console.log(`PASS ${rows.length} baseline WAV fixtures (9c316a9)`);
+console.log(`PASS ${rows.length} baseline WAV fixtures (${baselineCommit.slice(0,7)})`);

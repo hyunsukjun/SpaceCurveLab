@@ -183,3 +183,13 @@ See [scope, measurements and remaining limits](PREVIEW_SPATIAL_2026-10-29.md). B
 ## Preview envelope anchor fixtures — 2026-10-29
 
 Local boundary fixture: tests/preview-envelope.mjs (mock getter deliberately wrong). Native fixtures: constant 0.3 through master .9 at 44.1/48/96 kHz; interrupt attack, plateau, natural release, repeated release, short 12 ms output and ordinary baseline. Actual app uses mono 997 Hz WAV (48 kHz, 4 s) for captured HRTF release and default 15 s MP3 for retained-graph lifecycle. Actual Stereo/Quad/Octo WAV pairs are separate from HRTF Preview. See [evidence/limits](PREVIEW_ENVELOPE_2026-10-29.md); fixture success is not listening acceptance.
+
+
+## Output sample-peak guard — 2026-10-30 (local review)
+
+Supersedes historical no-output-protection statements only. Linked0.98 Preview sample ceiling,instant attack/60ms recovery,no new latency; below-ceiling unity history stays unchanged. Nonfinite processed output stops/reports with explicit retry recovery. Space WAV/global normalization,HRTF/room/mapping/time remain unchanged. See [policy,evidence and unverified listening limits](OUTPUT_PEAK_PROTECTION_2026-10-30.md). Not committed/deployed; no Native implementation.
+
+
+## Current pre-guard WAV reference — 2026-10-30
+
+The old `tests/weight-reuse-fixtures.json` from9c316a9 is retained as historical evidence. It fails unchanged53c5984 too, so it cannot certify this output-only Preview change. `weight-reuse-53c5984-fixtures.json` freezes24 exact WAV hashes from the immutable shipped pre-guard renderer53c5984, with module hashes. Candidate and baseline full WAV bytes match for mono/stereo × Stereo/Quad/Octo × bypass × fixed/moving curves. No render code/normalization/channel or time policy changes. `tests/weight-reuse.mjs` now checks this current baseline. Existing gain/time and UI/audio tests remain separate.

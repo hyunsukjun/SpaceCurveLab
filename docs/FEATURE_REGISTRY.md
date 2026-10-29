@@ -364,3 +364,8 @@ See [scope, measurements and remaining limits](PREVIEW_SPATIAL_2026-10-29.md). B
 - **Behavior:** Pause and fading retired graphs release from the gain at the current audio time, at most 10 ms and no later than an existing release end.
 - **Scope:** transport envelope only; same .9 steady gain and spatial graph, source duration, retained pause state and WAV.
 - **Evidence/limits:** [Preview envelope contract](PREVIEW_ENVELOPE_2026-10-29.md); no listening, publication or Native acceptance.
+
+
+## Output sample-peak guard — 2026-10-30 (local review)
+
+Supersedes historical no-output-protection statements only. Linked0.98 Preview sample ceiling,instant attack/60ms recovery,no new latency; below-ceiling unity history stays unchanged. Nonfinite processed output stops/reports with explicit retry recovery. Space WAV/global normalization,HRTF/room/mapping/time remain unchanged. See [policy,evidence and unverified listening limits](OUTPUT_PEAK_PROTECTION_2026-10-30.md). Not committed/deployed; no Native implementation.

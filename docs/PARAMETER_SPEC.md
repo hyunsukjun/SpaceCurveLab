@@ -180,3 +180,8 @@ User requested Direction enabled and selected on launch, Distance and Reverb dis
 ## Preview transport envelope anchoring — 2026-10-29
 
 No new user parameter. Existing Preview master .9, attack 10 ms and natural-end boundary remain. Pause/retired-graph release starts from the evaluated envelope at audio-clock now, reaches zero within 10 ms, and does not extend an already earlier natural/repeated-release deadline. This is transport gain scheduling, separate from Direction/Distance/Reverb parameter smoothing and WAV boundaries. [Contract and local verification](PREVIEW_ENVELOPE_2026-10-29.md). User approved commit/publication on 2026-10-29; public verification is separate.
+
+
+## Output sample-peak guard — 2026-10-30 (local review)
+
+Supersedes historical no-output-protection statements only. Linked0.98 Preview sample ceiling,instant attack/60ms recovery,no new latency; below-ceiling unity history stays unchanged. Nonfinite processed output stops/reports with explicit retry recovery. Space WAV/global normalization,HRTF/room/mapping/time remain unchanged. See [policy,evidence and unverified listening limits](OUTPUT_PEAK_PROTECTION_2026-10-30.md). Not committed/deployed; no Native implementation.

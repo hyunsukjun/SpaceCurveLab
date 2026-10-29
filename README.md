@@ -74,3 +74,8 @@ navigates output time. Source guides, sound engines and export policies are unch
 ## Shift group / Option erase — 2026-10-27
 
 Shift-drag a point and following points vertically with X fixed; Mac Option-click erases an interior point (PC Ctrl-click unchanged). Original editing, mappings and DSP remain. User-reviewed UI checks are recorded in the gesture contract; commit/deployment was explicitly authorized on 2026-10-27. See [gesture contract](docs/CURVE_GESTURE_CONTRACT.md).
+
+
+## Output peak protection — 2026-10-30
+
+Preview uses a linked0.98 sample-peak ceiling after existing processing, with no lookahead/up-gain and60ms recovery. Channel-relative balance and timing are retained; engaged protection changes output dynamics. Existing WAV output and its whole-file peak policy remain unchanged. This does not repair clipped recordings or guarantee intersample true peaks. See [policy and limits](docs/OUTPUT_PEAK_PROTECTION_2026-10-30.md).

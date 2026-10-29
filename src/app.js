@@ -139,6 +139,8 @@ let outputMeter = null;
 let panners = [];
 let distanceProcessors = [];
 let roomModulePromise = null;
+let outputGuardModulePromise = null;
+let outputGuard = null;
 let roomNode = null;
 let playStartedAt = 0;
 let pauseAt = 0;
@@ -468,6 +470,22 @@ function getOutputMeter(context) {
   return outputMeter;
 }
 
+function getOutputGuard(context) {
+  if (!outputGuard) {
+    const guard = new AudioWorkletNode(context, 'space-output-peak-guard', {numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[2]});
+    outputGuard = guard;
+    guard.connect(getOutputMeter(context).input);
+    const fail = () => {
+      if (outputGuard !== guard) return;
+      stop(true); guard.disconnect(); outputGuard = null;
+      fileStatus.textContent = PREVIEW_OUTPUT_ERROR;
+    };
+    guard.port.onmessage = ({data}) => { if (data.type === 'invalid-output') fail(); };
+    guard.onprocessorerror = fail;
+  }
+  return outputGuard;
+}
+
 function decodeAudioBuffer(context, arrayBuffer) {
   const data = arrayBuffer.slice(0);
   return new Promise((resolve, reject) => {
@@ -478,6 +496,7 @@ function decodeAudioBuffer(context, arrayBuffer) {
 
 let retainedPause = false;
 let pausePending = false;
+const PREVIEW_OUTPUT_ERROR = 'Playback output was invalid. Playback stopped; open another file or retry.';
 const PREVIEW_PREPARATION_ERROR = "Spatial preview preparation failed. Please try again in a browser with AudioWorklet support.";
 async function play() {
   if (pausePending) return;
@@ -500,23 +519,25 @@ async function play() {
   await context.resume();
   try {
     if (!roomModulePromise) roomModulePromise = context.audioWorklet.addModule(new URL('./reverb-worklet.js?v=20261014-room2', import.meta.url));
-    await roomModulePromise;
+    if (!outputGuardModulePromise) outputGuardModulePromise = context.audioWorklet.addModule(new URL('./output-peak-worklet.js?v=20261030-peak1', import.meta.url));
+    await Promise.all([roomModulePromise, outputGuardModulePromise]);
     await prepareHrtf(context);
   } catch (error) {
     roomModulePromise = null;
+    outputGuardModulePromise = null;
     if (requestToken !== playbackToken) return;
     fileStatus.textContent = PREVIEW_PREPARATION_ERROR;
     console.error(error);
     return;
   }
   if (requestToken !== playbackToken) return;
-  if (fileStatus.textContent === PREVIEW_PREPARATION_ERROR) fileStatus.textContent = sourceFileLabel;
+  if ([PREVIEW_PREPARATION_ERROR, PREVIEW_OUTPUT_ERROR].includes(fileStatus.textContent)) fileStatus.textContent = sourceFileLabel;
   stopPlaybackNodes();
 
   source = context.createBufferSource();
   source.buffer = buffer;
   previewMaster = context.createGain();
-  previewMaster.connect(getOutputMeter(context).input);
+  previewMaster.connect(getOutputGuard(context));
 
   const inputCount = Math.min(buffer.numberOfChannels, 2);
   roomNode = new AudioWorkletNode(context, 'space-room', {numberOfInputs:1, numberOfOutputs:1, outputChannelCount:[2], channelCount:2, channelCountMode:'max'});
