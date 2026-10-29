@@ -426,3 +426,10 @@ User approved the72BPM weak-room MP3 as the shared default/example asset and aut
 ## Read-only admission before source replacement (2026-10-29)
 
 USER-APPROVED SCOPE, IMPLEMENTED; release authorized2026-10-29. Extend the already shared audio-import module instead of creating another decoder or DSP sanitizer. Scan all decoded channels before adoption; reject nonfinite data rather than silently replacing samples. Preserve a previous valid input on failure. Bounded copy reads avoid mutating view readback in the observed Brave environment. Normal hot/clipped/DC/silent audio keeps its existing processing meaning. Verification/release/listening are separate. See [input contract](INPUT_VALIDATION.md).
+
+
+## Space Preview cause separation and local fix — 2026-10-29
+
+Cause-first tests reproduce startup mismatch without MP3 decoding. Adopt completion-based HRTF preparation rather than the historical unadopted fixed200ms wait. Adopt bounded polar-position smoothing, not equalpower replacement, a slower motion policy, limiter or changed source. Do not mark rapid-pan grit completely solved.
+
+See [scope, measurements and remaining limits](PREVIEW_SPATIAL_2026-10-29.md). Baseline e2849f1. User approved commit/deployment on2026-10-29; publication evidence is separate. Residual HRTF work remains parked.

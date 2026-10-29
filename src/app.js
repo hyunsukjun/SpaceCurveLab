@@ -1,3 +1,4 @@
+import {prepareHrtf, createPreviewPosition} from './preview-spatial.js?v=20261029-preview1';
 import {createSourceLoadGate, fetchDefaultSource} from "./default-source.js?v=20261029-bach1";
 import {beginVerticalGroup, moveVerticalGroup, restoreVerticalGroup, verticalGroupSuffix, drawVerticalGroupRing} from "./curve-group-edit.js?v=20261027-shift1";
 import { BOUNDARY_SECONDS } from "./playback-boundary.js";
@@ -476,6 +477,7 @@ function decodeAudioBuffer(context, arrayBuffer) {
 
 let retainedPause = false;
 let pausePending = false;
+const PREVIEW_PREPARATION_ERROR = "Spatial preview preparation failed. Please try again in a browser with AudioWorklet support.";
 async function play() {
   if (pausePending) return;
   if (retainedPause && audioContext && source && previewMaster) {
@@ -498,13 +500,16 @@ async function play() {
   try {
     if (!roomModulePromise) roomModulePromise = context.audioWorklet.addModule(new URL('./reverb-worklet.js?v=20261014-room2', import.meta.url));
     await roomModulePromise;
+    await prepareHrtf(context);
   } catch (error) {
     roomModulePromise = null;
-    fileStatus.textContent = "Reverb engine unavailable. Reload in a browser with AudioWorklet support.";
+    if (requestToken !== playbackToken) return;
+    fileStatus.textContent = PREVIEW_PREPARATION_ERROR;
     console.error(error);
     return;
   }
   if (requestToken !== playbackToken) return;
+  if (fileStatus.textContent === PREVIEW_PREPARATION_ERROR) fileStatus.textContent = sourceFileLabel;
   stopPlaybackNodes();
 
   source = context.createBufferSource();
@@ -535,7 +540,7 @@ async function play() {
     const processor = createDistanceProcessor(context, distanceInput, panner, null, true);
     panner.connect(previewMaster);
     source.connect(splitter);
-    panners.push({ node: panner, spread });
+    panners.push({ node: panner, spread, position: createPreviewPosition(panner) });
     distanceProcessors.push(processor);
   }
 
@@ -760,10 +765,8 @@ function updatePreview(t, immediate = false) {
     roomNode.parameters.get('send')[method](roomSend(settings, distance, t), ...args);
     roomNode.parameters.get('decay')[method](settings.decay, ...args);
   }
-  panners.forEach(({ node, spread }) => {
-    const radians = ((angle + spread) % 360) * Math.PI / 180;
-    const radius = 1 + distance * 3.5;
-    setPannerPosition(node, Math.sin(radians) * radius, 0, -Math.cos(radians) * radius, immediate);
+  panners.forEach(({ spread, position }) => {
+    position(angle + spread, 1 + distance * 3.5, audioContext.currentTime, immediate);
   });
   distanceProcessors.forEach((processor) => processor.update(
     distance,
@@ -771,20 +774,6 @@ function updatePreview(t, immediate = false) {
     audioContext.currentTime,
     immediate
   ));
-}
-
-function setPannerPosition(node, x, y, z, immediate = false) {
-  if (node.positionX && node.positionY && node.positionZ) {
-    const method = immediate ? "setValueAtTime" : "setTargetAtTime";
-    const args = immediate ? [audioContext.currentTime] : [audioContext.currentTime, 0.025];
-    node.positionX[method](x, ...args);
-    node.positionY[method](y, ...args);
-    node.positionZ[method](z, ...args);
-    return;
-  }
-  if (typeof node.setPosition === "function") {
-    node.setPosition(x, y, z);
-  }
 }
 
 let renderController = null;

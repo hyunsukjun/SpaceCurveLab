@@ -349,3 +349,10 @@ Space transport verification also exposed a pre-existing paused-seek ownership r
 ## Safe decoded input admission (2026-10-29)
 
 IMPLEMENTED, USER-AUTHORIZED RELEASE. Reject empty/invalid decoded audio and nonfinite PCM before source adoption. A failed import retains the previous valid source and its editing/IR/analysis state; a later valid file recovers. Finite PCM and existing DSP/limits remain unchanged. See [input contract](INPUT_VALIDATION.md).
+
+
+## Space Preview cause separation and local fix — 2026-10-29
+
+Space Preview now awaits HRTF preparation before fresh playback and smooths angle/radius instead of a Cartesian chord. Existing musical mappings and render path retained. Local non-listening verification only; rapid-pan noise remains partially unresolved.
+
+See [scope, measurements and remaining limits](PREVIEW_SPATIAL_2026-10-29.md). Baseline e2849f1. User approved commit/deployment on2026-10-29; publication evidence is separate. Residual HRTF work remains parked.

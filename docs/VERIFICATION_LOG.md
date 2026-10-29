@@ -286,3 +286,10 @@ Scoped UI release approved after local review. Space: same-data before/after at 
 ## 2026-10-28 — Engine caption visibility follow-up
 
 Local IAB before/after at actual CSS widths1440/900/390px retains the same seven fields and values; only the Engine caption becomes WAV routing. Input, headphone Preview, channel selector and status computation remain. All JavaScript/DSP bytes match the prior release. Actual Brave final confirmation, native zoom, listening, Windows/touch and WAV export are not newly certified.
+
+
+## Space Preview cause separation and local fix — 2026-10-29
+
+Local pre-commit checks:48 stage-isolation captures,48 readiness captures,80 actual-app before/after captures,12 focused command checks and6 lifecycle scenarios pass as scoped. Actual WAV downloads12: Chrome3/3 byte-pair matches; Brave metadata/shape only, not byte identity. Rapid-motion transition energy reduced but not eliminated. No listening, Safari/Firefox/Windows, physical-device or deployment certification.
+
+See [scope, measurements and remaining limits](PREVIEW_SPATIAL_2026-10-29.md). Baseline e2849f1. User approved commit/deployment on2026-10-29; publication evidence is separate. Residual HRTF work remains parked.

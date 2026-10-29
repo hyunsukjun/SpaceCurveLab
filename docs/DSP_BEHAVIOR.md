@@ -269,3 +269,10 @@ Browser visual inspection, default playback/pause and download pass with no cons
 ## 10 ms playback boundary candidate — 2026-10-25
 
 The current local candidate supersedes earlier automatic transport-boundary durations with the [10 ms playback/WAV contract](PLAYBACK_BOUNDARY.md). Source/effect envelopes are separate. See that contract for pause-state retention, existing tail-length limits and verification status. Uncommitted; listening acceptance pending.
+
+
+## Space Preview cause separation and local fix — 2026-10-29
+
+Preview-only change: same HRTF,25ms smoothing time and musical angle/radius mapping; smooth accumulated angle and positive radius before conversion to XYZ. Startup waits for offline HRTF preparation, without fixed sleep or live source preroll. Distance, room,10ms boundaries, gain, layouts and WAV DSP retain baseline bytes. Transient trajectory changes intentionally; residual HRTF grit and frame-rate control limits remain open.
+
+See [scope, measurements and remaining limits](PREVIEW_SPATIAL_2026-10-29.md). Baseline e2849f1. User approved commit/deployment on2026-10-29; publication evidence is separate. Residual HRTF work remains parked.

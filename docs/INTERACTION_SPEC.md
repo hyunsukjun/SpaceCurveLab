@@ -288,3 +288,10 @@ APPROVED WEB UI. The native Shortcuts disclosure reuses file-information behavio
 ## Failed input retains the valid source (2026-10-29)
 
 Supersedes earlier failed-decode behavior that cleared a source. File attempts still stop playback; rejected candidates do not reset source edits/window/curves or replace waveform/IR/analysis. Show the error and prior-source availability; do not autoplay. Completed old WAV availability follows unchanged source/settings; invalidate it on successful replacement. See [input contract](INPUT_VALIDATION.md).
+
+
+## Space Preview cause separation and local fix — 2026-10-29
+
+Play may wait for real HRTF preparation completion before advancing playback. Stop/seek/replacement/newer Play cancel stale pending requests. Failure can retry. Pause retains the existing source/graph and suspended audio clock. Existing curve gestures and time axis are unchanged.
+
+See [scope, measurements and remaining limits](PREVIEW_SPATIAL_2026-10-29.md). Baseline e2849f1. User approved commit/deployment on2026-10-29; publication evidence is separate. Residual HRTF work remains parked.
