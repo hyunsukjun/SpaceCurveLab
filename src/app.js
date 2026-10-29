@@ -6,7 +6,7 @@ import {analyzeSourceColors} from "./source-colors.js";
 import {summarizeChannels,paintEnvelope,peakOf,paintToneLegend} from "./source-envelope.js";
 import { roomSend } from './reverb-core.js?v=20261014-room2';
 import {mountTransport} from "./common-transport.js?v=20261013-1";
-import { readAudioFile } from "./audio-import.js?v=20261011-aiff1";
+import { readAudioFile, validateAudioBuffer } from "./audio-import.js?v=20261029-input-validation1";
 import { createDistanceProcessor } from "./distance-engine.js?v=20261014-room2";
 import { renderSpatialWavAsync } from "./render-client.js?v=20261025-fade10";
 import { prepareRenderBuffer, RENDER_SAMPLE_RATE } from "./render-preparation.js?v=20261006-worker-01";
@@ -128,6 +128,7 @@ const defaults = {
 let activeCurve = "direction";
 let audioContext;
 let buffer = null;
+let sourceFileLabel = "";
 let waveform = [];
 let sourceColors=null,sourceRaster=null;
 let source = null;
@@ -344,6 +345,7 @@ async function loadAudioFile(file, { request = null } = {}) {
   if (!file) return;
   const sourceRequest = request || sourceLoadGate.begin();
   if (!sourceRequest.current()) return;
+  const previousDownloadStatus = downloadReadout.textContent;
   stop();
   fileStatus.textContent = "Loading audio";
   playButton.disabled = true;
@@ -354,16 +356,16 @@ async function loadAudioFile(file, { request = null } = {}) {
     const context = getAudioContext();
     const arrayBuffer = await readAudioFile(file, context.sampleRate);
     const decodedBuffer = await decodeAudioBuffer(context, arrayBuffer);
+    await validateAudioBuffer(decodedBuffer, { signal: sourceRequest.signal, isCurrent: sourceRequest.current });
     if (!sourceRequest.current()) return;
     installAudioBuffer(decodedBuffer, `${file.name} - ${decodedBuffer.duration.toFixed(2)} s · ${decodedBuffer.numberOfChannels} ch`);
   } catch (error) {
     if (!sourceRequest.current()) return;
-    buffer = null;
-    waveform = [];
-    inputReadout.textContent = "mono/stereo";
-    fileStatus.textContent = error.message?.startsWith("AIFF:") ? error.message : "Cannot decode audio file";
-    setExportStatus("not ready");
-    updateTime(0);
+    const message = /^(AIFF:|Audio input:)/.test(error.message || "") ? error.message : "Cannot decode audio file";
+    fileStatus.textContent = `${message}${buffer ? ` Previous audio remains available: ${sourceFileLabel}` : ""}`;
+    setExportStatus(buffer ? previousDownloadStatus : "not ready");
+    playButton.disabled = stopButton.disabled = downloadButton.disabled = seekDisabled = !buffer;
+    updateTime(pauseAt);
     console.error(error);
   }
   drawAll();
@@ -392,6 +394,7 @@ function installAudioBuffer(audioBuffer, label) {
   analyzeSourceColors(audioBuffer,colors=>{if(buffer===audioBuffer){sourceColors=colors;drawWave(currentTimeNorm());}});
   inputReadout.textContent = buffer.numberOfChannels === 1 ? "mono" : "stereo";
   fileStatus.textContent = label;
+  sourceFileLabel = label;
   playButton.disabled = false;
   stopButton.disabled = false;
   seekDisabled = false;

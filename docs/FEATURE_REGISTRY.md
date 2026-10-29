@@ -345,3 +345,7 @@ IMPLEMENTED / USER-APPROVED WEB UI. Keep the existing dynamic engineReadout valu
 Use the approved shared Bach mallet MP3 in the role documented in [default source](DEFAULT_SOURCE.md). The previous45-second mono noise example is replaced by this15-second stereo input. The input label reports stereo; existing stereo spatial routing, speaker layouts, output channel choices and channel order are unchanged. DSP and musical mappings are unchanged.
 
 Space transport verification also exposed a pre-existing paused-seek ownership race: an old source end event could stop the new Play when the context resumed. Retired source callbacks are cleared on both faded and immediate cleanup. Active natural end and audio graph/DSP are unchanged. The failing-before/passing-after test is `tests/source-node-ownership.mjs`.
+
+## Safe decoded input admission (2026-10-29)
+
+IMPLEMENTED, USER-AUTHORIZED RELEASE. Reject empty/invalid decoded audio and nonfinite PCM before source adoption. A failed import retains the previous valid source and its editing/IR/analysis state; a later valid file recovers. Finite PCM and existing DSP/limits remain unchanged. See [input contract](INPUT_VALIDATION.md).
