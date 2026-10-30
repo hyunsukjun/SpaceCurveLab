@@ -286,3 +286,10 @@ The previous release could drop abruptly before its intended 10 ms ramp. The can
 ## Output sample-peak guard — 2026-10-30 (local review)
 
 Supersedes historical no-output-protection statements only. Linked0.98 Preview sample ceiling,instant attack/60ms recovery,no new latency; below-ceiling unity history stays unchanged. Nonfinite processed output stops/reports with explicit retry recovery. Space WAV/global normalization,HRTF/room/mapping/time remain unchanged. See [policy,evidence and unverified listening limits](OUTPUT_PEAK_PROTECTION_2026-10-30.md). Not committed/deployed; no Native implementation.
+
+
+## Preview position scheduling history — 2026-10-31
+
+The preview controller owns the last X/Z Float32 curve tables and their start time per panner. At each normal target update it retires the previous active curve and explicitly anchors its interpolated boundary value,then submits the unchanged next polar-smoothing curve at that same time. Initial/immediate position resets clear this bookkeeping. It applies from panner creation,including seek-created graphs,without a resume-only arming hook.
+
+Direction/Distance mappings,25ms smoothing,response samples,stereo spread,source time,retained pause/filter/room state,10ms playback envelopes and48kHz/24-bit WAV rendering are unchanged. The scheduler is a preview-platform remedy,not a new HRTF kernel or a claim that every motion-noise report is resolved. See [bounded release validation](POSITION_HISTORY_RELEASE_2026-10-31.md).

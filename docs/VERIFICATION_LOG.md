@@ -308,3 +308,8 @@ Supersedes historical no-output-protection statements only. Linked0.98 Preview s
 ## Output protection pre-release recheck — 2026-10-30
 
 Reviewed candidate runtime matched its recorded hashes. Native guard8 browser/rate/level cases preserved first-nonzero frame and linked stereo ratios. Actual Space8 before/after captures: quiet fixed peak unchanged, hot moving+room peak about4.9957→0.980000019, finite. Context startup/scheduling varies between captures; this is not hardware latency equivalence.4 lifecycle runs retain source/room/panner/guard during Pause/resume,3repeat cycles and playing rewind/natural end.12 actual2/4/8ch WAV saves preserve format/length; Chrome3 baseline byte pairs exact, Brave byte identity not claimed.13current focused suites and actual guard fail-closed test pass. Historical fixture failure and independent baseline renewal recorded. No listening acceptance.
+
+
+## Position history release — 2026-10-31
+
+Authorized Space-only integration of retained X/Z curve scheduling at normal target times from graph creation,including initial/seek/resume paths. Original mapping,25ms smoothing,source/room lifecycle and WAV graph unchanged. Product-root11focused groups/18browser controls/24actualWAVpairs/2cancel-recovery-reopen pass. Identical-source prior48native numeric cases and4loaded180s cases/958cycles retained as bounded evidence. No listening/device/Native acceptance or allHRTF-noise resolution. See [release scope](POSITION_HISTORY_RELEASE_2026-10-31.md).

@@ -448,3 +448,8 @@ Supersedes historical no-output-protection statements only. Linked0.98 Preview s
 ## Output protection release authorization — 2026-10-30
 
 The user approved verification, commit and public deployment of the reviewed output-protection candidate. Source processing, parameter mappings, spatial/channel rules and time axes remain unchanged. Protection may alter dynamics when engaged; this is not listening, physical-device or full-product acceptance. Publication proof is tracked separately in Interface QA `space-spectral-output-release-20261030`.
+
+
+## Position history release — 2026-10-31
+
+Authorized Space-only integration of retained X/Z curve scheduling at normal target times from graph creation,including initial/seek/resume paths. Original mapping,25ms smoothing,source/room lifecycle and WAV graph unchanged. Product-root11focused groups/18browser controls/24actualWAVpairs/2cancel-recovery-reopen pass. Identical-source prior48native numeric cases and4loaded180s cases/958cycles retained as bounded evidence. No listening/device/Native acceptance or allHRTF-noise resolution. See [release scope](POSITION_HISTORY_RELEASE_2026-10-31.md).

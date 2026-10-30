@@ -39,6 +39,7 @@ const toward = (value, target, elapsed) => target + (value - target) * Math.exp(
 
 export function createPreviewPosition(node) {
   let state;
+  const scheduled = new Map();
   const automated = node.positionX && node.positionY && node.positionZ;
   return (degrees, radius, time, immediate = false) => {
     if (!automated) {
@@ -47,6 +48,7 @@ export function createPreviewPosition(node) {
       return;
     }
     if (!state || immediate) {
+      scheduled.clear();
       state = { angle: degrees, radius, targetAngle: degrees, targetRadius: radius, time };
       for (const [param, value] of [[node.positionX, Math.sin(degrees * Math.PI / 180) * radius], [node.positionY, 0], [node.positionZ, -Math.cos(degrees * Math.PI / 180) * radius]]) {
         param.cancelScheduledValues(time);
@@ -70,8 +72,20 @@ export function createPreviewPosition(node) {
     }
     // Smooth the angle on the circle, rather than XYZ along a chord through the listener.
     for (const [param, values] of [[node.positionX, x], [node.positionZ, z]]) {
-      param.cancelAndHoldAtTime(time);
+      const previous = scheduled.get(param);
+      if (previous) {
+        const index = Math.max(0, Math.min(previous.values.length - 1,
+          (time - previous.start) / HORIZON * (previous.values.length - 1)));
+        const lower = Math.floor(index), upper = Math.min(previous.values.length - 1, lower + 1);
+        const held = previous.values[lower] + (previous.values[upper] - previous.values[lower]) * (index - lower);
+        // Retire the consumed curve at the normal target time, including fresh/seek graphs.
+        param.cancelScheduledValues(previous.start);
+        param.setValueAtTime(held, time);
+      } else {
+        param.cancelAndHoldAtTime(time);
+      }
       param.setValueCurveAtTime(values, time, HORIZON);
+      scheduled.set(param, { values, start: time });
     }
   };
 }

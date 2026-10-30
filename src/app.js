@@ -1,4 +1,4 @@
-import {prepareHrtf, createPreviewPosition} from './preview-spatial.js?v=20261029-preview1';
+import {prepareHrtf, createPreviewPosition} from './preview-spatial.js?v=20261030-entry-history1';
 import {schedulePreviewEnvelope, releasePreviewEnvelope} from './preview-envelope.js?v=20261029-anchor1';
 import {createSourceLoadGate, fetchDefaultSource} from "./default-source.js?v=20261029-bach1";
 import {beginVerticalGroup, moveVerticalGroup, restoreVerticalGroup, verticalGroupSuffix, drawVerticalGroupRing} from "./curve-group-edit.js?v=20261027-shift1";

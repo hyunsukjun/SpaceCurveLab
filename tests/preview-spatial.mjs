@@ -20,7 +20,9 @@ for(const [from,to,r] of [[-90,90,1],[170,-170,4.5],[-1800,1800,1],[1800,-1800,4
  assert(Math.abs(x[1].at(-1)-Math.sin(end)*r)<1e-6,'25 ms angle response and accumulated turns retained');
 }
 const p=node(),position=createPreviewPosition(p);position(0,1,0,true);position(90,4.5,.01);position(-90,1,.02);
-assert.equal(p.positionX.events.filter(e=>e[0]==='hold').length,2,'replace live automation with held value');
+assert.equal(p.positionX.events.filter(e=>e[0]==='hold').length,1,'first curve uses original hold; later curves retire retained table');
+assert(p.positionX.events.some(e=>e[0]==='cancel'&&e[1]===.01),'retire the previous active curve');
+position(45,2,.03,true);position(90,2,.04);assert.equal(p.positionX.events.filter(e=>e[0]==='hold').length,2,'immediate reset discards old schedule bookkeeping');
 let legacy;createPreviewPosition({setPosition(...v){legacy=v;}})(90,1,0,true);assert(Math.abs(legacy[0]-1)<1e-10);
 
 let renders=0,resolveRender,fail=false;
